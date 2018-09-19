@@ -1,18 +1,15 @@
 /*
 ** EPITECH PROJECT, 2018
-** ProjAudio
+** babel
 ** File description:
-** Client.h
+** Network.h
 */
 
 #pragma once
 
 namespace babel {
 
-class Client {
-public:
-
-private:
+class INetwork {
 
 };
 

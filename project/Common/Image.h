@@ -1,18 +1,15 @@
 /*
 ** EPITECH PROJECT, 2018
-** ProjAudio
+** babel
 ** File description:
-** Server.h
+** Image.h
 */
 
 #pragma once
 
 namespace babel {
 
-class Server {
-public:
-
-private:
+struct Image {
 
 };
 
