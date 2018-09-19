@@ -1,0 +1,5 @@
+*moc*
+*.user*
+*.exe
+Client
+!*.a

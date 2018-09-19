@@ -1,0 +1,8 @@
+  NEEDED               libQt5Widgets.so.5
+  NEEDED               libQt5Gui.so.5
+  NEEDED               libQt5Network.so.5
+  NEEDED               libQt5Core.so.5
+  NEEDED               libstdc++.so.6
+  NEEDED               libm.so.6
+  NEEDED               libgcc_s.so.1
+  NEEDED               libc.so.6
