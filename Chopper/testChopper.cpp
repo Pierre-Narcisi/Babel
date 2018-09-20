@@ -5,6 +5,18 @@
 
 int main()
 {
+	CC::Chopper		ch({
+		.onCommandReceived = [] (CC::Chopper::ByteArray &bytes) {
+			std::cout << "bytes length = " << bytes.length << " --> ";
+			for (std::uint32_t i = 0; i < bytes.length; i++) {
+				std::cout << (char) bytes.buffer[i];
+			}
+		},
+		.onPacketNeedToBeSend = [&ch] (std::uint8_t *buffer, std::size_t l) {
+			std::cout << "packet (len = " << l << ") -> sended" << std::endl;
+			ch.receivePacket(buffer, l);
+		}
+	});
 	CC::Chopper::ByteArray	test;
 	
 	test.buffer = (std::uint8_t*) malloc(64);
@@ -15,24 +27,28 @@ int main()
 	}
 
 	std::cout << "Chop array :" << std::endl;
-	auto vec = CC::Chopper::chop(test);
+	// auto vec = CC::Chopper::chop(test);
 
-	for (auto &itm: *vec) {
-		std::cout 	<< itm.header->packet_index << " of "
-				<< itm.header->packet_max
-				<< " -- length = " << itm.header->packet_length
-				<< " data = ";
-		for (int i = 0; i < itm.header->packet_length; i++) {
-			std::cout << (char) itm.getData()[i];
-		}
-		std::cout << std::endl;
-	}
+	// for (auto &itm: *vec) {
+	// 	std::cout 	<< "id = " << itm.header->id << " "
+	// 			<< itm.header->packet_index << " of "
+	// 			<< itm.header->packet_max
+	// 			<< " -- length = " << itm.header->packet_length
+	// 			<< " data = ";
+	// 	for (int i = 0; i < itm.header->packet_length; i++) {
+	// 		std::cout << (char) itm.getData()[i];
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 
-	std::cout << std::endl << "Repack array :" << std::endl;
-	auto bytes = CC::Chopper::pack(*vec);
-	std::cout << "bytes length = " << bytes->length << " --> ";
-	for (std::uint32_t i = 0; i < bytes->length; i++) {
-		std::cout << (char) bytes->buffer[i];
-	}
+	ch.sendCommand(test.buffer, test.length);
+
+	// std::cout << std::endl << "Repack array :" << std::endl;
+	// for (auto &itm: *vec) {
+	// 	auto pack = std::make_shared<CC::Chopper::Packet>(itm);
+
+	// 	ch.receivePacket(pack);
+	// }
+	
 	std::cout << std::endl;
 }

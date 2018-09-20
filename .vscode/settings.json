@@ -49,6 +49,7 @@
 		"utility": "cpp",
 		"cstring": "cpp",
 		"new": "cpp",
-		"algorithm": "cpp"
+		"algorithm": "cpp",
+		"deque": "cpp"
 	}
 }
