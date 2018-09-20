@@ -6,6 +6,27 @@
 #include <unordered_map>
 #include <memory>
 
+class Bdd;
+
+template<typename T>
+class BddArray : public std::vector<T> {
+public:
+	BddArray<T>(Bdd &bdd): _bdd{bdd} {}
+
+	template<typename U>
+	BddArray<U> deserialize(U (*deserializer)(T const &)) const
+	{
+		BddArray<U> arr{_bdd};
+
+		for (auto const &e : *this) {
+			arr.push_back(deserialize(e));
+		}
+		return arr;
+	}
+private:
+	Bdd	&_bdd;
+};
+
 class Bdd {
 private:
 	class IChamp {};
@@ -13,35 +34,35 @@ private:
 	template<typename T>
 	class Champ : public IChamp {
 	public:
-		Champ(Bdd &bdd): _bdd{bdd} {}
-
-		void print(T t)
-		{
-			std::cout << t << std::endl;
-		}
+		Champ(Bdd &bdd): _bdd{bdd}, _datas{bdd} {}
 
 		template<typename TT = T>
 		void put(TT &&t)
 		{
-			_t = t;
+			_datas.push_back(t);
 		}
 
-		T &get()
+		T const &operator[](size_t i) const
 		{
-			return _t;
+			return _datas[i];
+		}
+
+		BddArray<T> const &getAll() const
+		{
+			return _datas;
 		}
 
 	private:
 		Bdd	&_bdd;
-		T	_t;
+		BddArray<T> _datas;
 	};
 
 public:
-	template<typename T>
-	using serializer_t = void (*)(T &&, Bdd &);
+	template<typename T, typename ...Args>
+	using serializer_t = void (*)(T &&, Bdd &, Args...);
 
-	template<typename T>
-	using deserializer_t = T (*)(Bdd &);
+	template<typename T, typename ...Args>
+	using deserializer_t = T (*)(Bdd &, Args...);
 
 public:
 	template<typename T>
@@ -59,27 +80,27 @@ public:
 		}
 	}
 
-	template<typename T>
-	void setSerializer(serializer_t<T> serializer)
+	template<typename T, typename ...Args>
+	void setSerializer(serializer_t<T, Args...> serializer)
 	{
 		_serializers[typeid(T).name()] = reinterpret_cast<void *>(serializer);
 	}
 
-	template<typename T>
-	void setDeserializer(deserializer_t<T> deserializer)
+	template<typename T, typename ...Args>
+	void setDeserializer(deserializer_t<T, Args...> deserializer)
 	{
 		_deserializers[typeid(T).name()] = reinterpret_cast<void *>(deserializer);
 	}
 
-	template<typename T>
-	void serialize(T &&t)
+	template<typename T, typename ...Args>
+	void serialize(T &&t, Args &&...args)
 	{
-		reinterpret_cast<serializer_t<T>>(_serializers[typeid(T).name()])(std::forward<T>(t), *this);
+		reinterpret_cast<serializer_t<T, Args...>>(_serializers[typeid(T).name()])(std::forward<T>(t), *this, args...);
 	}
-	template<typename T>
-	T deserialize()
+	template<typename T, typename ...Args>
+	T deserialize(Args &&...args)
 	{
-		return reinterpret_cast<deserializer_t<T>>(_deserializers[typeid(T).name()])(*this);
+		return reinterpret_cast<deserializer_t<T, Args...>>(_deserializers[typeid(T).name()])(*this, args...);
 	}
 
 
@@ -90,14 +111,14 @@ private:
 };
 
 template<typename T = int>
-void serializeInt(T &&t, Bdd &bdd)
+void serializeInt(T &&t, Bdd &bdd, int i)
 {
-	bdd.get<std::string>().put(std::to_string(t));
+	bdd.get<std::string>().put(std::to_string(t + i));
 }
 
-int deserializeInt(Bdd &bdd)
+int deserializeInt(Bdd &bdd, int &i)
 {
-	return std::stoi(bdd.get<std::string>().get());
+	return std::stoi(bdd.get<std::string>()[0]) - i;
 }
 
 struct A {
@@ -118,7 +139,7 @@ void serializeA(T &&t, Bdd &bdd)
 }
 A deserializeA(Bdd &bdd)
 {
-	std::stringstream sstr{bdd.get<B>().get().str};
+	std::stringstream sstr{bdd.get<B>()[0].str};
 	char c;
 	A a;
 	sstr >> a.f >> c >> a.i;
@@ -129,22 +150,19 @@ int main()
 {
 	Bdd b;
 
-	b.get<int>().print(42);
-	b.get<int>().print(33);
-	b.get<std::string>().print("coucou");
-	std::cout << "------------" << std::endl;
+	b.get<>()
+	// b.setSerializer<int, int>(serializeInt);
+	// b.setDeserializer<int, int&>(deserializeInt);
+	// b.serialize(42, 12);
+	// int i = 42;
+	// std::cout << b.deserialize<int>(i) << std::endl;
 
-	b.setSerializer<int>(serializeInt);
-	b.setDeserializer<int>(deserializeInt);
-	b.serialize(42);
-	std::cout << b.deserialize<int>() << std::endl;
+	// std::cout << "------------" << std::endl;
 
-	std::cout << "------------" << std::endl;
+	// b.setSerializer<A>(serializeA);
+	// b.setDeserializer<A>(deserializeA);
 
-	b.setSerializer<A>(serializeA);
-	b.setDeserializer<A>(deserializeA);
-
-	b.serialize(A{32, 55.31});
-	A a = b.deserialize<A>();
-	std::cout << a.i << " " << a.f << std::endl;
+	// b.serialize(A{32, 55.31});
+	// A a = b.deserialize<A>();
+	// std::cout << a.i << " " << a.f << std::endl;
 }
