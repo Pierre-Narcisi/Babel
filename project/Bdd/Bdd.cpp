@@ -1,54 +1,71 @@
 /*
 ** EPITECH PROJECT, 2018
-** BDD
+** babel
 ** File description:
-** Bdd.cpp
+** Bdd.tpp
 */
-
-#include <iostream>
 
 #include "Bdd.h"
 
-struct A {
-	friend std::ostream &operator<<(std::ostream &os, A const &a)
-	{
-		return os << a.i;
-	}
-	int i;
-};
+namespace bdd {
 
-int main()
+void Bdd::createTable(std::string const &tableName, std::vector<std::pair<std::string, Data::Type>> const &descriptions)
 {
-	bdd::Bdd<A> bddA;
+	_tables.emplace(tableName, Table{*this});
+	for (auto e : descriptions) {
+		_tables.at(tableName).setDescription(e.first, e.second);
+	}
+}
 
-	// auto idx = bddA.insert(A{42});
+Bdd::Table &Bdd::operator[](std::string const &tableName)
+{
+	if (_tables.find(tableName) == _tables.end()) {
+		throw std::runtime_error{"error : table \"" + tableName + "\" not found"};
+	}
+	return _tables.at(tableName);
+}
 
-	auto idx1 = bddA.insert(A{10});
-	auto idx2 = bddA.insert(A{11});
-	auto idx3 = bddA.insert(A{12});
-	auto idx4 = bddA.insert(A{13});
+std::ostream &operator<<(std::ostream &os, Bdd const &bdd)
+{
+	for (auto const &e : bdd._tables) {
+		os << "\"" << e.first << "\": " << e.second << "\n";
+	}
+	return os;
+}
 
-	std::cout << "Bdd:\n" << bddA << std::endl;
+void Bdd::Table::setDescription(std::string const &dataName, Data::Type type)
+{
+	if (_description.find(dataName) != _description.end() && _description.at(dataName) != type) {
+		throw std::runtime_error{"DataType already set"};
+	}
+	_description[dataName] = type;
+}
 
-	bddA.erase(idx2);
-	std::cout << "Bdd:\n" << bddA << std::endl;
-	bddA.erase(idx1);
-	std::cout << "Bdd:\n" << bddA << std::endl;
-	bddA.erase(idx4);
-	std::cout << "Bdd:\n" << bddA << std::endl;
+size_t Bdd::Table::newElement()
+{
+	_elements.push_back({_description});
+	return _elements.size() - 1;
+}
 
-	// bddA.erase(-1);
 
-	// std::cout << idx << "  " << bddA[idx].i << std::endl;
-	// bddA[idx].i -= 10;
-	// bddA.insert(A{24});
-	// bddA.insert(A{25});
-	// bddA.insert(A{26});
-	// std::cout << "Bdd:\n" << bddA << std::endl;
-	// std::cout << idx << "  " << bddA[idx].i << std::endl;
-	// bddA.erase(idx);
-	// std::cout << idx << "  " << bddA[idx].i << std::endl;
-	// bddA.erase(2);
-	// std::cout << "Bdd:\n" << bddA << std::endl;
-	// std::cout << idx << "  " << bddA[idx].i << std::endl;
+Bdd::Table::Element &Bdd::Table::operator[](size_t key)
+{
+	return _elements.at(key);
+}
+
+Bdd::Table::Element::Element(std::unordered_map<std::string, Data::Type> &description):
+_description{description}
+{}
+
+Data	&Bdd::Table::Element::operator[](std::string const &dataName)
+{
+	if (_description.find(dataName) == _description.end()) {
+		throw std::runtime_error{"get data : data \"" + dataName + "\" not found"};
+	}
+	if (_datas.find(dataName) == _datas.end()) {
+		_datas.emplace(dataName, _description.at(dataName));
+	}
+	return _datas.at(dataName);
+}
+
 }

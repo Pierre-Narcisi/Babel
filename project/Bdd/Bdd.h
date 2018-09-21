@@ -1,67 +1,112 @@
+/*
+** EPITECH PROJECT, 2018
+** babel
+** File description:
+** Bdd.h
+*/
 
 #pragma once
 
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <unordered_map>
+#include <memory>
+
+#include "BddData.h"
 
 namespace bdd {
 
-enum class ValueType { Number, String, Date };
-
-class BddManager;
-
-template<typename T, typename U>
-U defaultSerialize(T &&t, BddManager &)
-{
-	return U{t};
-}
-
-template<typename T, typename U>
-T defaultDeserialize(U const &u, BddManager &)
-{
-	return T{u};
-}
-
-template<
-	typename T,
-	typename U = T,
-	U (*Serialize)(T const &, BddManager &) = defaultSerialize,
-	T (*Deserialize)(U const &, BddManager &) = defaultDeserialize>
 class Bdd {
-public:
-	using index = long;
-	template<typename TT = T>
-	index	insert(TT &&);
-	void	erase(index);
+/* à plusieurs Table. ex: bdd["sushi"] ou bdd["vehicule"] */
+private:
 
-	T &operator[](index);
+	class Table {
+	/* à plusieurs Element. ex: bdd["sushi"][0] ou bdd["vehicule"][1] */
+	private:
 
-	friend std::ostream &operator<<(std::ostream &os, Bdd<T> const &bdd)
-	{
-		bool first = true;
-		os << "{";
-		for (auto const &e : bdd._values) {
-			if (!first)
-				os << ", ";
-			else
-				first = false;
-			os << "{" << e.first << ", {" << e.second << "}}";
+		class Element {
+		/* à plusieurs data. ex: bdd["sushi"][0]["riz"] ou bdd["vehicule"][0]["nb_roue"] */
+		public:
+			Element(std::unordered_map<std::string, Data::Type> &description);
+
+			Data &operator[](std::string const &dataName);
+
+			friend std::ostream &operator<<(std::ostream &os, Element const &element)
+			{
+				os << "{\n";
+				bool first = true;
+				for (auto const &e : element._datas) {
+					if (first == false) {
+						os << ",\n";
+					} else {
+						first = false;
+					}
+					switch (element._description[e.first]) {
+						case Data::Type::Number:
+							os << "    \"" << e.first << "\": " << e.second.to<Data::Number>();
+							break;
+						case Data::Type::Float:
+							os << "    \"" << e.first << "\": " << e.second.to<Data::Float>();
+							break;
+						case Data::Type::String:
+							os << "    \"" << e.first << "\": \"" << e.second.to<Data::String>() << "\"";
+							break;
+						// case Data::Type::Date:
+						// 	os << "    \"" << e.first << "\": " << asctime(localtime(&e.second.to<Data::Date>()));
+						// 	break;
+					}
+				}
+				return os << "\n  }";
+			}
+
+		private:
+			std::unordered_map<std::string, Data::Type>	&_description;
+			std::unordered_map<std::string, Data>		_datas;
+		}; /* class Element */
+
+	public:
+		Table(Bdd &bdd): _bdd{bdd} {}
+
+		void setDescription(std::string const &dataName, Data::Type type);
+
+		size_t newElement();
+
+		Element &operator[](size_t key);
+
+		friend std::ostream &operator<<(std::ostream &os, Table const &champ)
+		{
+			os << "{\n";
+			bool first = true;
+			for (auto i = 0; i < champ._elements.size(); ++i) {
+				if (first == false) {
+					os << ",\n";
+				} else {
+					first = false;
+				}
+				os << "  " << i << ": " << champ._elements[i];
+
+			}
+			return os << "\n}";
 		}
-		return os << "}";
-	}
 
-private:
-	std::vector<std::pair<index, T>> _values;
-};
+	private:
+		Bdd						&_bdd;
+		std::unordered_map<std::string, Data::Type>	_description;
+		std::vector<Element>				_elements;
+	}; /* class Table */
 
-class BddManager {
 public:
+
+	void createTable(std::string const &tableName, std::vector<std::pair<std::string, Data::Type>> const & = {});
+
+	Table &operator[](std::string const &tableName);
+
+	friend std::ostream &operator<<(std::ostream &os, Bdd const &bdd);
+
 private:
-	template<typename T, typename U = T, U (*Serialize)(T const &, BddManager &) = defaultSerialize, T (*Deserialize)(U const &, BddManager &) = defaultDeserialize>
-	Bdd<T, U, Serialize, Deserialize> bdd;
-};
+	std::unordered_map<std::string, Table>	_tables;
+}; /* class Bdd */
 
-}
-
-#include "Bdd.tpp"
+} /* namespace bdd */
