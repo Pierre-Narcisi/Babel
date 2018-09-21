@@ -15,12 +15,15 @@ namespace bdd {
 
 class AbstractData;
 
+struct Key;
+
 class Data {
 public:
-	enum class Type { Number = 0, Float = 1, String = 2/*, Date */};
+	enum class Type { Number, Float, String, Key/*, Date */};
 	using Number = long;
 	using Float = double;
 	using String = std::string;
+	using Key = bdd::Key;
 	// using Date = std::time_t;
 
 	Data(Type);
@@ -64,14 +67,22 @@ struct Float : public AbstractData {
 	bdd::Data::Float data;
 };
 
-struct String : public AbstractData {
-	String(bdd::Data::String const &str): data{str} {}
-
-	operator bdd::Data::String() { return data; }
+struct String : public AbstractData, public Data::String {
+	String(bdd::Data::String const &str): Data::String{str} {}
 
 	Data::Type getType() const override { return Data::Type::String; }
+};
 
-	bdd::Data::String	data;
+struct Key : public AbstractData {
+	Key(std::size_t key, std::string const &tableName):
+	key{key},
+	tableName{tableName}
+	{}
+
+	Data::Type getType() const override { return Data::Type::Key; }
+
+	std::size_t	key;
+	std::string	tableName;
 };
 
 // struct Date : public AbstractData {

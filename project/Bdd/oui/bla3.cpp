@@ -150,7 +150,7 @@ int main()
 {
 	Bdd b;
 
-	b.get<>()
+	b.get<B>();
 	// b.setSerializer<int, int>(serializeInt);
 	// b.setDeserializer<int, int&>(deserializeInt);
 	// b.serialize(42, 12);

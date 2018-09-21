@@ -21,6 +21,9 @@ bdd::Data::Data(Type type)
 		case Type::String:
 			_data = std::make_shared<bdd::String>(bdd::String{""});
 			break;
+		case Type::Key:
+			_data = std::make_shared<bdd::Key>(bdd::Key{0, ""});
+			break;
 		// case Type::Date:
 			// _data = std::make_shared<bdd::Date>(bdd::Date{time()});
 			// break;
@@ -54,6 +57,11 @@ bdd::Data::Data<char const *>(char const *str):
 _data{std::make_shared<bdd::String>(bdd::String{str})}
 {}
 
+template<>
+bdd::Data::Data<bdd::Key>(bdd::Key key):
+_data{std::make_shared<bdd::Key>(key)}
+{}
+
 // template<>
 // bdd::Data::Data<std::time_t>(std::time_t timestamp):
 // _data{std::make_shared<bdd::Date>(bdd::Date{timestamp})}
@@ -77,11 +85,19 @@ bdd::Data::Float	&bdd::Data::to<bdd::Data::Float>()
 	throw std::runtime_error{"to<Float> : error data type"};
 }
 template<>
-bdd::Data::String &bdd::Data::to<bdd::Data::String>()
+bdd::Data::String	&bdd::Data::to<bdd::Data::String>()
 {
 	if (_data->getType() == Data::Type::String)
-		return reinterpret_cast<bdd::String *>(_data.get())->data;
+		return *reinterpret_cast<bdd::String *>(_data.get());
 	throw std::runtime_error{"to<String> : error data type"};
+}
+
+template<>
+bdd::Data::Key		&bdd::Data::to<bdd::Data::Key>()
+{
+	if (_data->getType() == Data::Type::Key)
+		return *reinterpret_cast<bdd::Key *>(_data.get());
+	throw std::runtime_error{"to<Key> : error data type"};
 }
 
 // template<>
@@ -114,9 +130,18 @@ template<>
 bdd::Data::String const		&bdd::Data::to<bdd::Data::String>() const
 {
 	if (_data->getType() == Data::Type::String)
-		return reinterpret_cast<bdd::String *>(_data.get())->data;
+		return *reinterpret_cast<bdd::String *>(_data.get());
 	throw std::runtime_error{"to<String> : error data type"};
 }
+
+template<>
+bdd::Data::Key const		&bdd::Data::to<bdd::Data::Key>() const
+{
+	if (_data->getType() == Data::Type::Key)
+		return *reinterpret_cast<bdd::Key *>(_data.get());
+	throw std::runtime_error{"to<Key> : error data type"};
+}
+
 
 // template<>
 // bdd::Data::Date const	&bdd::Data::to<bdd::Data::Date>() const
