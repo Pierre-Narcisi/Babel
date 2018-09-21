@@ -1,6 +1,14 @@
 {
 	"files.associations": {
 		"*.tpp": "cpp",
+<<<<<<< HEAD
+		"array": "cpp",
+		"*.tcc": "cpp",
+		"cctype": "cpp",
+		"chrono": "cpp",
+		"clocale": "cpp",
+		"cmath": "cpp",
+=======
 		"*.t": "c",
 		"fstream": "cpp",
 		"array": "cpp",
@@ -14,12 +22,24 @@
 		"condition_variable": "cpp",
 		"cstdarg": "cpp",
 		"cstddef": "cpp",
+>>>>>>> 0282a587f445405c55cf4ab70dd477fc82a2b1e6
 		"cstdint": "cpp",
 		"cstdio": "cpp",
 		"cstdlib": "cpp",
 		"ctime": "cpp",
 		"cwchar": "cpp",
 		"cwctype": "cpp",
+<<<<<<< HEAD
+		"unordered_map": "cpp",
+		"vector": "cpp",
+		"exception": "cpp",
+		"fstream": "cpp",
+		"initializer_list": "cpp",
+		"iosfwd": "cpp",
+		"istream": "cpp",
+		"limits": "cpp",
+		"new": "cpp",
+=======
 		"list": "cpp",
 		"unordered_map": "cpp",
 		"vector": "cpp",
@@ -34,6 +54,7 @@
 		"memory": "cpp",
 		"mutex": "cpp",
 		"numeric": "cpp",
+>>>>>>> 0282a587f445405c55cf4ab70dd477fc82a2b1e6
 		"optional": "cpp",
 		"ostream": "cpp",
 		"ratio": "cpp",
@@ -42,11 +63,26 @@
 		"streambuf": "cpp",
 		"string_view": "cpp",
 		"system_error": "cpp",
+<<<<<<< HEAD
+=======
 		"thread": "cpp",
+>>>>>>> 0282a587f445405c55cf4ab70dd477fc82a2b1e6
 		"type_traits": "cpp",
 		"tuple": "cpp",
 		"typeinfo": "cpp",
 		"utility": "cpp",
+<<<<<<< HEAD
+		"list": "cpp",
+		"deque": "cpp",
+		"iostream": "cpp",
+		"condition_variable": "cpp",
+		"functional": "cpp",
+		"iomanip": "cpp",
+		"memory": "cpp",
+		"mutex": "cpp",
+		"thread": "cpp",
+		"algorithm": "cpp"
+=======
 		"cstring": "cpp",
 		"new": "cpp",
 		"algorithm": "cpp",
@@ -58,5 +94,6 @@
 		"csignal": "cpp",
 		"future": "cpp",
 		"typeindex": "cpp"
+>>>>>>> 0282a587f445405c55cf4ab70dd477fc82a2b1e6
 	}
 }
