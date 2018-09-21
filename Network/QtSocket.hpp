@@ -9,6 +9,7 @@
 
 #include <QTcpSocket>
 #include <QString>
+#include <exception>
 #include "INetwork.hpp"
 
 namespace nw {
@@ -25,37 +26,6 @@ public:
 private:
 	QTcpSocket	_socket;
 };
-
-TCPSocket::TCPSocket(QObject *parent):
-	_socket(parent) {}
-
-void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
-	_socket.connectToHost(QString::fromStdString(host), port);
-	if (_socket.waitForConnected()) {
-		std::cout << "connected" << std::endl;
-	} else {
-		std::cout << "failed to connect:" <<
-		_socket.errorString().toStdString() << std::endl;
-	}
-}
-
-std::size_t	TCPSocket::send(std::uint8_t *buff, std::size_t len) {
-	auto	wlen = _socket.write((char*) buff, len);
-
-	_socket.waitForBytesWritten();
-	return wlen;
-}
-
-std::size_t	TCPSocket::receive(std::uint8_t *buff, std::size_t len) {
-
-	auto	wlen = _socket.read((char*) buff, len);
-
-	return (wlen);
-}
-
-std::size_t	TCPSocket::available(void) const {
-	return _socket.bytesAvailable();
-}
 
 }
 }

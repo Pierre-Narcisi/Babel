@@ -14,7 +14,7 @@ int main() {
 	//auto			&sock = reinterpret_cast<nw::ISocket&>(__sock);
 	std::size_t		s;
 
-	sock.connect("127.0.0.1", 5555);
+	sock.connect("127.0.0.1", 5575);
 	sock.send((std::uint8_t*) "Salut\n", 6);
 	while (1) {
 		s = 1024;
