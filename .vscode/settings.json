@@ -50,6 +50,13 @@
 		"cstring": "cpp",
 		"new": "cpp",
 		"algorithm": "cpp",
-		"deque": "cpp"
+		"deque": "cpp",
+		"*.ipp": "cpp",
+		"bitset": "cpp",
+		"codecvt": "cpp",
+		"complex": "cpp",
+		"csignal": "cpp",
+		"future": "cpp",
+		"typeindex": "cpp"
 	}
 }
