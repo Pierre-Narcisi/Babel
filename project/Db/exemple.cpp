@@ -25,10 +25,10 @@ struct Sushi {
 	static Sushi deserializer(db::Element &element, db::Db &db)
 	{
 		return Sushi{
-			.repas = element["repas"].to<std::string>(),
-			.temps = element["temps"].to<float>(),
-			.riz = element["riz"].to<long>(),
-			.saumon = element["saumon"].to<int>()
+			.repas = element["repas"].as<std::string>(),
+			.temps = element["temps"].as<float>(),
+			.riz = element["riz"].as<long>(),
+			.saumon = element["saumon"].as<int>()
 		};
 	}
 };
@@ -42,7 +42,7 @@ struct Menu {
 	}
 	static Menu deserializer(db::Element &element, db::Db &db)
 	{
-		return Menu{element["name"].to<std::string>()};
+		return Menu{element["name"].as<std::string>()};
 	}
 };
 
@@ -58,13 +58,13 @@ struct Client {
 	static Client deserializer(db::Element &element, db::Db &db)
 	{
 		return Client{
-			.name = element["name"].to<std::string>(),
-			.menu = db.get<Menu>(element["menuChoisi"].to<db::Key>())
+			.name = element["name"].as<std::string>(),
+			.menu = db.get<Menu>(element["menuChoisi"].as<db::Key>())
 		};
 	}
 	static void remover(db::Element &element, db::Db &db)
 	{
-		db["menu"].remove(element["menuChoisi"].to<db::Key>());
+		db["menu"].remove(element["menuChoisi"].as<db::Key>());
 	}
 };
 
@@ -107,7 +107,7 @@ int main()
 
 	std::cout << db;
 
-	db::Array arr = db["sushi"].getAll().where([](db::Element const &e){return e["saumon"].to<int>() == 12;});
+	db::Array arr = db["sushi"].getAll().where([](db::Element const &e){return e["saumon"].as<int>() == 12;});
 
 	assert(arr.size() == 2);
 

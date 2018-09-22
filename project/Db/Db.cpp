@@ -64,7 +64,7 @@ void Table::setRemover(remover_t remover)
 
 void Table::remove(Key key)
 {
-	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].as<Key>() == key;});
 	if (elemIt == _elements.end()) {
 		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
 	}
@@ -77,7 +77,7 @@ void Table::remove_if(std::function<bool (Element const &)> const &func)
 {
 	for (auto e : _elements) {
 		if (func(e) == true) {
-			remove(e["primary_key"].to<Key>());
+			remove(e["primary_key"].as<Key>());
 		}
 	}
 }
@@ -92,7 +92,7 @@ Key Table::newElement()
 
 Element &Table::operator[](Key key)
 {
-	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].as<Key>() == key;});
 	if (elemIt == _elements.end()) {
 		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
 	}
@@ -152,13 +152,13 @@ std::ostream &operator<<(std::ostream &os, Element const &element)
 		}
 		switch (element._table.getDescription().at(e.first)) {
 			case Data::Type::Number:
-				os << "    \"" << e.first << "\": " << e.second.to<Data::Number>();
+				os << "    \"" << e.first << "\": " << e.second.as<Data::Number>();
 				break;
 			case Data::Type::Float:
-				os << "    \"" << e.first << "\": " << e.second.to<Data::Float>();
+				os << "    \"" << e.first << "\": " << e.second.as<Data::Float>();
 				break;
 			case Data::Type::String:
-				os << "    \"" << e.first << "\": \"" << e.second.to<Data::String>() << "\"";
+				os << "    \"" << e.first << "\": \"" << e.second.as<Data::String>() << "\"";
 				break;
 		}
 	}

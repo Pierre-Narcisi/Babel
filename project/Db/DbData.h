@@ -29,7 +29,7 @@ public:
 	Data(T t);
 
 	template<typename T>
-	T	to() const;
+	T	as() const;
 
 private:
 	std::shared_ptr<AbstractData> _data;
@@ -66,16 +66,6 @@ struct String : public AbstractData, public Data::String {
 
 	Data::Type getType() const override { return Data::Type::String; }
 };
-
-// struct Date : public AbstractData {
-// 	Date(Data::Date timestamp): data{timestamp} {}
-
-// 	operator Data::Date() { return data; }
-
-// 	Data::Type getType() const override { return Data::Type::Date; }
-
-// 	Data::Date data;
-// };
 
 } /* namespace Db */
 
