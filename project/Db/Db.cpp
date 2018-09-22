@@ -5,9 +5,23 @@
 ** Db.tpp
 */
 
+#include <algorithm>
+
 #include "Db.h"
 
 namespace db {
+
+Array Array::where(std::function<bool (Element const &)> const &func) const
+{
+	Array arr;
+
+	for (auto e : *this) {
+		if (func(e) == true) {
+			arr.push_back(e);
+		}
+	}
+	return arr;
+}
 
 Table &Db::operator[](std::string const &tableName)
 {
@@ -33,9 +47,39 @@ void Table::setDescription(std::string const &dataName, Data::Type type)
 	_description[dataName] = type;
 }
 
+Array &Table::getAll()
+{
+	return _elements;
+}
+
 std::unordered_map<std::string, Data::Type> const &Table::getDescription() const
 {
 	return _description;
+}
+
+void Table::setRemover(remover_t remover)
+{
+	_remover = remover;
+}
+
+void Table::remove(Key key)
+{
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	if (elemIt == _elements.end()) {
+		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
+	}
+	if (_remover)
+		_remover(*elemIt, _db);
+	_elements.erase(elemIt);
+}
+
+void Table::remove_if(std::function<bool (Element const &)> const &func)
+{
+	for (auto e : _elements) {
+		if (func(e) == true) {
+			remove(e["primary_key"].to<Key>());
+		}
+	}
 }
 
 Key Table::newElement()
@@ -48,20 +92,24 @@ Key Table::newElement()
 
 Element &Table::operator[](Key key)
 {
-	return _elements.at(key);
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	if (elemIt == _elements.end()) {
+		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
+	}
+	return *elemIt;
 }
 
-std::ostream &operator<<(std::ostream &os, Table const &champ)
+std::ostream &operator<<(std::ostream &os, Table const &table)
 {
 	os << "{\n";
 	bool first = true;
-	for (auto i = 0; i < champ._elements.size(); ++i) {
+	for (auto e : table._elements) {
 		if (first == false) {
 			os << ",\n";
 		} else {
 			first = false;
 		}
-		os << "  " << i << ": " << champ._elements[i];
+		os << "  "<< e;
 	}
 	return os << "\n}";
 }
@@ -79,6 +127,15 @@ Data	&Element::operator[](std::string const &dataName)
 	}
 	if (_datas.find(dataName) == _datas.end()) {
 		_datas.emplace(dataName, description.at(dataName));
+	}
+	return _datas.at(dataName);
+}
+
+Data const &Element::operator[](std::string const &dataName) const
+{
+	auto description = _table.getDescription();
+	if (_datas.find(dataName) == _datas.end()) {
+		throw std::runtime_error{"get data : data \"" + dataName + "\" not found"};
 	}
 	return _datas.at(dataName);
 }

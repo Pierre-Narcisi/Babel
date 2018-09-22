@@ -7,12 +7,12 @@
 
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <vector>
+#include <list>
 #include <string>
-#include <sstream>
 #include <unordered_map>
-#include <memory>
 
 #include "DbData.h"
 
@@ -29,21 +29,34 @@ using serializer_t = void (*)(T const &, Element &, db::Db &);
 template<typename T>
 using deserializer_t = T (*)(Element &, db::Db &);
 
+using remover_t = void (*)(Element &, db::Db &);
+
+class Array : public std::list<Element> {
+public:
+	Array where(std::function<bool (Element const &)> const &) const;
+};
+
 class Table {
 /* à plusieurs Element. ex: db["sushi"][0] ou db["vehicule"][1] */
 public:
-	Table(Db &db, std::string const &name): _bdd{db}, _name{name} {}
+	Table(Db &db, std::string const &name): _db{db}, _name{name} {}
 
 	void setDescription(std::string const &dataName, Data::Type type);
 
 	template<typename T>
 	void setSerializer(serializer_t<T> serializer);
-
 	template<typename T>
 	void setDeserializer(deserializer_t<T> deserializer);
 
+	void setRemover(remover_t remover);
+
+	void remove(Key key);
+	void remove_if(std::function<bool (Element const &)> const &func);
+
 	template<typename T>
 	T get(Key key);
+
+	Array &getAll();
 
 	std::unordered_map<std::string, Data::Type> const &getDescription() const;
 
@@ -54,11 +67,12 @@ public:
 	friend std::ostream &operator<<(std::ostream &os, Table const &champ);
 
 private:
-	Db						&_bdd;
+	Db						&_db;
 	std::string					_name;
+	remover_t					_remover = nullptr;
 	std::unordered_map<std::string, Data::Type>	_description;
-	std::vector<Element>				_elements;
-	Key					_lastElementKey = 0;
+	Array						_elements;
+	Key						_lastElementKey = 0;
 }; /* class Table */
 
 
@@ -71,14 +85,15 @@ public:
 		std::string const &tableName,
 		std::vector<std::pair<std::string, Data::Type>> const &descriptions,
 		serializer_t<T> serializer = nullptr,
-		deserializer_t<U> deserializer = nullptr);
+		deserializer_t<U> deserializer = nullptr,
+		remover_t remover = nullptr);
 
 
 	template<typename T>
 	void setSerializer(serializer_t<T> serializer, std::string const &tableName);
 	template<typename T>
 	void setDeserializer(deserializer_t<T> deserializer, std::string const &tableName);
-
+	
 	template<typename T>
 	T get(Key key);
 
@@ -101,7 +116,13 @@ class Element {
 public:
 	Element(Table &table);
 
+	Element(Element const &) = default;
+	Element &operator=(Element const &) = default;
+	Element(Element &&) = default;
+	Element &operator=(Element &&) = default;
+
 	Data &operator[](std::string const &dataName);
+	Data const &operator[](std::string const &dataName) const;
 
 	friend std::ostream &operator<<(std::ostream &os, Element const &element);
 
