@@ -11,6 +11,8 @@
 #include <boost/shared_ptr.hpp>
 #include "Network/BoostSocket.hpp"
 
+#include <iostream>
+
 namespace srv {
 
 class Client: public ::boost::enable_shared_from_this<Client> {
@@ -21,8 +23,8 @@ public:
 		return ptr(new Client(ios));
 	}
 
-	inline ::boost::asio::ip::tcp::socket
-			&getBoostSocket(void) { return _sock.getBoostSocket(); }
+	inline nw::boost::TCPSocket
+			&getSocket(void) { return _sock; }
 
 	void	start(void);
 private:

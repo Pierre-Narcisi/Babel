@@ -13,33 +13,34 @@
 namespace srv {
 
 using btcp = ::boost::asio::ip::tcp;
-
 CoreServer::CoreServer(int ac, char **av):
 	_args(std::make_unique<CoreArgs>(ac, av)),
 	_acceptor(_ios, btcp::endpoint(btcp::v4(), _args->port())) {}
 
 void CoreServer::start(void)
 {
-	std::cout << "Start listening on " << _args->port() << std::endl;
 	Client::ptr newClient = Client::create(_acceptor.get_io_service());
 
-	_acceptor.async_accept(newClient->getBoostSocket(),
+	_acceptor.listen();
+	_acceptor.async_accept(newClient->getSocket().getBoostSocket(),
 		boost::bind(&CoreServer::handleAccept, this, newClient,
 			boost::asio::placeholders::error));
+	_ios.run();
 }
 	
 void CoreServer::handleAccept(Client::ptr newClient, const boost::system::error_code& error)
 {
-	if (!error)
-	{
+	if (!error) {
 		std::cout << "New client connected" << std::endl;
 		newClient->start();
+		//newClient->getSocket().send((std::uint8_t*)"Salut :)\n", 9);
 		this->start();
+	} else {
+		throw std::runtime_error(error.message().c_str());
 	}
 }
 
 namespace po = ::boost::program_options;
-
 CoreServer::CoreArgs::CoreArgs(int ac, char **av) {
 	po::options_description	desc("Available options");
 
