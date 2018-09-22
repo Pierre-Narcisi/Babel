@@ -4,7 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/x86_64-linux-gnu/qt5/QtNetwork"
+                "${workspaceFolder}/project/Common/**",
+                "/usr/include/x86_64-linux-gnu/qt5/QtNetwork",
+                "/usr/include/c++/7",
+                "/usr/include/x86_64-linux-gnu/c++/7"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

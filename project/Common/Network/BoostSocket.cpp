@@ -10,7 +10,20 @@
 namespace nw {
 namespace boost {
 
-TCPSocket::TCPSocket(): _socket(_ios) {}
+TCPSocket::TCPSocket():
+	_ios(new ::boost::asio::io_service()),
+	_socket(*_ios),
+	_localIos(true) {}
+
+TCPSocket::TCPSocket(::boost::asio::io_service &ios):
+	_ios(&ios),
+	_socket(*_ios),
+	_localIos(false) {}
+
+TCPSocket::~TCPSocket() {
+	if (_localIos)
+		delete _ios;
+}
 
 void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
 	::boost::asio::ip::tcp::endpoint endpoint(::boost::asio::ip::address::from_string(host), port);
