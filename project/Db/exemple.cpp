@@ -114,7 +114,10 @@ int main()
 	db["sushi"].remove(keySushi2);
 	db["client"].remove(keyClient1);
 	
+	
 	std::cout << "---------------------------" << std::endl;
 	std::cout << db;
+
+	db.exportDb("bla.db");
 
 }

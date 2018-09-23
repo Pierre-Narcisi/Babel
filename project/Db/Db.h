@@ -102,6 +102,9 @@ public:
 
 	Table &operator[](std::string const &tableName);
 
+	void importDb(std::string const &);
+	void exportDb(std::string const &) const;
+
 	friend std::ostream &operator<<(std::ostream &os, Db const &db);
 
 private:

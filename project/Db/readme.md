@@ -63,3 +63,21 @@ key : key of the element you want
 db::Element::operator [] (dataName)
 give you the an data of the element.
 dataName : name of the data you want (you can modify it)
+
+## format export
+
+"tableName1":lastKey;elementNumber
+{"dataName1":dataFormat1;"dataName2":dataFormat2;...}
+{primaryKey;data1;data2;;data4;...}
+{primaryKey;data1;data2;;data4;...}
+... * elementNumber
+tableName2...
+
+where
+	tableName :: string
+	lastKey :: size_t
+	elementNumber :: size_t
+	dataName :: string
+	dataFormat :: String|Number|Float
+	primaryKey :: size_t
+	data :: "abcd"|42|30.30

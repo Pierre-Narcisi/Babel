@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+#include <fstream>
+
 #include "Db.h"
 
 namespace db {
@@ -31,10 +33,25 @@ Table &Db::operator[](std::string const &tableName)
 	return _tables.at(tableName);
 }
 
+void Db::importDb(std::string const &filename)
+{
+}
+
+void Db::exportDb(std::string const &filename) const
+{
+	std::ofstream file{filename};
+
+	if (file.fail()) {
+		std::cerr << "Fail to open filename";
+	} else {
+		file << *this;
+	}
+}
+
 std::ostream &operator<<(std::ostream &os, Db const &db)
 {
-	for (auto const &e : db._tables) {
-		os << "\"" << e.first << "\": " << e.second << "\n";
+	for (auto e : db._tables) {
+		os << e.second;
 	}
 	return os;
 }
@@ -101,17 +118,34 @@ Element &Table::operator[](Key key)
 
 std::ostream &operator<<(std::ostream &os, Table const &table)
 {
-	os << "{\n";
+	os << '\"' << table._name << "\":" << table._lastElementKey << ':' << table._elements.size() << '\n';
+	
 	bool first = true;
-	for (auto e : table._elements) {
-		if (first == false) {
-			os << ",\n";
-		} else {
-			first = false;
+	os << '{';
+	for (auto e : table._description) {
+		if (e.first != "primary_key") {
+			if (first == false)
+				os << ";";
+			else
+				first = false;
+			os << '\"' << e.first << "\":";
+			switch (e.second) {
+				case Data::Type::Number:
+					os << "Number";
+					break;
+				case Data::Type::Float:
+					os << "Float";
+					break;
+				case Data::Type::String:
+					os << "String";
+					break;
+			}
 		}
-		os << "  "<< e;
 	}
-	return os << "\n}";
+	os << "}\n";
+	for (auto e : table._elements)
+		os << e;
+	return os;
 }
 
 
@@ -142,27 +176,26 @@ Data const &Element::operator[](std::string const &dataName) const
 
 std::ostream &operator<<(std::ostream &os, Element const &element)
 {
-	os << "{\n";
-	bool first = true;
-	for (auto const &e : element._datas) {
-		if (first == false) {
-			os << ",\n";
-		} else {
-			first = false;
-		}
-		switch (element._table.getDescription().at(e.first)) {
-			case Data::Type::Number:
-				os << "    \"" << e.first << "\": " << e.second.to<Data::Number>();
-				break;
-			case Data::Type::Float:
-				os << "    \"" << e.first << "\": " << e.second.to<Data::Float>();
-				break;
-			case Data::Type::String:
-				os << "    \"" << e.first << "\": \"" << e.second.to<Data::String>() << "\"";
-				break;
+	os << '{' << element["primary_key"].to<std::size_t>();
+	for (auto e : element._table.getDescription()) {
+		if (e.first != "primary_key") {
+			os << ";";
+			if (element._datas.find(e.first) != element._datas.end()) {
+				switch (e.second) {
+					case Data::Type::Number:
+						os << element[e.first].to<Data::Number>();
+						break;
+					case Data::Type::Float:
+						os << element[e.first].to<Data::Float>();
+						break;
+					case Data::Type::String:
+						os << '\"' << element[e.first].to<Data::String>() << '\"';
+						break;
+				}
+			}
 		}
 	}
-	return os << "\n  }";
+	return os << "}\n";
 }
 
 
