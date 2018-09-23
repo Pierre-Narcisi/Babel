@@ -10,7 +10,8 @@
 #include <list>
 #include <memory>
 #include "boost/asio.hpp"
-#include "Client/Client.hpp"
+#include "Client/Client.h"
+#include "Db/Db.h"
 
 namespace srv {
 
@@ -27,7 +28,8 @@ private:
 	std::unique_ptr<CoreArgs>		_args;
 	::boost::asio::io_service		_ios;
 	::boost::asio::ip::tcp::acceptor	_acceptor;
-	std::list<::boost::shared_ptr<Client>>	_clts;
+	std::list<::boost::shared_ptr<Client>>	_clts; /* list all connected clients */
+	db::Db					_db; /* store all data of clients, their friends and their conversations */
 };
 
 class CoreServer::CoreArgs {
@@ -35,10 +37,10 @@ public:
 	CoreArgs(int ac, char **av);
 
 	inline std::uint16_t		port(void) const { return _port; }
-	inline const std::string	bddFileName(void) const { return _bddFileName; }
+	inline const std::string	dbFileName(void) const { return _dbFileName; }
 private:
 	std::uint16_t	_port = 5555;
-	std::string	_bddFileName = ".bdd";
+	std::string	_dbFileName = ".db";
 };
 
 }

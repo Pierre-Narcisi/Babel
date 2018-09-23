@@ -66,7 +66,7 @@ dataName : name of the data you want (you can modify it)
 
 ## format export
 
-"tableName1":lastKey;elementNumber
+"tableName1":lastKey:elementNumber
 {"dataName1":dataFormat1;"dataName2":dataFormat2;...}
 {primaryKey;data1;data2;;data4;...}
 {primaryKey;data1;data2;;data4;...}

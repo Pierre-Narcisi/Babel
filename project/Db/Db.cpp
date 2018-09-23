@@ -6,7 +6,7 @@
 */
 
 #include <algorithm>
-
+#include <sstream>
 #include <fstream>
 
 #include "Db.h"
@@ -33,16 +33,12 @@ Table &Db::operator[](std::string const &tableName)
 	return _tables.at(tableName);
 }
 
-void Db::importDb(std::string const &filename)
-{
-}
-
 void Db::exportDb(std::string const &filename) const
 {
 	std::ofstream file{filename};
 
 	if (file.fail()) {
-		std::cerr << "Fail to open filename";
+		std::cerr << "Fail to open file " << filename << std::endl;
 	} else {
 		file << *this;
 	}
@@ -81,7 +77,7 @@ void Table::setRemover(remover_t remover)
 
 void Table::remove(Key key)
 {
-	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].as<Key>() == key;});
 	if (elemIt == _elements.end()) {
 		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
 	}
@@ -94,7 +90,7 @@ void Table::remove_if(std::function<bool (Element const &)> const &func)
 {
 	for (auto e : _elements) {
 		if (func(e) == true) {
-			remove(e["primary_key"].to<Key>());
+			remove(e["primary_key"].as<Key>());
 		}
 	}
 }
@@ -104,12 +100,12 @@ Key Table::newElement()
 	_elements.push_back(Element{*this});
 	_elements.back()["primary_key"] = _lastElementKey;
 	++_lastElementKey;
-	return _elements.size() - 1;
+	return _lastElementKey - 1;
 }
 
 Element &Table::operator[](Key key)
 {
-	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].to<Key>() == key;});
+	auto elemIt = std::find_if(_elements.begin(), _elements.end(), [key](Element &e){return e["primary_key"].as<Key>() == key;});
 	if (elemIt == _elements.end()) {
 		throw std::runtime_error{"error : elememt " + std::to_string(key) + " does not exist"};
 	}
@@ -176,20 +172,20 @@ Data const &Element::operator[](std::string const &dataName) const
 
 std::ostream &operator<<(std::ostream &os, Element const &element)
 {
-	os << '{' << element["primary_key"].to<std::size_t>();
+	os << '{' << element["primary_key"].as<std::size_t>();
 	for (auto e : element._table.getDescription()) {
 		if (e.first != "primary_key") {
 			os << ";";
 			if (element._datas.find(e.first) != element._datas.end()) {
 				switch (e.second) {
 					case Data::Type::Number:
-						os << element[e.first].to<Data::Number>();
+						os << element[e.first].as<Data::Number>();
 						break;
 					case Data::Type::Float:
-						os << element[e.first].to<Data::Float>();
+						os << element[e.first].as<Data::Float>();
 						break;
 					case Data::Type::String:
-						os << '\"' << element[e.first].to<Data::String>() << '\"';
+						os << '\"' << element[e.first].as<Data::String>() << '\"';
 						break;
 				}
 			}
@@ -198,5 +194,115 @@ std::ostream &operator<<(std::ostream &os, Element const &element)
 	return os << "}\n";
 }
 
+
+bool Db::importDb(std::string const &filename)
+{
+	std::ifstream file{filename};
+
+	if (file.fail()) {
+		std::cerr << "fail to open file " << filename << std::endl;
+		return false;
+	}
+	std::string str;
+
+	while (std::getline(file, str)) {
+		std::stringstream sstr{str};
+		std::string tableName;
+		char sep;
+		std::size_t lastKey, elementNumber;
+
+		std::getline(sstr, str, ':');
+		sstr >> lastKey >> sep >> elementNumber;
+
+		if (str.find('\"') == str.rfind('\"') || sstr.fail() || sep != ':') {
+			std::cerr << "error pars" << std::endl;
+			return false;
+		}
+		str = str.substr( + 1);
+		tableName = str.substr(0, str.rfind('\"'));
+		_tables.emplace(tableName, Table{*this, tableName});
+
+		if (_tables.at(tableName).importTable(file, lastKey, elementNumber) == false) {
+			std::cerr << "error pars" << std::endl;
+		}
+	}
+	return true;
+}
+
+bool Table::importTable(std::ifstream &file, std::size_t lastKey, std::size_t nbElement)
+{
+	std::string str;
+	std::getline(file, str);
+	if (str.length() == 0 || str[0] != '{' || str[str.length() - 1] != '}') {
+		return false;
+	}
+
+	std::stringstream sstr{str.substr(1, str.length() - 2)};
+	std::vector<std::string> dataNames;
+
+	while (std::getline(sstr, str, ':')) {
+		if (str.length() == 0 || str[0] != '\"' || str[str.length() - 1] != '\"') {
+			return false;
+		}
+		dataNames.push_back(str.substr(1, str.length() - 2));
+		std::getline(sstr, str, ';');
+		if (str == "Number") {
+			setDescription(dataNames.back(), Data::Type::Number);
+		} else if (str == "Float") {
+			setDescription(dataNames.back(), Data::Type::Float);
+		} else if (str == "String") {
+			setDescription(dataNames.back(), Data::Type::String);
+		} else {
+			return false;
+		}
+	}
+	setDescription("primary_key", Data::Type::Number);
+	
+	/* pars all line */
+	_lastElementKey = lastKey;
+	for (auto i = 0; i < nbElement; ++i) {
+		std::getline(file, str);
+		if (file.fail() || str.length() == 0
+		|| str[0] != '{' || str[str.length() - 1] != '}'
+		|| std::count(str.begin(), str.end(), ';') != dataNames.size())
+			return false;
+		std::stringstream sstr{str.substr(1, str.length() - 2)};
+		Key key;
+		Key firstKey = newElement();
+
+		for (auto i = 0; i < dataNames.size() + 1; ++i) {
+			if (i == 0) {
+				sstr >> key;
+				char c;
+				sstr >> c;
+				(*this)[firstKey]["primary_key"] = key;
+			} else {
+				if (_description[dataNames[i - 1]] == Data::Type::Number) {
+					
+					Data::Number number = 0;
+					sstr >> number;
+					(*this)[key][dataNames[i - 1]] = number;
+					char c;
+					sstr >> c;
+				} else if (_description[dataNames[i - 1]] == Data::Type::Float) {
+					Data::Float f = 0;
+					sstr >> f;
+					(*this)[key][dataNames[i - 1]] = f;
+					char c;
+					sstr >> c;
+				} else {
+					Data::String s;
+					std::getline(sstr, s, ';');
+					if (s.length() == 0 || s[0] != '\"' || s[s.length() - 1] != '\"') {
+						return false;
+					}
+					(*this)[key][dataNames[i - 1]] = s.substr(1, s.length() - 2);
+				}
+			}
+		}
+	}
+	_lastElementKey = lastKey;
+	return true;
+}
 
 }

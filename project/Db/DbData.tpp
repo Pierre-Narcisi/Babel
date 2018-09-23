@@ -28,18 +28,18 @@ Data::Data<char const *>(char const *str);
 
 
 template<typename T>
-T		Data::to() const
+T		Data::as() const
 {
 	if (_data->getType() == Data::Type::Number)
 		return static_cast<T>(reinterpret_cast<db::Number *>(_data.get())->data);
 	throw std::runtime_error{"to<Number> : error data type"};
 }
 template<>
-float		Data::to<float>() const;
+float		Data::as<float>() const;
 template<>
-double		Data::to<double>() const;
+double		Data::as<double>() const;
 template<>
-std::string	Data::to<std::string>() const;
+std::string	Data::as<std::string>() const;
 
 
 } /* namespace db */

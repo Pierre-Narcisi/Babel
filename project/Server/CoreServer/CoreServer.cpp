@@ -46,7 +46,7 @@ CoreServer::CoreArgs::CoreArgs(int ac, char **av) {
 	desc.add_options()
 		("help", "Show this help")
 		("port", po::value<std::uint16_t>(), "Set custom port (default : 5555)")
-		("bdd_filename", po::value<std::string>(), "Set custom bdd (default : \".bdd\")")
+		("db_filename", po::value<std::string>(), "Set custom db (default : \".db\")")
 	;
 
 	po::variables_map vm;
@@ -62,8 +62,8 @@ CoreServer::CoreArgs::CoreArgs(int ac, char **av) {
 		_port = vm["port"].as<std::uint16_t>();
 	}
 
-	if (vm.count("bdd_filename")) {
-		_bddFileName = vm["bdd_filename"].as<std::string>();
+	if (vm.count("db_filename")) {
+		_dbFileName = vm["db_filename"].as<std::string>();
 	}
 }
 
