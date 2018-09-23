@@ -54,21 +54,21 @@ _data{std::make_shared<db::String>(db::String{str})}
 
 
 template<>
-float		Data::to<float>() const
+float		Data::as<float>() const
 {
 	if (_data->getType() == Data::Type::Float)
 		return static_cast<float>(reinterpret_cast<db::Float *>(_data.get())->data);
 	throw std::runtime_error{"to<Float> : error data type"};
 }
 template<>
-double		Data::to<double>() const
+double		Data::as<double>() const
 {
 	if (_data->getType() == Data::Type::Float)
 		return reinterpret_cast<db::Float *>(_data.get())->data;
 	throw std::runtime_error{"to<Float> : error data type"};
 }
 template<>
-std::string	Data::to<std::string>() const
+std::string	Data::as<std::string>() const
 {
 	if (_data->getType() == Data::Type::String)
 		return *reinterpret_cast<db::String *>(_data.get());

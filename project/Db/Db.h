@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 
@@ -39,7 +40,11 @@ public:
 class Table {
 /* à plusieurs Element. ex: db["sushi"][0] ou db["vehicule"][1] */
 public:
-	Table(Db &db, std::string const &name): _db{db}, _name{name} {}
+	Table(Db &db, std::string const &name, Key lastKey = 0):
+	_db{db},
+	_name{name},
+	_lastElementKey{lastKey}
+	 {}
 
 	void setDescription(std::string const &dataName, Data::Type type);
 
@@ -62,6 +67,8 @@ public:
 
 	Key newElement();
 
+	bool importTable(std::ifstream &file, std::size_t lastKey, std::size_t nbElement);
+
 	Element &operator[](Key key);
 
 	friend std::ostream &operator<<(std::ostream &os, Table const &champ);
@@ -79,7 +86,6 @@ private:
 class Db {
 /* à plusieurs Table. ex: db["sushi"] ou db["vehicule"] */
 public:
-
 	template<typename T = void *, typename U = void *>
 	void createTable(
 		std::string const &tableName,
@@ -101,6 +107,9 @@ public:
 	Key insert(T const &);
 
 	Table &operator[](std::string const &tableName);
+
+	bool importDb(std::string const &);
+	void exportDb(std::string const &) const;
 
 	friend std::ostream &operator<<(std::ostream &os, Db const &db);
 
