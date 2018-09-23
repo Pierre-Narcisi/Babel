@@ -22,7 +22,8 @@ public:
 private:
 	class CoreArgs;
 
-	void	handleAccept(Client::ptr newClient, const ::boost::system::error_code& error);
+	void	_startAccept(void);
+	void	_handleAccept(Client::ptr newClient, const ::boost::system::error_code& error);
 
 	std::unique_ptr<CoreArgs>		_args;
 	::boost::asio::io_service		_ios;

@@ -19,22 +19,29 @@ CoreServer::CoreServer(int ac, char **av):
 
 void CoreServer::start(void)
 {
-	Client::ptr newClient = Client::create(_acceptor.get_io_service());
-
 	_acceptor.listen();
-	_acceptor.async_accept(newClient->getSocket().getBoostSocket(),
-		boost::bind(&CoreServer::handleAccept, this, newClient,
-			boost::asio::placeholders::error));
+
+	std::cout << "Start listening on " << _args->port() << std::endl;
+	_startAccept();
 	_ios.run();
 }
+
+void	CoreServer::_startAccept(void) {
+	Client::ptr newClient = Client::create(_acceptor.get_io_service());
+
+	_acceptor.async_accept(newClient->getSocket().getBoostSocket(),
+		boost::bind(&CoreServer::_handleAccept, this, newClient,
+			boost::asio::placeholders::error));
+}
+
 	
-void CoreServer::handleAccept(Client::ptr newClient, const boost::system::error_code& error)
+void CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error_code& error)
 {
 	if (!error) {
 		std::cout << "New client connected" << std::endl;
 		newClient->start();
 		//newClient->getSocket().send((std::uint8_t*)"Salut :)\n", 9);
-		this->start();
+		this->_startAccept();
 	} else {
 		throw std::runtime_error(error.message().c_str());
 	}
