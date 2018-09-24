@@ -5,6 +5,8 @@
 ** Main.cpp
 */
 
+#include <assert.h>
+
 #include "Db.h"
 
 struct Sushi {
@@ -23,10 +25,10 @@ struct Sushi {
 	static Sushi deserializer(db::Element &element, db::Db &db)
 	{
 		return Sushi{
-			.repas = element["repas"].to<std::string>(),
-			.temps = element["temps"].to<float>(),
-			.riz = element["riz"].to<long>(),
-			.saumon = element["saumon"].to<int>()
+			.repas = element["repas"].as<std::string>(),
+			.temps = element["temps"].as<float>(),
+			.riz = element["riz"].as<long>(),
+			.saumon = element["saumon"].as<int>()
 		};
 	}
 };
@@ -40,7 +42,7 @@ struct Menu {
 	}
 	static Menu deserializer(db::Element &element, db::Db &db)
 	{
-		return Menu{element["name"].to<std::string>()};
+		return Menu{element["name"].as<std::string>()};
 	}
 };
 
@@ -56,20 +58,27 @@ struct Client {
 	static Client deserializer(db::Element &element, db::Db &db)
 	{
 		return Client{
-			.name = element["name"].to<std::string>(),
-			.menu = db.get<Menu>(element["menuChoisi"].to<db::Key>())
+			.name = element["name"].as<std::string>(),
+			.menu = db.get<Menu>(element["menuChoisi"].as<db::Key>())
 		};
 	}
+	static void remover(db::Element &element, db::Db &db)
+	{
+		db["menu"].remove(element["menuChoisi"].as<db::Key>());
+	}
 };
+
 
 int main()
 {
 	db::Db db;
 
+	db.importDb("bla.db");
+	db::Db db1 = db;
 	db.createTable("client", {
 		{"name", db::Data::Type::String},
 		{"menuChoisi", db::Data::Type::Number}
-	}, Client::serializer, Client::deserializer);
+	}, Client::serializer, Client::deserializer, Client::remover);
 	db.createTable("menu", {
 		{"name", db::Data::Type::String}
 	}, Menu::serializer, Menu::deserializer);
@@ -80,6 +89,7 @@ int main()
 		{"saumon", db::Data::Type::Number}
 	}, Sushi::serializer, Sushi::deserializer);
 
+	db.insert(Sushi{"test", 18, 19, 20});
 	/* test de serialisation/deserialisation simple */
 	Sushi sushi{"soir", 1, 2, 3};
 
@@ -89,20 +99,29 @@ int main()
 	db["sushi"][keySushi2]["saumon"] = 12;
 	db.insert(Sushi{"midi", 30.5, 42, 12});
 	Sushi sushi2 = db["sushi"].get<Sushi>(keySushi1);
-	if (sushi.repas != sushi2.repas || sushi.temps != sushi2.temps || sushi.riz != sushi2.riz || sushi.saumon != sushi2.saumon)
-		std::cerr << "error deserialization" << std::endl;
-	else
-		std::cerr << "good deserialization" << std::endl;
+
+	assert(sushi.repas == sushi2.repas && sushi.temps == sushi2.temps && sushi.riz == sushi2.riz && sushi.saumon == sushi2.saumon);
 
 	/* test de la multi serialisation/deserialisation */
 	Client client1{"Jean", {"12 sushi"}};
 
 	auto keyClient1 = db.insert(client1);
 	Client client2 = db.get<Client>(keyClient1);
-	if (client1.name != client2.name || client1.menu.name != client2.menu.name)
-		std::cerr << "error deserialization" << std::endl;
-	else
-		std::cerr << "good deserialization" << std::endl;
+	assert(client1.name == client2.name && client1.menu.name == client2.menu.name);
 
 	std::cout << db;
+
+	db::Array arr = db["sushi"].getAll().where([](db::Element const &e){return e["saumon"].as<int>() == 12;});
+
+	assert(arr.size() == 2);
+
+	db["sushi"].remove(keySushi2);
+	db["client"].remove(keyClient1);
+	
+	
+	std::cout << "---------------------------" << std::endl;
+	std::cout << db;
+
+	db.exportDb("bla.db");
+
 }

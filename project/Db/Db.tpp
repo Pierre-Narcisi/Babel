@@ -14,19 +14,19 @@ namespace db {
 template<typename T>
 void Table::setSerializer(serializer_t<T> serializer)
 {
-	_bdd.setSerializer(serializer, _name);
+	_db.setSerializer(serializer, _name);
 }
 
 template<typename T>
 void Table::setDeserializer(deserializer_t<T> deserializer)
 {
-	_bdd.setDeserializer(deserializer, _name);
+	_db.setDeserializer(deserializer, _name);
 }
 
 template<typename T>
 T Table::get(Key key)
 {
-	return _bdd.get<T>(key);
+	return _db.get<T>(key);
 }
 
 
@@ -35,7 +35,8 @@ void Db::createTable(
 	std::string const &tableName,
 	std::vector<std::pair<std::string, Data::Type>> const &descriptions,
 	serializer_t<T> serializer,
-	deserializer_t<U> deserializer)
+	deserializer_t<U> deserializer,
+	remover_t remover)
 {
 	_tables.emplace(tableName, Table{*this, tableName});
 	_tables.at(tableName).setDescription("primary_key", Data::Type::Number);
@@ -43,6 +44,8 @@ void Db::createTable(
 		_tables.at(tableName).setSerializer(serializer);
 	if (deserializer)
 		_tables.at(tableName).setDeserializer(deserializer);
+	if (remover)
+		_tables.at(tableName).setRemover(remover);
 	for (auto e : descriptions) {
 		_tables.at(tableName).setDescription(e.first, e.second);
 	}
