@@ -10,13 +10,18 @@
 #include "clientmainwindows.h"
 #include "ui_clientmainwindows.h"
 #include "frienditem.h"
+#include "login.h"
 #include "singletons.h"
 #include "about.h"
+#include "login.h"
 
 ClientMainWindows::ClientMainWindows(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientMainWindows)
 {
+    login w;
+    w.exec();
+
     ui->setupUi(this);
 
     auto    update = this->ui->menuBar->addAction("Update");
@@ -34,13 +39,8 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
         aboutModal.exec();
     });
 
-    connect(this->ui->gameActionButton, &QPushButton::clicked, [this] () {
-        this->ui->gameActionButton->setEnabled(false);
-        this->ui->listGames->getSelectedItem()->actionClicked();
-    });
-
-    connect(this->ui->listGames, &ListGameItem::onSelectChange, [this] (FriendItem *itm) {
-        this->ui->listGames->disconnectAll();
+    connect(this->ui->listFriends, &ListFriends::onSelectChange, [this] (FriendItem *itm) {
+        this->ui->listFriends->disconnectAll();
         (void) itm;
     });
 
@@ -48,7 +48,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
 
     game["name"] = "Ah";
     auto tmp = new FriendItem(game, this);
-    this->ui->listGames->addWidget(tmp);
+    this->ui->listFriends->addWidget(tmp);
     tmp->select();
 }
 
