@@ -1,0 +1,74 @@
+
+Common Respond :
+OK
+KO
+
+
+Client -> Server
+
+Connect :
+	attributes :
+		username :: String128
+		password :: String128
+	respond :
+		OK/KO
+		updateClient
+		updateFriend
+
+getMessages :
+	attributes :
+		username :: String128
+		start :: Number
+		number :: Number
+	respond :
+		OK/KO
+		updateMessage
+
+update :
+	attributes :
+		type :: ENUM {LOGO, USER, FRIEND}
+		...
+	respond :
+		OK/KO
+
+remove :
+	attributes :
+		
+
+sendMessage :
+	attributes :
+		username :: String128
+		messageSize :: Number
+		message :: Buffer
+	respond :
+		OK/KO
+
+Server -> Client
+
+updateClient :
+	attributes :
+		username :: String128
+		logoSize :: Number
+		logo :: Buffer
+
+updateFriend :
+	attributes :
+		state :: Bool
+		username :: String128
+		name :: String128
+		icon :: String256
+	respond :
+		OK/KO
+
+updateMessage :
+	attributes:
+		username :: String128
+		number :: Number
+		{
+			speaker :: Bool
+			date :: Number
+			messageSize :: Number
+			message :: Buffer
+		} * number
+	respond :
+		OK/KO
