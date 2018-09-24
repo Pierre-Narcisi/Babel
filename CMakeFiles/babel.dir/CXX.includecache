@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/seb/babel/test/Test.cpp
+includes/portaudio.h
+-
+cstdio
+-
+cstdlib
+-
+iostream
+-
+vector
+-
+opus/opus.h
+-
+
+includes/portaudio.h
+
