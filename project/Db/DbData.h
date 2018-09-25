@@ -61,10 +61,12 @@ struct Float : public AbstractData {
 	Data::Float data;
 };
 
-struct String : public AbstractData, public Data::String {
-	String(Data::String const &str): Data::String{str} {}
+struct String : public AbstractData {
+	String(Data::String const &str): data{str} {}
 
 	Data::Type getType() const override { return Data::Type::String; }
+
+	Data::String data;
 };
 
 } /* namespace Db */
