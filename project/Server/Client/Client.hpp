@@ -10,6 +10,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Network/BoostSocket.hpp"
+#include "Chopper/Chopper.hpp"
 
 #include <iostream>
 

@@ -3,8 +3,10 @@
         {
             "name": "Linux",
             "includePath": [
+                "${env:HOME}/.conan/data/boost/1.68.0/conan/stable/package/2cc396997aa92c67fbcf12b58afcb05c153444f6/include",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/project/Common/**",
+                "${workspaceFolder}/project/Server/**",
                 "/usr/include/x86_64-linux-gnu/qt5/QtNetwork",
                 "/usr/include/c++/7",
                 "/usr/include/x86_64-linux-gnu/c++/7"

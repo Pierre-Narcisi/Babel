@@ -9,6 +9,8 @@
 
 #include <functional>
 #include <cinttypes>
+#include <memory>
+#include <list>
 
 namespace nw {
 
@@ -19,22 +21,39 @@ protected:
 		TCP
 	};
 public:
+	using Handler = std::function<int(std::uint8_t *buff, std::size_t len)>;
+	
 	ISocket(Type connectionType): _type(connectionType) {}
 
 	virtual std::size_t	send(std::uint8_t *buff, std::size_t len) = 0;
 	virtual std::size_t	receive(std::uint8_t *buff, std::size_t len) = 0;
 	virtual std::size_t	available(void) const = 0;
+	inline std::function<void()>
+				addHandlerOnReadable(typename ::nw::ISocket::Handler &&func);
 protected:
-	inline Type	getType(void) const { return _type; }
+	inline Type	_getType(void) const { return _type; }
 
-	Type	_type;
+	Type			_type;
+	std::list<Handler>	_hdls;
 };
 
-class ITCPSocket: ISocket {
+std::function<void()>
+ISocket::addHandlerOnReadable(Handler &&func) {
+	auto	it = _hdls.insert(_hdls.end(), func);
+
+	return [this, it] {
+		_hdls.erase(it);
+	};
+}
+
+class ITCPSocket: public ISocket {
 public:
 	ITCPSocket(): ISocket(Type::TCP) {}
 
 	virtual void	connect(std::string const &host, std::uint16_t port) = 0;
+protected:
+	Type			_type;
+	std::list<Handler>	_hdls;
 };
 
 }
