@@ -9,68 +9,83 @@
 
 #include <string>
 
+#include "Db.h"
+
 namespace babel {
 
 namespace protocol {
 
 /* Common */
-struct Respond {
-	bool respond;
+
+struct Packet {
+	enum class Type {
+		Respond,
+		Connect,
+		getMessages,
+		Send,
+		UpdateLogo,
+		UpdateUser,
+		UpdateFriend,
+		UpdateClient,
+		UpdateMessage
+	} type;
+};
+
+struct Respond : public Packet {
+	enum Type : bool {OK = true, KO = false};
+	Packet::Type	previous;
+	Respond::Type	respond;
 };
 
 /* Client -> Server */
-struct Connect {
+struct Connect : public Packet {
 	char		username[128];
 	char		password[128];
 };
 
-struct getMessages {
+struct getMessages : public Packet {
 	char		username[128];
 	std::size_t	start;
 	std::size_t	number;
 };
 
-struct Update {
-	enum class Type {Logo, User, Friend};
-	Type		type;
-};
-struct UpdateLogo : public Update {
+struct UpdateLogo : public Packet {
 	std::size_t	size;
 	char		buffer[];
 };
-struct UpdateUser : public Update {
+struct UpdateUser : public Packet {
 	char		username[128];
 	char		password[128];
 };
-struct UpdateFriend : public Update {
+struct UpdateFriend : public Packet {
 	enum class What {Update, Erase};
 	What		what;
 	char		username[128];
 	char		name[128];
 };
 
-struct Send {
+struct Send : public Packet {
 	char		username[128];
 	std::size_t	size;
-	char		bla[];
+	char		buffer[]; /* message */
 };
 
 /* Server -> Client */
-struct updateClient {
+struct updateClient : public Packet {
 	char		username[128];
 	std::size_t	size;
-	char		buffer[];
+	char		buffer[]; /* icon */
 };
 
-struct updateFriend {
+struct updateFriend : public Packet {
 	bool		state;
 	char		username[128];
 	char		name[128];
 	std::size_t	size;
-	char		icon[];
+	char		buffer[]; /* icon */
 };
 
-struct updateMessage {
+struct updateMessage : public Packet {
 	struct Message {
 		std::size_t	size;
 		char		buffer[];
@@ -80,6 +95,24 @@ struct updateMessage {
 	Message		messages[];
 };
 
+class Sender {
+public:
+	Sender(db::Db *db): _db{db} {}
+
+	void receivePacket(Packet &packet);
+
+	void parsPacketRespond(Respond const &packet);
+	void parsPacketConnect(Connect const &packet);
+
+	/* tmp */
+	void sendPacket(Packet &packet)
+	{
+		receivePacket(packet);
+	}
+
+private:
+	db::Db		*_db;
+};
 
 } /* protocol */
 
