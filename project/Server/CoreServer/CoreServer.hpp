@@ -40,8 +40,8 @@ public:
 	inline std::uint16_t		port(void) const { return _port; }
 	inline const std::string	dbFileName(void) const { return _dbFileName; }
 private:
-	std::uint16_t	_port = 5555;
-	std::string	_dbFileName = ".db";
+	std::uint16_t	_port;
+	std::string	_dbFileName;
 };
 
 }

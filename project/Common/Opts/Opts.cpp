@@ -14,7 +14,7 @@ Opts::Opts(int ac, char **av): _ac(ac), _av(av) {}
 
 void	Opts::parse(void) {
 	IValue		*val = nullptr;
-	static auto	parseShort = [this] (const char curArg) -> typeof(val) {
+	static auto	parseShort = [this] (const char curArg) -> IValue* {
 		const auto matched = _shortRef.find(curArg);
 
 		if (matched == _shortRef.end())
@@ -23,7 +23,7 @@ void	Opts::parse(void) {
 			return matched->second.get();
 	};
 
-	static auto	parseLong = [this] (const std::string &curArg) -> typeof(val) {
+	static auto	parseLong = [this] (const std::string &curArg) -> IValue* {
 		const auto matched = _longRef.find(curArg);
 
 		if (matched == _longRef.end())
@@ -43,11 +43,41 @@ void	Opts::parse(void) {
 				val = parseShort(curArg[1]);
 			}
 		}
-		if (val
-		&& (val->noValue() == false)
-		&& (i < _ac - 1))
-			val->parse(_av[++i]);
+		if (val) {
+			val->incCounter();
+			if ((val->noValue() == false)
+			&& (i < _ac - 1))
+				val->parse(_av[++i]);
+		}
 	}
+}
+
+std::ostream	&operator<<(std::ostream &to, Opts const &me) {
+	if (me._usageTitle.empty() == false)
+		to << me._usageTitle << ":" << std::endl << '\t';
+	if (me._usageBody.empty() == false)
+		to << me._usageBody << std::endl << std::endl;
+	if (me._argsTitle.empty() == false)
+		to << me._argsTitle << ":" << std::endl;
+	for (auto &val: me._vals) {
+		to << '\t' << (*val) << std::endl;
+	}
+	return to;
+}
+
+std::ostream	&operator<<(std::ostream &to, Opts::IValue const &me) {
+	int	len = 0;
+	if (me._helpName.empty() == false) {
+		to << me._helpName;
+		len = me._helpName.size();
+	}
+	for (int i = 0; i < (*me._biggestNamePtr - len) + 3; ++i)
+		to << ' ';
+	if (me._strHelp.empty() == false) {
+		to << '\t' << me._strHelp << (me._def.empty() ? "" :
+			(std::string(" (default: ") + me._def + ")"));
+	}
+	return to;
 }
 
 }

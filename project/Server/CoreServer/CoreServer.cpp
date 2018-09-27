@@ -6,6 +6,7 @@
 */
 
 #include <iostream>
+#include "Constant.hpp"
 #include "boost/asio.hpp"
 #include "Opts/Opts.hpp"
 #include "CoreServer.hpp"
@@ -48,7 +49,25 @@ void CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error
 }
 
 CoreServer::CoreArgs::CoreArgs(int ac, char **av) {
-	common::Opts opt(ac, av);
+	common::Opts	opts(ac, av);
+
+	opts.setUsage("Usage", std::string(av[0]) + " [arguments...]");
+	opts.setArgsTitle("Available Arguments");
+	opts.setOptions({
+		{"help", 'h', common::Opts::noArg(), "Show this help"},
+		{"port", 'p', common::Opts::makeInt(constant::defPort), "Listening port"},
+		{"db-filename", 'f', common::Opts::makeString(constant::defDbFileName), "database filename"}
+	});
+
+	opts.parse();
+
+	if (opts["help"]->count()) {
+		std::cout << opts << std::endl;
+		exit(0);
+	}
+
+	_port = opts["port"]->as<common::Opts::Int>();
+	_dbFileName = opts["db-filename"]->as<common::Opts::String>();
 }
 
 }
