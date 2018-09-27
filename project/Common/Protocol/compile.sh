@@ -1,3 +1,4 @@
 #!/bin/bash
 
-g++ test.cpp Protocol.cpp ../../Db/Db.cpp ../../Db/DbData.cpp -I../../Db/ -g
+rm -f bla.db
+g++ test.cpp Protocol.cpp BabelStruct.cpp ../../Db/Db.cpp ../../Db/DbData.cpp -I../../Db/ -g

@@ -27,6 +27,7 @@ struct Packet {
 		UpdateUser,
 		UpdateFriend,
 		UpdateClient,
+		UpdateFriendState,
 		UpdateMessage
 	} type;
 };
@@ -52,6 +53,16 @@ struct GetMessages : public Packet {
 struct UpdateLogo : public Packet {
 	std::size_t	size;
 	char		buffer[];
+
+	void *operator new(std::size_t s)
+	{
+		return std::malloc(sizeof(UpdateLogo) + s + 1);
+	}
+	void operator delete(void *ptr) noexcept
+	{
+		std::free(ptr);
+	}
+
 };
 struct UpdateUser : public Packet {
 	char		username[128];
@@ -64,10 +75,20 @@ struct UpdateFriend : public Packet {
 	char		name[128];
 };
 
-struct Send : public Packet {
+struct SendMessage : public Packet {
 	char		username[128];
 	std::size_t	size;
 	char		buffer[]; /* message */
+
+	void *operator new(std::size_t s)
+	{
+		return std::malloc(sizeof(SendMessage) + s + 1);
+	}
+	void operator delete(void *ptr) noexcept
+	{
+		std::free(ptr);
+	}
+
 };
 
 /* Server -> Client */
@@ -75,14 +96,28 @@ struct UpdateClient : public Packet {
 	char		username[128];
 	std::size_t	size;
 	char		buffer[]; /* icon */
+
+	static void *operator new[](std::size_t s)
+	{
+		return ::operator new(sizeof(UpdateClient) + s + 1);
+	}
 };
 
-struct UpdateFriends : public Packet {
+struct UpdateFriendState : public Packet {
 	bool		state;
 	char		username[128];
 	char		name[128];
 	std::size_t	size;
 	char		buffer[]; /* icon */
+
+	void *operator new(std::size_t s)
+	{
+		return std::malloc(sizeof(UpdateFriendState) + s + 1);
+	}
+	void operator delete(void *ptr) noexcept
+	{
+		std::free(ptr);
+	}
 };
 
 struct UpdateMessage : public Packet {
@@ -101,31 +136,31 @@ public:
 	virtual void sendPacket(Packet &packet) = 0;
 
 protected:
-	void parsPacketRespond(Respond const &packet);
+	void parsPacketRespond(Respond const &packet); /* done */
 };
 
 class ClientSender : public Sender {
 public:
 	ClientSender(Client &client): _client{client} {}
 
-	void receivePacket(Packet &packet) override;
-	void sendPacket(Packet &packet) override;
+	void receivePacket(Packet &packet) override; /* done */
+	void sendPacket(Packet &packet) override; /* done */
 
 private:
-	void parsPacketUpdateClient(UpdateClient const &packet);
-	void parsPacketUpdateFriend(UpdateFriend const &packet);
+	void parsPacketUpdateClient(UpdateClient const &packet); /* done */
+	void parsPacketUpdateFriendState(UpdateFriendState const &packet);
 	void parsPacketUpdateMessage(UpdateMessage const &packet);
 
 private:
-	Client &_client;
+	Client		&_client;
 };
 
 class ServerSender : public Sender {
 public:
 	ServerSender(db::Db &db): _db{db} {}
 
-	void receivePacket(Packet &packet) override;
-	void sendPacket(Packet &packet) override;
+	void receivePacket(Packet &packet) override; /* done */
+	void sendPacket(Packet &packet) override; /* done */
 
 private:
 	void parsPacketConnect(Connect const &packet);

@@ -55,22 +55,11 @@ void ClientSender::receivePacket(Packet &packet)
 		case Packet::Type::Respond:
 			parsPacketRespond(reinterpret_cast<Respond &>(packet));
 			break;
-		case Packet::Type::Connect:
-			break;
-		case Packet::Type::getMessages:
-			break;
-		case Packet::Type::Send:
-			break;
-		case Packet::Type::UpdateLogo:
-			break;
-		case Packet::Type::UpdateUser:
-			break;
-		case Packet::Type::UpdateFriend:
-			break;
 		case Packet::Type::UpdateClient:
 			parsPacketUpdateClient(reinterpret_cast<UpdateClient &>(packet));
 			break;
-		case Packet::Type::UpdateMessage:
+		case Packet::Type::UpdateFriendState:
+			parsPacketUpdateFriendState(reinterpret_cast<UpdateFriendState &>(packet));
 			break;
 	}
 }
@@ -88,6 +77,12 @@ void ClientSender::parsPacketUpdateClient(UpdateClient const &packet)
 	char const *icon = reinterpret_cast<char const *>(&packet + 1);
 	for (auto i = 0; i < packet.size; ++i)
 		_client.icon.push_back(icon[i]);
+}
+
+void ClientSender::parsPacketUpdateFriendState(UpdateFriendState const &packet)
+{
+	/* change state of friend */
+	/* load the new icon if size != 0 */
 }
 
 
@@ -143,22 +138,25 @@ void ServerSender::parsPacketConnect(Connect const &packet)
 		respond.respond = Respond::Type::KO;
 		sendPacket(respond);
 	} else {
-		Client cli = Client::deserializer(elems.back(), _db);
+		/* respond */
 		respond.respond = Respond::Type::OK;
 		sendPacket(respond);
 
+		/* client info */
+		Client cli = Client::deserializer(elems.back(), _db);
 		std::string icon;
 		std::ifstream t(cli.iconfile);
 		if (t.good()) {
 			icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 		}
-		UpdateClient *update = reinterpret_cast<UpdateClient *>(new char[sizeof(UpdateClient) + icon.size() + 1]);
+		UpdateClient *update = new UpdateClient [icon.size()];
 		update->type = Packet::Type::UpdateClient;
 		std::strncpy(update->username, cli.username.c_str(), 128);
 		update->size = icon.size();
 		std::memcpy(update + 1, icon.c_str(), icon.size() + 1);
 		sendPacket(*update);
 		delete[] update;
+
 	}
 }
 

@@ -19,22 +19,41 @@ babel::protocol::Connect createPacketConnect(db::Db &db, std::string const &user
 	return packet;
 }
 
+
+void createDefaultDb(db::Db &db)
+{
+	db.createTable("client", {
+		{"username", db::Data::Type::String},
+		{"password", db::Data::Type::String},
+		{"icon", db::Data::Type::String}
+	}, babel::Client::serializer, babel::Client::deserializer);
+	db.createTable("friend", {
+		{"clientRef", db::Data::Type::Number},
+		{"name", db::Data::Type::String},
+	}, babel::Friend::serializer, babel::Friend::deserializer);
+	db.createTable("friendListRef", {
+		{"clientKey", db::Data::Type::Number},
+		{"friendKey", db::Data::Type::Number}
+	}, babel::FriendRef::serializer);
+
+	babel::Client jhon{"Jhon Doe", "toto42", "oui.icon"};
+	babel::Client jane{"Jane Doe", "Jane", "oui.icon"};
+	babel::Client steeve{"Steeve Oui", "Steevoui", "steeve.icon"};
+	db.insert(jhon);
+	db.insert(steeve);
+	db.insert(jane);
+	jhon.newFriend("Jane Doe", db);
+	jhon.newFriend("Steeve Oui", db);
+}
+
 int main(int ac, char **av)
 {
 	if (ac != 3)
 		return 1;
 	db::Db db;
 
-	db.importDb("bla.db");
-	db.createTable("client", {
-		{"username", db::Data::Type::String},
-		{"password", db::Data::Type::String},
-		{"icon", db::Data::Type::String}
-	}, babel::Client::serializer, babel::Client::deserializer);
-
-	if (db["client"].getAll().size() == 0) {
-		db.insert(babel::Client{"Jhon Doe", "toto42", "oui.icon"});
-	}
+	if (db.importDb("bla.db") == false)
+		createDefaultDb(db);
 
 	babel::Client client;
 
