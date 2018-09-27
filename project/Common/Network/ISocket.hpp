@@ -21,7 +21,7 @@ protected:
 		TCP
 	};
 public:
-	using Handler = std::function<int(std::uint8_t *buff, std::size_t len)>;
+	using Handler = std::function<int(std::size_t)>;
 	
 	ISocket(Type connectionType): _type(connectionType) {}
 
@@ -30,11 +30,12 @@ public:
 	virtual std::size_t	available(void) const = 0;
 	inline std::function<void()>
 				addHandlerOnReadable(typename ::nw::ISocket::Handler &&func);
+	
+	std::list<Handler>	_hdls;
 protected:
 	inline Type	_getType(void) const { return _type; }
 
 	Type			_type;
-	std::list<Handler>	_hdls;
 };
 
 std::function<void()>
@@ -53,7 +54,6 @@ public:
 	virtual void	connect(std::string const &host, std::uint16_t port) = 0;
 protected:
 	Type			_type;
-	std::list<Handler>	_hdls;
 };
 
 }

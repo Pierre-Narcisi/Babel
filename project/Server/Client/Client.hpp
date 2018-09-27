@@ -28,6 +28,8 @@ public:
 			&getSocket(void) { return _sock; }
 
 	void	start(void);
+
+	inline void	setOnDisconnect(std::function<void(void)> &&hdl) { _sock.setOnDisconnect(hdl); }
 private:
 	explicit Client(::boost::asio::io_service &ios);
 

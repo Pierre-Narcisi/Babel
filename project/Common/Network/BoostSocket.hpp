@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <functional>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "Chopper/Chopper.hpp"
@@ -28,17 +29,17 @@ public:
 
 	inline ::boost::asio::ip::tcp::socket
 				&getBoostSocket(void) { return _socket; }
+	inline void	setOnDisconnect(std::function<void(void)> const &hdl) { _onDisconnect = hdl; }
+	void		start(void);
 protected:
-	void		_onReceiveHandler(::boost::system::error_code const &buf, std::size_t available);
-
+	void		_onReceiveHandler(::boost::system::error_code const &e);
+	std::function<void(void)>
+			_onDisconnect;
 private:
-	void		_start(void);
 
 	::boost::asio::io_service	*_ios;
 	::boost::asio::ip::tcp::socket	_socket;
 	bool				_localIos;
-	std::unique_ptr<char>		_buffer
-		= std::unique_ptr<char>(new char[Chopper::getMaxPacketSize()]);
 };
 
 }

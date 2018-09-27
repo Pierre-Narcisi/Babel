@@ -31,8 +31,14 @@ void	CoreServer::_startAccept(void) {
 	Client::ptr newClient = Client::create(_acceptor.get_io_service());
 
 	_acceptor.async_accept(newClient->getSocket().getBoostSocket(),
-		boost::bind(&CoreServer::_handleAccept, this, newClient,
-			boost::asio::placeholders::error));
+		[this, newClient] (const boost::system::error_code& e) {
+			this->_handleAccept(newClient, e);
+			auto it = this->_clts.insert(this->_clts.end(), newClient);
+			newClient->setOnDisconnect([this, it] {
+				std::cout << "Client disconnected" << std::endl;
+				this->_clts.erase(it);
+			});
+		});
 }
 
 	
@@ -41,7 +47,6 @@ void CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error
 	if (!error) {
 		std::cout << "New client connected" << std::endl;
 		newClient->start();
-		//newClient->getSocket().send((std::uint8_t*)"Salut :)\n", 9);
 		this->_startAccept();
 	} else {
 		throw std::runtime_error(error.message().c_str());

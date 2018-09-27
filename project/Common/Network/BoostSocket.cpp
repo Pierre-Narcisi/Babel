@@ -13,39 +13,49 @@ namespace boost {
 TCPSocket::TCPSocket():
 	_ios(new ::boost::asio::io_service()),
 	_socket(*_ios),
-	_localIos(true) { _start(); }
+	_localIos(true) {}
 
 TCPSocket::TCPSocket(::boost::asio::io_service &ios):
 	_ios(&ios),
 	_socket(*_ios),
-	_localIos(false) { _start(); }
+	_localIos(false) {}
 
 TCPSocket::~TCPSocket() {
 	if (_localIos)
 		delete _ios;
 }
 
-void	TCPSocket::_start(void) {
-	_socket.async_receive(::boost::asio::buffer(_buffer.get(), Chopper::getMaxPacketSize()),
+void	TCPSocket::start(void) {
+	_socket.non_blocking(true);
+	_socket.async_receive(::boost::asio::null_buffers(),
 		::boost::bind(&TCPSocket::_onReceiveHandler, this,
-			::boost::asio::placeholders::error,
-			::boost::asio::placeholders::bytes_transferred));
+			::boost::asio::placeholders::error));
 }
 
 void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
 	::boost::asio::ip::tcp::endpoint endpoint(::boost::asio::ip::address::from_string(host), port);
 
 	_socket.connect(endpoint);
+	start();
 }
 
-void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e, std::size_t available) {
-	for (auto &it: _hdls) {
-		it.operator()(reinterpret_cast<std::uint8_t*>(_buffer.get()), available);
+void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
+	auto	len = _socket.available();
+
+	if (!e && len) {
+		for (auto &it: _hdls) {
+			it.operator()(len);
+		}
+	} else if ((::boost::asio::error::eof == e)
+	|| (::boost::asio::error::connection_reset == e)
+	|| (!len)) {
+		if (_onDisconnect != nullptr)
+			_onDisconnect();
+		return;
 	}
-	_socket.async_receive(::boost::asio::buffer(_buffer.get(), Chopper::getMaxPacketSize()),
+	_socket.async_receive(::boost::asio::null_buffers(),
 		::boost::bind(&TCPSocket::_onReceiveHandler, this,
-			::boost::asio::placeholders::error,
-			::boost::asio::placeholders::bytes_transferred));
+			::boost::asio::placeholders::error));
 }
 
 std::size_t	TCPSocket::send(std::uint8_t *buff, std::size_t len) {

@@ -16,6 +16,6 @@ cd $rootPath;
 mkdir build;
 cd build;
 conan install .. -s compiler=gcc;
-cmake .. -G "Unix Makefiles";
+cmake -DCMAKE_BUILD_TYPE=Debug .. -G "Unix Makefiles";
 cmake -build .
 make $@
