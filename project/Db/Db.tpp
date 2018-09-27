@@ -38,6 +38,8 @@ void Db::createTable(
 	deserializer_t<U> deserializer,
 	remover_t remover)
 {
+	if (tableName.find('\"') != -1)
+		throw std::runtime_error{"bad name of table : charactère `\"' not supported"};
 	_tables.emplace(tableName, Table{*this, tableName});
 	_tables.at(tableName).setDescription("primary_key", Data::Type::Number);
 	if (serializer)
