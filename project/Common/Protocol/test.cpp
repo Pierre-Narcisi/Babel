@@ -7,27 +7,7 @@
 
 #include <cstring>
 
-#include "Db.h"
 #include "Protocol.h"
-
-struct Client {
-	std::string username;
-	std::string password;
-
-	static void serializer(Client const &client, db::Element &element, db::Db &db)
-	{
-		element["username"] = client.username;
-		element["password"] = client.password;
-		element["icon"] = "";
-	}
-	static Client deserializer(db::Element &element, db::Db &db)
-	{
-		return Client{
-			.username = element["username"].as<std::string>(),
-			.password = element["password"].as<std::string>(),
-		};
-	}
-};
 
 babel::protocol::Connect createPacketConnect(db::Db &db, std::string const &username, std::string const &password)
 {
@@ -50,16 +30,28 @@ int main(int ac, char **av)
 		{"username", db::Data::Type::String},
 		{"password", db::Data::Type::String},
 		{"icon", db::Data::Type::String}
-	}, Client::serializer, Client::deserializer);
+	}, babel::Client::serializer, babel::Client::deserializer);
 
 	if (db["client"].getAll().size() == 0) {
-		db.insert(Client{"Jhon Doe", "toto42"});
+		db.insert(babel::Client{"Jhon Doe", "toto42", "oui.icon"});
 	}
 
-	babel::protocol::Sender sender{&db};
+	babel::Client client;
+
+	babel::protocol::ServerSender servSender{db};
+	babel::protocol::ClientSender cliSender{client};
+
+	babel::protocol::clitmp = &cliSender;
+	babel::protocol::servtmp = &servSender;
 
 	babel::protocol::Connect connect = createPacketConnect(db, av[1], av[2]);
-	sender.sendPacket(connect);
+	cliSender.sendPacket(connect);
+
+	std::cout << client.username << ":\n";
+	for (auto c : client.icon) {
+		std::cout << c;
+	}
+	std::cout << std::endl;
 
 	db.exportDb("bla.db");
 }

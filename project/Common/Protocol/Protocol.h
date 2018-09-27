@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "Db.h"
+#include "BabelStruct.h"
 
 namespace babel {
 
@@ -43,7 +43,7 @@ struct Connect : public Packet {
 	char		password[128];
 };
 
-struct getMessages : public Packet {
+struct GetMessages : public Packet {
 	char		username[128];
 	std::size_t	start;
 	std::size_t	number;
@@ -71,13 +71,13 @@ struct Send : public Packet {
 };
 
 /* Server -> Client */
-struct updateClient : public Packet {
+struct UpdateClient : public Packet {
 	char		username[128];
 	std::size_t	size;
 	char		buffer[]; /* icon */
 };
 
-struct updateFriend : public Packet {
+struct UpdateFriends : public Packet {
 	bool		state;
 	char		username[128];
 	char		name[128];
@@ -85,7 +85,7 @@ struct updateFriend : public Packet {
 	char		buffer[]; /* icon */
 };
 
-struct updateMessage : public Packet {
+struct UpdateMessage : public Packet {
 	struct Message {
 		std::size_t	size;
 		char		buffer[];
@@ -97,22 +97,49 @@ struct updateMessage : public Packet {
 
 class Sender {
 public:
-	Sender(db::Db *db): _db{db} {}
+	virtual void receivePacket(Packet &packet) = 0;
+	virtual void sendPacket(Packet &packet) = 0;
 
-	void receivePacket(Packet &packet);
-
+protected:
 	void parsPacketRespond(Respond const &packet);
-	void parsPacketConnect(Connect const &packet);
+};
 
-	/* tmp */
-	void sendPacket(Packet &packet)
-	{
-		receivePacket(packet);
-	}
+class ClientSender : public Sender {
+public:
+	ClientSender(Client &client): _client{client} {}
+
+	void receivePacket(Packet &packet) override;
+	void sendPacket(Packet &packet) override;
 
 private:
-	db::Db		*_db;
+	void parsPacketUpdateClient(UpdateClient const &packet);
+	void parsPacketUpdateFriend(UpdateFriend const &packet);
+	void parsPacketUpdateMessage(UpdateMessage const &packet);
+
+private:
+	Client &_client;
 };
+
+class ServerSender : public Sender {
+public:
+	ServerSender(db::Db &db): _db{db} {}
+
+	void receivePacket(Packet &packet) override;
+	void sendPacket(Packet &packet) override;
+
+private:
+	void parsPacketConnect(Connect const &packet);
+	void parsPacketgetMessages(GetMessages const &packet);
+	void parsPacketUpdateLogo(UpdateLogo const &packet);
+	void parsPacketUpdateUser(UpdateUser const &packet);
+	void parsPacketUpdateFriend(UpdateFriend const &packet);
+
+private:
+	db::Db		&_db;
+};
+
+extern ClientSender	*clitmp;
+extern ServerSender	*servtmp;
 
 } /* protocol */
 
