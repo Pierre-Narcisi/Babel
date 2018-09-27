@@ -1,0 +1,17 @@
+"friendListRef":4:4
+{"friendKey":Number;"clientKey":Number}
+{0;0;0}
+{1;1;2}
+{2;2;0}
+{3;3;1}
+"client":3:3
+{"icon":String;"password":String;"username":String}
+{0;"oui.icon";"toto42";"Jhon Doe"}
+{1;"steeve.icon";"Steevoui";"Steeve Oui"}
+{2;"oui.icon";"Jane";"Jane Doe"}
+"friend":4:4
+{"name":String;"clientRef":Number}
+{0;"Jane Doe";2}
+{1;"Jhon Doe";0}
+{2;"Steeve Oui";1}
+{3;"Jhon Doe";0}
