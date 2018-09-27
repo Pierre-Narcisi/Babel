@@ -47,7 +47,8 @@ Client Client::deserializer(db::Element &element, db::Db &db)
 	return Client{
 		.username = element["username"].as<std::string>(),
 		.password = element["password"].as<std::string>(),
-		.iconfile = element["icon"].as<std::string>()
+		.iconfile = element["icon"].as<std::string>(),
+		.key = element["primary_key"].as<db::Key>()
 	};
 }
 
@@ -66,6 +67,7 @@ Friend Friend::deserializer(db::Element &element, db::Db &db)
 {
 	auto client = db["client"].get<Client>(element["clientRef"].as<db::Key>());
 	Friend f;
+	f.state = false;
 	f.username = client.username;
 	f.name = element["name"].as<std::string>();
 	f.iconfile = client.iconfile;

@@ -71,6 +71,9 @@ int main(int ac, char **av)
 		std::cout << c;
 	}
 	std::cout << std::endl;
+	for (auto f : client.friends) {
+		std::cout << f.username << "  " << f.state << std::endl;
+	}
 
 	db.exportDb("bla.db");
 }

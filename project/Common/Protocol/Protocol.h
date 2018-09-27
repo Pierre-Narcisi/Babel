@@ -54,13 +54,9 @@ struct UpdateLogo : public Packet {
 	std::size_t	size;
 	char		buffer[];
 
-	void *operator new(std::size_t s)
+	void *operator new[](std::size_t s)
 	{
-		return std::malloc(sizeof(UpdateLogo) + s + 1);
-	}
-	void operator delete(void *ptr) noexcept
-	{
-		std::free(ptr);
+		return ::operator new(sizeof(UpdateLogo) + s + 1);
 	}
 
 };
@@ -80,13 +76,9 @@ struct SendMessage : public Packet {
 	std::size_t	size;
 	char		buffer[]; /* message */
 
-	void *operator new(std::size_t s)
+	void *operator new[](std::size_t s)
 	{
-		return std::malloc(sizeof(SendMessage) + s + 1);
-	}
-	void operator delete(void *ptr) noexcept
-	{
-		std::free(ptr);
+		return ::operator new(sizeof(SendMessage) + s + 1);
 	}
 
 };
@@ -110,13 +102,9 @@ struct UpdateFriendState : public Packet {
 	std::size_t	size;
 	char		buffer[]; /* icon */
 
-	void *operator new(std::size_t s)
+	void *operator new[](std::size_t s)
 	{
-		return std::malloc(sizeof(UpdateFriendState) + s + 1);
-	}
-	void operator delete(void *ptr) noexcept
-	{
-		std::free(ptr);
+		return ::operator new(sizeof(UpdateFriendState) + s + 1);
 	}
 };
 
