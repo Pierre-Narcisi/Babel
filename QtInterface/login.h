@@ -18,6 +18,8 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_login_finished(int result);
+
 private:
     int _register;
     Ui::login *ui;

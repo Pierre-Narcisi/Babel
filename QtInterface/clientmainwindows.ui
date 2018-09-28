@@ -51,11 +51,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QListView" name="listView"/>
-      </item>
-     </layout>
+     <widget class="conv" name="widget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -76,6 +72,12 @@
    <class>ListFriends</class>
    <extends>QWidget</extends>
    <header>listgameitem.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>conv</class>
+   <extends>QWidget</extends>
+   <header>conv.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

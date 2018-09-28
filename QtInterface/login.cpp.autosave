@@ -26,8 +26,3 @@ void login::on_pushButton_clicked()
         this->~login();
     }
 }
-
-void login::on_login_finished(int result)
-{
-    exit(0);
-}

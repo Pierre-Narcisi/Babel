@@ -46,7 +46,8 @@ SOURCES += \
     about.cpp \
     frienditem.cpp \
     conv.cpp \
-    login.cpp
+    login.cpp \
+    mainscreen.cpp
 
 HEADERS += \
     clientmainwindows.h \
@@ -57,14 +58,16 @@ HEADERS += \
     about.h \
     frienditem.h \
     conv.h \
-    login.h
+    login.h \
+    mainscreen.h
 
 FORMS += \
     clientmainwindows.ui \
     about.ui \
     frienditem.ui \
     conv.ui \
-    login.ui
+    login.ui \
+    mainscreen.ui
 
 RESOURCES += \
     resources.qrc

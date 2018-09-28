@@ -19,7 +19,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientMainWindows)
 {
-    login w;
+    login w(this);
     w.exec();
 
     ui->setupUi(this);
