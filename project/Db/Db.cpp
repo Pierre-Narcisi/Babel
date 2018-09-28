@@ -241,6 +241,9 @@ bool Table::importTable(std::ifstream &file, std::size_t lastKey, std::size_t nb
 	std::vector<std::string> dataNames;
 
 	while (std::getline(sstr, str, ':')) {
+		std::string str_;
+		while (std::count(str.begin(), str.end(), '\"') != 2 && std::getline(sstr, str_, ':'))
+			str += str_;
 		if (str.length() == 0 || str[0] != '\"' || str[str.length() - 1] != '\"') {
 			return false;
 		}

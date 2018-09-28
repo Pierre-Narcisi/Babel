@@ -5,6 +5,10 @@
 ** DbData.cpp
 */
 
+#include <iostream>
+
+#include <boost/algorithm/string/replace.hpp>
+
 #include "DbData.h"
 
 namespace db {
@@ -38,17 +42,17 @@ _data{std::make_shared<db::Float>(db::Float{d})}
 
 template<>
 Data::Data<std::string const &>(std::string const &str):
-_data{std::make_shared<db::String>(db::String{str})}
+_data{std::make_shared<db::String>(db::String{boost::replace_all_copy(str, ";", ",")})}
 {}
 
 template<>
 Data::Data<std::string>(std::string str):
-_data{std::make_shared<db::String>(db::String{str})}
+_data{std::make_shared<db::String>(db::String{boost::replace_all_copy(str, ";", ",")})}
 {}
 
 template<>
 Data::Data<char const *>(char const *str):
-_data{std::make_shared<db::String>(db::String{str})}
+_data{std::make_shared<db::String>(db::String{boost::replace_all_copy(std::string{str}, ";", ",")})}
 {}
 
 
@@ -71,8 +75,8 @@ template<>
 std::string	Data::as<std::string>() const
 {
 	if (_data->getType() == Data::Type::String)
-		return *reinterpret_cast<db::String *>(_data.get());
+		return boost::replace_all_copy(reinterpret_cast<db::String *>(_data.get())->data, "\\\"", "\"");
 	throw std::runtime_error{"to<String> : error data type"};
 }
 
-} /* namespace Db */
+} /* namespace db */

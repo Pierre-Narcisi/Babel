@@ -1,0 +1,10 @@
+"sushi":72:4
+{"saumon":Number;"riz":Number;"temps":Float;"repas":String}
+{0;20;19;18;"test"}
+{68;20;19;18;"test"}
+{69;3;2;1;"soir"}
+{71;12;42;30.5;"midi"}
+"menu":1:0
+{"name":String}
+"client":1:0
+{"menuChoisi":Number;"name":String}
