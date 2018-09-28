@@ -5,6 +5,8 @@
 ** Chopper.hpp
 */
 
+#pragma once
+
 #include <cinttypes>
 #include <vector>
 #include <cstdlib>
@@ -19,7 +21,7 @@
 	static const int max_packet_length = 2048;
 #endif
 
-namespace CC {
+namespace nw {
 
 
 class Chopper {
@@ -39,6 +41,8 @@ public:
 	void	receivePacket(std::uint8_t *buffer, std::size_t len);
 	void	sendCommand(std::uint8_t *buffer, std::size_t len);
 
+	static inline const std::size_t
+		getMaxPacketSize(void) { return max_packet_length; }
 private:
 	void			_sendNextPacket(void);
 	static std::uint32_t	_getByteArrayHash(std::uint8_t *buffer, std::size_t len);

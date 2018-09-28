@@ -10,6 +10,9 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Network/BoostSocket.hpp"
+#include "Chopper/Chopper.hpp"
+
+#include <iostream>
 
 namespace srv {
 
@@ -21,10 +24,12 @@ public:
 		return ptr(new Client(ios));
 	}
 
-	inline ::boost::asio::ip::tcp::socket
-			&getBoostSocket(void) { return _sock.getBoostSocket(); }
+	inline nw::boost::TCPSocket
+			&getSocket(void) { return _sock; }
 
 	void	start(void);
+
+	inline void	setOnDisconnect(std::function<void(void)> &&hdl) { _sock.setOnDisconnect(hdl); }
 private:
 	explicit Client(::boost::asio::io_service &ios);
 

@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace CC {
+namespace nw {
 
 Chopper::Packet::Packet():
 	header(static_cast<PackHeader*>(std::malloc(max_packet_length))) {}
