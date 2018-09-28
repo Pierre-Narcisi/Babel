@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${env:HOME}/.conan/data/boost/1.68.0/conan/stable/package/*/include",
+                "${env:HOME}/.conan/data/boost/1.68.0/conan/stable/package/**",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/project/Common/**",
                 "${workspaceFolder}/project/Server/**",
