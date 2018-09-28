@@ -11,6 +11,7 @@
 
 namespace constant {
 	/* Program default args */
-	constexpr short		defPort = 7654;
-	constexpr char const	*defDbFileName = ".bd";
+	constexpr std::uint16_t		defPort = 7654;
+	constexpr char const		*defDbFileName = ".db";
+	constexpr std::uint16_t		defThreadNbr = 4;
 }
