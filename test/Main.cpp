@@ -202,9 +202,11 @@ int main(void) {
 	printf("\n=== Now recording!! Please speak into the microphone. ===\n");
 	fflush(stdout);
 
+	int oui = 0;
 	while ((err = Pa_IsStreamActive(stream)) == 1) {
-		Pa_Sleep(1000);
-		printf("index = %d\n", data.frameIndex);
+		if (oui != data.frameIndex)
+			printf("index = %d\n", data.frameIndex);
+		oui = data.frameIndex;
 		fflush(stdout);
 	}
 	if (err < 0)

@@ -6,13 +6,13 @@
 #include <opus/opus.h>
 
 
-int maine() {
+int main() {
 	int opusErr;
 	PaError paErr;
 	std::string s;
 
 	int const channels = 2;
-	int const bufferSize = 480;
+	int const bufferSize = 960;
 	int const sampleRate = 48000;
 	int const durationSeconds = 5;
 
@@ -73,6 +73,7 @@ int maine() {
 // capture, encode, decode & render durationSeconds of audio
 	while (framesProcessed < sampleRate * durationSeconds)
 	{
+
 		if ((paErr = Pa_ReadStream(stream,
 					   captured.data(), bufferSize)) != paNoError)
 		{
@@ -82,7 +83,7 @@ int maine() {
 		}
 
 		if ((enc_bytes = opus_encode(enc, reinterpret_cast<opus_int16 const*>(
-			captured.data()), 480, encoded.data(), encoded.size())) < 0)
+			captured.data()), 960, encoded.data(), encoded.size())) < 0)
 		{
 			std::cout << "opus_encode failed: " << enc_bytes << "\n";
 			std::getline(std::cin, s);
@@ -90,7 +91,7 @@ int maine() {
 		}
 
 		if ((dec_bytes = opus_decode(dec, encoded.data(), enc_bytes,
-					     reinterpret_cast<opus_int16*>(decoded.data()), 480, 0)) < 0)
+					     reinterpret_cast<opus_int16*>(decoded.data()), 960, 0)) < 0)
 		{
 			std::cout << "opus_decode failed: " << dec_bytes << "\n";
 			std::getline(std::cin, s);
