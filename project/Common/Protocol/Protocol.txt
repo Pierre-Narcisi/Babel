@@ -1,5 +1,7 @@
 
-Common Respond :
+Common
+
+Respond :
 OK
 KO
 
@@ -24,13 +26,25 @@ getMessages :
 		OK/KO
 		updateMessage
 
-update :
+UpdateLogo :
 	attributes :
-		type :: ENUM {LOGO, USER, FRIEND}
-		...
+		size :: Number
+		buffer :: Buffer
 	respond :
 		OK/KO
 
+UpdateUserInfo :
+	attributes :
+		username :: String128
+		password :: String128
+	respond :
+		OK/KO
+	
+UpdateFriend :
+	attributes :
+		what :: ENUM {Update, Erase}
+		username :: String128
+		name :: String128
 
 sendMessage :
 	attributes :

@@ -22,6 +22,7 @@ struct Client {
 	std::string		iconfile;
 	std::vector<char>	icon;
 	std::vector<Friend>	friends;
+	db::Key			key = -1;
 
 	db::Key newFriend(std::string const &friendName, db::Db &db);
 

@@ -81,8 +81,30 @@ void ClientSender::parsPacketUpdateClient(UpdateClient const &packet)
 
 void ClientSender::parsPacketUpdateFriendState(UpdateFriendState const &packet)
 {
-	/* change state of friend */
-	/* load the new icon if size != 0 */
+	auto f = std::find_if(_client.friends.begin(), _client.friends.end(), [&packet](Friend const &e) {
+		return packet.username == e.username;
+	});
+	if (f != _client.friends.end()) {
+		f->state = packet.state;
+		f->username = packet.username;
+		f->name = packet.name;
+		if (packet.size != 0) {
+			char const *icon = reinterpret_cast<char const *>(&packet + 1);
+			for (auto i = 0; i < packet.size; ++i)
+				f->icon.push_back(icon[i]);
+		}
+	} else {
+		_client.friends.push_back(Friend{
+			.state = packet.state,
+			.username = packet.username,
+			.name = packet.name
+		});
+		if (packet.size != 0) {
+			char const *icon = reinterpret_cast<char const *>(&packet + 1);
+			for (auto i = 0; i < packet.size; ++i)
+				_client.friends.back().icon.push_back(icon[i]);
+		}
+	}
 }
 
 
@@ -155,8 +177,29 @@ void ServerSender::parsPacketConnect(Connect const &packet)
 		update->size = icon.size();
 		std::memcpy(update + 1, icon.c_str(), icon.size() + 1);
 		sendPacket(*update);
-		delete[] update;
+		delete update;
 
+		/* friends info */
+		auto friendsRef = _db["friendListRef"].getAll().where([&cli](db::Element const &e) {
+			return e["clientKey"].as<db::Key>() == cli.key;
+		});
+		for (auto e : friendsRef) {
+			Friend f = _db["friend"].get<Friend>(e["friendKey"].as<db::Key>());
+			std::string icon;
+			std::ifstream t(f.iconfile);
+			if (t.good()) {
+				icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+			}
+			UpdateFriendState *update = new UpdateFriendState[icon.size()];
+			update->type = Packet::Type::UpdateFriendState;
+			std::strncpy(update->username, f.username.c_str(), 128);
+			std::strncpy(update->name, f.name.c_str(), 128);
+			update->size = icon.size();
+			update->state = f.state;
+			std::memcpy(update + 1, icon.c_str(), icon.size() + 1);
+			sendPacket(*update);
+			delete update;
+		}
 	}
 }
 
