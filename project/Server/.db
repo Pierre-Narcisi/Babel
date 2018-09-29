@@ -1,0 +1,6 @@
+"friendListRef":0:0
+{"friendKey":Number;"clientKey":Number}
+"client":0:0
+{"icon":String;"password":String;"username":String}
+"friend":0:0
+{"name":String;"clientRef":Number}

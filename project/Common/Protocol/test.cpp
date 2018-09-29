@@ -36,6 +36,10 @@ void createDefaultDb(db::Db &db)
 		{"friendKey", db::Data::Type::Number}
 	}, babel::FriendRef::serializer);
 
+}
+
+void defaultInstance(db::Db &db)
+{
 	babel::Client jhon{"Jhon Doe", "toto42", "oui.icon"};
 	babel::Client jane{"Jane Doe", "Jane", "oui.icon"};
 	babel::Client steeve{"Steeve Oui", "Steevoui", "steeve.icon"};
@@ -52,8 +56,9 @@ int main(int ac, char **av)
 		return 1;
 	db::Db db;
 
+	createDefaultDb(db);
 	if (db.importDb("bla.db") == false)
-		createDefaultDb(db);
+		defaultInstance(db);
 
 	babel::Client client;
 

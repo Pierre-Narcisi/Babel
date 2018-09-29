@@ -9,7 +9,11 @@
 
 #include <string>
 
-#include "BabelStruct.h"
+#include "Db/Db.h"
+
+namespace srv {
+	class Client;
+}
 
 namespace babel {
 
@@ -137,7 +141,7 @@ protected:
 
 class ClientSender : public Sender {
 public:
-	ClientSender(Client &client): _client{client} {}
+	// ClientSender(Client &client): _client{client} {}
 
 	void receivePacket(Packet &packet) override; /* done */
 	void sendPacket(Packet &packet) override; /* done */
@@ -149,13 +153,11 @@ private:
 	void parsCliUpdateCall(CliUpdateCall const &packet);
 
 private:
-	Client		&_client;
+	// Client		&_client;
 };
 
 class ServerSender : public Sender {
 public:
-	ServerSender(db::Db &db): _db{db} {}
-
 	void receivePacket(Packet &packet) override; /* done */
 	void sendPacket(Packet &packet) override; /* done */
 
@@ -165,9 +167,6 @@ private:
 	void parsPacketUpdateLogo(UpdateLogo const &packet);
 	void parsPacketUpdateUser(UpdateUser const &packet);
 	void parsPacketUpdateFriend(UpdateFriend const &packet);
-
-private:
-	db::Db		&_db;
 };
 
 extern ClientSender	*clitmp;

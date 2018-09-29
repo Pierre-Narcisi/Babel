@@ -10,6 +10,8 @@
 #include <cstring>
 
 #include "Protocol.h"
+#include "CoreServer/CoreServer.hpp"
+#include "Client/Client.hpp"
 
 namespace babel {
 
@@ -17,6 +19,7 @@ namespace protocol {
 
 ClientSender	*clitmp = nullptr;
 ServerSender	*servtmp = nullptr;
+
 
 /* verif if respond is OK or KO to a previous packet sended */
 void Sender::parsPacketRespond(Respond const &packet)
@@ -48,64 +51,64 @@ void Sender::parsPacketRespond(Respond const &packet)
 
 /* Client */
 
-void ClientSender::receivePacket(Packet &packet)
-{
-	std::cerr << "Client : receive packet" << std::endl;
-	switch (packet.type) {
-		case Packet::Type::Respond:
-			parsPacketRespond(reinterpret_cast<Respond &>(packet));
-			break;
-		case Packet::Type::UpdateClient:
-			parsPacketUpdateClient(reinterpret_cast<UpdateClient &>(packet));
-			break;
-		case Packet::Type::UpdateFriendState:
-			parsPacketUpdateFriendState(reinterpret_cast<UpdateFriendState &>(packet));
-			break;
-	}
-}
+// void ClientSender::receivePacket(Packet &packet)
+// {
+// 	std::cerr << "Client : receive packet" << std::endl;
+// 	switch (packet.type) {
+// 		case Packet::Type::Respond:
+// 			parsPacketRespond(reinterpret_cast<Respond &>(packet));
+// 			break;
+// 		case Packet::Type::UpdateClient:
+// 			parsPacketUpdateClient(reinterpret_cast<UpdateClient &>(packet));
+// 			break;
+// 		case Packet::Type::UpdateFriendState:
+// 			parsPacketUpdateFriendState(reinterpret_cast<UpdateFriendState &>(packet));
+// 			break;
+// 	}
+// }
 
-void ClientSender::sendPacket(Packet &packet)
-{
-	if (servtmp) {
-		servtmp->receivePacket(packet);
-	}
-}
+// void ClientSender::sendPacket(Packet &packet)
+// {
+// 	// if (servtmp) {
+// 	// 	servtmp->receivePacket(packet);
+// 	// }
+// }
 
-void ClientSender::parsPacketUpdateClient(UpdateClient const &packet)
-{
-	_client.username = packet.username;
-	char const *icon = reinterpret_cast<char const *>(&packet + 1);
-	for (auto i = 0; i < packet.size; ++i)
-		_client.icon.push_back(icon[i]);
-}
+// void ClientSender::parsPacketUpdateClient(UpdateClient const &packet)
+// {
+// 	_client.username = packet.username;
+// 	char const *icon = reinterpret_cast<char const *>(&packet + 1);
+// 	for (auto i = 0; i < packet.size; ++i)
+// 		_client.getInfos().icon.push_back(icon[i]);
+// }
 
-void ClientSender::parsPacketUpdateFriendState(UpdateFriendState const &packet)
-{
-	auto f = std::find_if(_client.friends.begin(), _client.friends.end(), [&packet](Friend const &e) {
-		return packet.username == e.username;
-	});
-	if (f != _client.friends.end()) {
-		f->state = packet.state;
-		f->username = packet.username;
-		f->name = packet.name;
-		if (packet.size != 0) {
-			char const *icon = reinterpret_cast<char const *>(&packet + 1);
-			for (auto i = 0; i < packet.size; ++i)
-				f->icon.push_back(icon[i]);
-		}
-	} else {
-		_client.friends.push_back(Friend{
-			.state = packet.state,
-			.username = packet.username,
-			.name = packet.name
-		});
-		if (packet.size != 0) {
-			char const *icon = reinterpret_cast<char const *>(&packet + 1);
-			for (auto i = 0; i < packet.size; ++i)
-				_client.friends.back().icon.push_back(icon[i]);
-		}
-	}
-}
+// void ClientSender::parsPacketUpdateFriendState(UpdateFriendState const &packet)
+// {
+// 	auto f = std::find_if(_client.friends.begin(), _client.friends.end(), [&packet](::srv::Friend const &e) {
+// 		return packet.username == e.username;
+// 	});
+// 	if (f != _client.friends.end()) {
+// 		f->state = packet.state;
+// 		f->username = packet.username;
+// 		f->name = packet.name;
+// 		if (packet.size != 0) {
+// 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
+// 			for (auto i = 0; i < packet.size; ++i)
+// 				f->icon.push_back(icon[i]);
+// 		}
+// 	} else {
+// 		_client.friends.push_back(::srv::Friend{
+// 			.state = packet.state,
+// 			.username = packet.username,
+// 			.name = packet.name
+// 		});
+// 		if (packet.size != 0) {
+// 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
+// 			for (auto i = 0; i < packet.size; ++i)
+// 				_client.friends.back().icon.push_back(icon[i]);
+// 		}
+// 	}
+// }
 
 
 /* Server */
@@ -138,9 +141,10 @@ void ServerSender::receivePacket(Packet &packet)
 
 void ServerSender::sendPacket(Packet &packet)
 {
-	if (clitmp) {
-		clitmp->receivePacket(packet);
-	}
+	std::cerr << "Server : send packet" << std::endl;
+	// if (clitmp) {
+	// 	clitmp->receivePacket(packet);
+	// }
 }
 
 /* verif if username and password are correct */
@@ -152,11 +156,12 @@ void ServerSender::parsPacketConnect(Connect const &packet)
 	respond.type = Packet::Type::Respond;
 	respond.previous = Packet::Type::Connect;
 
-	auto elems = _db["client"].getAll().where([&packet](db::Element const &e){
+	auto clients = ::srv::server_g->db()["client"].getAll().where([&packet](db::Element const &e){
 		return e["username"].as<std::string>() == packet.username
 		&& e["password"].as<std::string>() == packet.password;
 	});
-	if (elems.size() == 0) {
+	/* verif client isn't already connected */
+	if (clients.size() == 0) {
 		respond.respond = Respond::Type::KO;
 		sendPacket(respond);
 	} else {
@@ -165,7 +170,7 @@ void ServerSender::parsPacketConnect(Connect const &packet)
 		sendPacket(respond);
 
 		/* client info */
-		Client cli = Client::deserializer(elems.back(), _db);
+		auto cli = ::srv::Client::Info::deserializer(clients.back(), ::srv::server_g->db());
 		std::string icon;
 		std::ifstream t(cli.iconfile);
 		if (t.good()) {
@@ -180,11 +185,12 @@ void ServerSender::parsPacketConnect(Connect const &packet)
 		delete update;
 
 		/* friends info */
-		auto friendsRef = _db["friendListRef"].getAll().where([&cli](db::Element const &e) {
-			return e["clientKey"].as<db::Key>() == cli.key;
+
+		auto friendsRef = ::srv::server_g->db()["friendListRef"].getAll().where([&clients](db::Element const &e) {
+			return e["clientKey"].as<db::Key>() == clients.back()["primary_key"].as<db::Key>();
 		});
 		for (auto e : friendsRef) {
-			Friend f = _db["friend"].get<Friend>(e["friendKey"].as<db::Key>());
+			::srv::Friend f = ::srv::server_g->db()["friend"].get<::srv::Friend>(e["friendKey"].as<db::Key>());
 			std::string icon;
 			std::ifstream t(f.iconfile);
 			if (t.good()) {

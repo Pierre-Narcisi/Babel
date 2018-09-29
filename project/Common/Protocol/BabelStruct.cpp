@@ -66,11 +66,12 @@ void Friend::serializer(Friend const &myfriend, db::Element &element, db::Db &db
 Friend Friend::deserializer(db::Element &element, db::Db &db)
 {
 	auto client = db["client"].get<Client>(element["clientRef"].as<db::Key>());
-	Friend f;
-	f.state = false;
-	f.username = client.username;
-	f.name = element["name"].as<std::string>();
-	f.iconfile = client.iconfile;
+	Friend	f{
+		.state = false,
+		.username = client.username,
+		.name = element["name"].as<std::string>(),
+		.iconfile = client.iconfile
+	};
 	return f;
 }
 
