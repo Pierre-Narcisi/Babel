@@ -118,6 +118,14 @@ struct UpdateMessage : public Packet {
 	Message		messages[];
 };
 
+struct CliUpdateCall : public Packet {
+
+};
+
+struct ServUpdateCall : public Packet {
+	
+};
+
 class Sender {
 public:
 	virtual void receivePacket(Packet &packet) = 0;
@@ -138,6 +146,7 @@ private:
 	void parsPacketUpdateClient(UpdateClient const &packet); /* done */
 	void parsPacketUpdateFriendState(UpdateFriendState const &packet);
 	void parsPacketUpdateMessage(UpdateMessage const &packet);
+	void parsCliUpdateCall(CliUpdateCall const &packet);
 
 private:
 	Client		&_client;
