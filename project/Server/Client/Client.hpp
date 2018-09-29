@@ -33,6 +33,8 @@ public:
 private:
 	explicit Client(::boost::asio::io_service &ios);
 
+	int	_onReadableHandler(std::size_t len);
+
 	nw::boost::TCPSocket	_sock;
 };
 
