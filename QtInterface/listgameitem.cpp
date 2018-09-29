@@ -5,7 +5,7 @@
 #include "listgameitem.h"
 #include "singletons.h"
 
-ListGameItem::ListGameItem(QWidget *parent):
+ListFriends::ListFriends(QWidget *parent):
     QScrollArea(parent)
 {
     this->setStyleSheet("background: rgb(230, 230, 230);");
@@ -26,35 +26,35 @@ ListGameItem::ListGameItem(QWidget *parent):
     });
 }
 
-ListGameItem::~ListGameItem()
+ListFriends::~ListFriends()
 {
     clean();
 }
 
-void ListGameItem::addWidget(FriendItem *gitem)
+void ListFriends::addWidget(FriendItem *gitem)
 {
     _lay->addWidget(gitem);
     _items.append(gitem);
-    connect(gitem, &FriendItem::onSelectChange, this, &ListGameItem::onItemIsSelected);
+    connect(gitem, &FriendItem::onSelectChange, this, &ListFriends::onItemIsSelected);
     _resizeFrame();
     if (_items.count() == 1) {
         gitem->select();
     }
 }
 
-FriendItem *ListGameItem::getSelectedItem(void)
+FriendItem *ListFriends::getSelectedItem(void)
 {
     return _selected;
 }
 
-void ListGameItem::disconnectAll(void)
+void ListFriends::disconnectAll(void)
 {
     for (auto itm: _items) {
         disconnect(itm, &FriendItem::onStateChange, nullptr, nullptr);
     }
 }
 
-void ListGameItem::clean()
+void ListFriends::clean()
 {
     for (auto itm: _items) {
         delete itm;
@@ -62,7 +62,7 @@ void ListGameItem::clean()
     _items.clear();
 }
 
-void ListGameItem::_resizeFrame(void)
+void ListFriends::_resizeFrame(void)
 {
     int     mt;
     int     mb;
@@ -78,7 +78,7 @@ void ListGameItem::_resizeFrame(void)
     }
 }
 
-void    ListGameItem::onItemIsSelected(FriendItem *itmptr, bool selected)
+void    ListFriends::onItemIsSelected(FriendItem *itmptr, bool selected)
 {
     if (selected == false)
             return;

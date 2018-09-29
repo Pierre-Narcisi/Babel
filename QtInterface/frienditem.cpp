@@ -40,7 +40,7 @@ FriendItem::FriendItem(json::Entity &data, QWidget *parent) :
     ui(new Ui::FriendItem)
 {
     ui->setupUi(this);
-    this->ui->GameNameLabel->setText(QString::fromStdString(data["name"].getData<json::String>().get()));
+    this->ui->FriendNameLabel->setText(QString::fromStdString(data["name"].getData<json::String>().get()));
 }
 
 FriendItem::~FriendItem()
@@ -56,18 +56,18 @@ json::Entity FriendItem::getDataSheet()
 void FriendItem::select()
 {
     this->setProperty("selectedItem", true);
-    this->ui->GameNameLabel->setProperty("selectedItem", true);
+    this->ui->FriendNameLabel->setProperty("selectedItem", true);
     this->style()->polish(this);
-    this->ui->GameNameLabel->style()->polish(this->ui->GameNameLabel);
+    this->ui->FriendNameLabel->style()->polish(this->ui->FriendNameLabel);
     emit onSelectChange(this, true);
 }
 
 void FriendItem::unSelect()
 {
     this->setProperty("selectedItem", {});
-    this->ui->GameNameLabel->setProperty("selectedItem", {});
+    this->ui->FriendNameLabel->setProperty("selectedItem", {});
     this->style()->polish(this);
-    this->ui->GameNameLabel->style()->polish(this->ui->GameNameLabel);
+    this->ui->FriendNameLabel->style()->polish(this->ui->FriendNameLabel);
     emit onSelectChange(this, false);
 }
 
