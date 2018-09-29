@@ -27,24 +27,17 @@ signals:
     void    onSelectChange(FriendItem *me, bool selected);
 
 public:
-    QString stateMessage;
-    QString buttonText;
-    QString speed;
-    QString descriptionHtml;
     bool    error;
-    int     progress;
-    bool    checkingFiles;
     bool    ready;
 
 private slots:
 
 private:
-    void        _initIcon(void);
+    void            _initIcon(void);
     virtual void    paintEvent(QPaintEvent *) final;
     virtual void    mousePressEvent(QMouseEvent *event) final;
     virtual void	showEvent(QShowEvent *event) final;
 
-    json::Entity    _data;
     Ui::FriendItem  *ui;
 };
 

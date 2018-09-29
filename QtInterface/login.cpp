@@ -9,6 +9,13 @@ login::login(QWidget *parent) :
 {
     _register = 0;
     ui->setupUi(this);
+
+    QObject::connect(ui->checkBox, &QCheckBox::stateChanged, [this] (int state) {
+        if (state == Qt::Checked)
+            this->ui->pushButton->setText("Register");
+        else
+            this->ui->pushButton->setText("Login");
+    });
 }
 
 login::~login()
@@ -23,11 +30,11 @@ void login::on_pushButton_clicked()
     qDebug() << name;
     qDebug() << password;
     if (name == "test" && password == "test") {
-        this->~login();
+        this->close();
     }
 }
 
-void login::on_login_finished(int result)
+void login::on_login_finished(int)
 {
-    exit(0);
+    //exit(0);
 }

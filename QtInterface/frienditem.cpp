@@ -28,15 +28,8 @@ static inline QSize    operator-(QSize s, int tosub)
 
 FriendItem::FriendItem(json::Entity &data, QWidget *parent) :
     QWidget(parent),
-    stateMessage(""),
-    buttonText(""),
-    speed(""),
-    descriptionHtml(""),
     error(false),
-    progress(0),
-    checkingFiles(true),
     ready(false),
-    _data(data),
     ui(new Ui::FriendItem)
 {
     ui->setupUi(this);
@@ -50,7 +43,6 @@ FriendItem::~FriendItem()
 
 json::Entity FriendItem::getDataSheet()
 {
-    return (_data);
 }
 
 void FriendItem::select()
@@ -92,7 +84,6 @@ void FriendItem::paintEvent(QPaintEvent *)
 
 void FriendItem::mousePressEvent(QMouseEvent *)
 {
-    std::cout << "wtf\n";
     select();
 }
 

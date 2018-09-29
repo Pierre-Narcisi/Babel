@@ -19,12 +19,12 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientMainWindows)
 {
-    login w(this);
-    w.exec();
-
     ui->setupUi(this);
 
-    auto    update = this->ui->menuBar->addAction("Update");
+    auto *w = new login(this);
+    w->exec();
+
+    auto    *update = this->ui->menuBar->addAction("Update");
     connect(update, &QAction::triggered, [this, update] () {
             update->setEnabled(false);
             QTimer::singleShot(1000, [update] () {
@@ -44,12 +44,14 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
         (void) itm;
     });
 
-    auto game = json::Entity::newObject();
+    for (auto i = 0; i < 10; i++) {
+        auto game = json::Entity::newObject();
 
-    game["name"] = "Ah";
-    auto tmp = new FriendItem(game, this);
-    this->ui->listFriends->addWidget(tmp);
-    tmp->select();
+        game["name"] = "Ah";
+        auto *tmp = new FriendItem(game, this);
+        this->ui->listFriends->addWidget(tmp);
+        tmp->select();
+    }
 }
 
 ClientMainWindows::~ClientMainWindows()

@@ -26,10 +26,10 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#GameItem:hover {
+   <string notr="true">QWidget#FriendItem:hover {
 	background-color: rgb(200, 200, 200)
 }
-QWidget#GameItem[selectedItem=&quot;true&quot;] {
+QWidget#FriendItem[selectedItem=&quot;true&quot;] {
 	background-color: rgb(114, 159, 207);
 }</string>
   </property>
@@ -62,9 +62,6 @@ QWidget#GameItem[selectedItem=&quot;true&quot;] {
        <width>60</width>
        <height>16777215</height>
       </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: transparent</string>
      </property>
      <property name="text">
       <string/>
