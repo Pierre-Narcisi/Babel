@@ -1,11 +1,11 @@
-#include <QListWidgetItem>
+
+#include <QTimer>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QAction>
 #include <QDir>
 #include <iostream>
 #include <fstream>
-#include "Json/Parser.hpp"
 #include "cache.h"
 #include "clientmainwindows.h"
 #include "ui_clientmainwindows.h"
@@ -15,22 +15,17 @@
 #include "about.h"
 #include "login.h"
 
-ClientMainWindows::ClientMainWindows(QWidget *parent) :
+ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     QMainWindow(parent),
+    _opts(opts),
+    _srv(Singletons::getSrvCo()),
     ui(new Ui::ClientMainWindows)
 {
     ui->setupUi(this);
 
-    auto *w = new login(this);
-    w->exec();
-
-    auto    *update = this->ui->menuBar->addAction("Update");
-    connect(update, &QAction::triggered, [this, update] () {
-            update->setEnabled(false);
-            QTimer::singleShot(1000, [update] () {
-                update->setEnabled(true);
-            });
-    });
+    _srv->setHost(QString::fromStdString(_opts["host"]->as<common::Opts::String>()));
+    _srv->setPort(_opts["port"]->as<common::Opts::Int>());
+    _srv->setParent(nullptr);
 
     QAction *about = this->ui->menuBar->addAction("About");
     connect(about, &QAction::triggered, [this] () {
@@ -45,10 +40,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent) :
     });
 
     for (auto i = 0; i < 10; i++) {
-        auto game = json::Entity::newObject();
-
-        game["name"] = "Ah";
-        auto *tmp = new FriendItem(game, this);
+        auto *tmp = new FriendItem("Pote-" + QString::number(i), this);
         this->ui->listFriends->addWidget(tmp);
         tmp->select();
     }
@@ -59,17 +51,28 @@ ClientMainWindows::~ClientMainWindows()
     delete ui;
 }
 
+void ClientMainWindows::showEvent(QShowEvent *) {
+    this->setEnabled(false);
+    QTimer::singleShot(0, [this] () {
+        if (_srv->run()) {
+            QMessageBox::critical(this, "Connection Error",
+                                "Failed to connect to host ("
+                                + QString::fromStdString(_opts["host"]->as<common::Opts::String>())
+                                + ":"
+                                + QString::number(_opts["port"]->as<common::Opts::Int>())
+                                + ")\nTry with --host \"ip address\" and --port \"port number\"");
+            qApp->quit();
+        }
+        this->setEnabled(true);
+        auto *w = new login(this);
+        auto ret = w->exec();
+
+        if (ret != QDialog::Accepted)
+            this->close();
+    });
+}
+
 void ClientMainWindows::closeEvent(QCloseEvent *)
 {
-    auto winSettings = json::Entity::newObject();
 
-    winSettings["position"] = json::makeObject {
-        {"x", this->pos().x()},
-        {"y", this->pos().y()}
-    };
-    winSettings["size"] = json::makeObject {
-        {"w", this->width()},
-        {"h", this->height()}
-    };
-    _settings["window"] = winSettings;
 }

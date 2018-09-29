@@ -17,6 +17,9 @@
    <iconset resource="resources.qrc">
     <normaloff>:/images/logo</normaloff>:/images/logo</iconset>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -41,11 +44,14 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lineEdit_name">
+       <property name="toolTip">
+        <string>Username</string>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
        <property name="placeholderText">
-        <string>UserName</string>
+        <string>Username</string>
        </property>
       </widget>
      </item>
@@ -64,6 +70,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lineEdit_password">
+       <property name="toolTip">
+        <string>Password</string>
+       </property>
        <property name="inputMask">
         <string/>
        </property>
@@ -109,6 +118,9 @@
          <width>16777215</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Use the login bellow to register you</string>
        </property>
        <property name="text">
         <string>Register</string>

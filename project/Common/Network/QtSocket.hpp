@@ -10,12 +10,12 @@
 #include <QTcpSocket>
 #include <QString>
 #include <exception>
-#include "INetwork.hpp"
+#include "ISocket.hpp"
 
 namespace nw {
 namespace qt {
 
-class TCPSocket {
+class TCPSocket : public ATCPSocket {
 public:
 	TCPSocket(QObject *parent);
 

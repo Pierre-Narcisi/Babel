@@ -2,7 +2,7 @@
 #include <QTimer>
 #include <QStyle>
 #include "cache.h"
-#include "listgameitem.h"
+#include "listfrienditem.h"
 #include "singletons.h"
 
 ListFriends::ListFriends(QWidget *parent):

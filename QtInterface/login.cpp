@@ -30,7 +30,7 @@ void login::on_pushButton_clicked()
     qDebug() << name;
     qDebug() << password;
     if (name == "test" && password == "test") {
-        this->close();
+        this->accept();
     }
 }
 

@@ -11,7 +11,15 @@ namespace nw {
 namespace qt {
 
 TCPSocket::TCPSocket(QObject *parent):
-	_socket(parent) {}
+        _socket(parent) {
+    QObject::connect(&_socket, &QTcpSocket::readyRead, [this] {
+        std::size_t len = _socket.bytesAvailable();
+
+        for (auto &it: _hdls) {
+            it.operator()(len);
+        }
+    });
+}
 
 void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
 	_socket.connectToHost(QString::fromStdString(host), port);

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1121</width>
-    <height>683</height>
+    <width>799</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,18 +60,48 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1121</width>
+     <width>799</width>
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMy_Account">
+    <property name="title">
+     <string>My Account</string>
+    </property>
+    <addaction name="actionAdd_Friend"/>
+    <addaction name="actionDelete_Friend"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings_2"/>
+   </widget>
+   <addaction name="menuMy_Account"/>
   </widget>
+  <action name="actionAdd_Friend">
+   <property name="text">
+    <string>Add Friend</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionDelete_Friend">
+   <property name="text">
+    <string>Delete Friend</string>
+   </property>
+  </action>
+  <action name="actionSettings_2">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>ListFriends</class>
    <extends>QWidget</extends>
-   <header>listgameitem.h</header>
+   <header>listfrienditem.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

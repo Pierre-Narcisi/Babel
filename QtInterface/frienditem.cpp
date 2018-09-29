@@ -7,9 +7,6 @@
 #include "cache.h"
 #include "singletons.h"
 #include "frienditem.h"
-#include "hashchecker.h"
-#include "resoucesdownloader.h"
-#include "gamelauncher.h"
 #include "ui_frienditem.h"
 
 static inline QSize    operator+(QSize s, int toadd)
@@ -26,23 +23,19 @@ static inline QSize    operator-(QSize s, int tosub)
     return s;
 }
 
-FriendItem::FriendItem(json::Entity &data, QWidget *parent) :
+FriendItem::FriendItem(QString const &name, QWidget *parent) :
     QWidget(parent),
     error(false),
     ready(false),
     ui(new Ui::FriendItem)
 {
     ui->setupUi(this);
-    this->ui->FriendNameLabel->setText(QString::fromStdString(data["name"].getData<json::String>().get()));
+    this->ui->FriendNameLabel->setText(name);
 }
 
 FriendItem::~FriendItem()
 {
     delete ui;
-}
-
-json::Entity FriendItem::getDataSheet()
-{
 }
 
 void FriendItem::select()

@@ -180,7 +180,7 @@ inline void	Opts::setOptions(std::initializer_list<OptionsCont> &&in) {
 					std::string("-") + i.sName;
 			_shortRef[i.sName] = i.value;
 		}
-		if (strHelpName.size() > _biggestName)
+                if (strHelpName.size() > (std::size_t) _biggestName)
 			_biggestName = strHelpName.size();
 		i.value->setHelpName(strHelpName);
 		i.value->setBiggestNamePtr(&_biggestName);

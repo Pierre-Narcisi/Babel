@@ -3,9 +3,6 @@
 
 #include <QWidget>
 #include <QNetworkAccessManager>
-#include "Json/Entity.hpp"
-#include "resoucesdownloader.h"
-#include "hashchecker.h"
 
 namespace Ui {
     class FriendItem;
@@ -15,10 +12,9 @@ class FriendItem : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FriendItem(json::Entity &item, QWidget *parent);
+    explicit FriendItem(QString const &name, QWidget *parent);
     ~FriendItem();
 
-    json::Entity    getDataSheet(void);
     void            select(void);
     void            unSelect(void);
     void            actionClicked(void);

@@ -2,7 +2,7 @@
 
 QNetworkAccessManager *Singletons::getManager(void)
 {
-    static auto _m = new QNetworkAccessManager();
+    static auto *_m = new QNetworkAccessManager();
 
     return (_m);
 }
@@ -10,4 +10,10 @@ QNetworkAccessManager *Singletons::getManager(void)
 QThreadPool *Singletons::getThreadPool(void)
 {
     return QThreadPool::globalInstance();
+}
+
+ServerConnection *Singletons::getSrvCo(void) {
+    static auto *_m = new ServerConnection();
+
+    return (_m);
 }
