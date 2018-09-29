@@ -11,7 +11,7 @@
 #include <boost/shared_ptr.hpp>
 #include "Network/BoostSocket.hpp"
 #include "Chopper/Chopper.hpp"
-#include "Protocol/Protocol.h"
+#include "ServerProtocol.hpp"
 #include "Db/Db.h"
 
 #include <iostream>
@@ -43,7 +43,7 @@ private:
 	db::Key		newFriend(std::string const &friendName, db::Db &db);
 
 	std::unique_ptr<nw::ATCPSocket>	_sock; /* use abstract class instead ? */
-	::babel::protocol::ServerSender	_sender;
+	protocol::ServerSender		_sender;
 	std::unique_ptr<Info>		_infos;
 };
 

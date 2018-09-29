@@ -7,13 +7,7 @@
 
 #pragma once
 
-#include <string>
-
-#include "Db/Db.h"
-
-namespace srv {
-	class Client;
-}
+#include <cstddef>
 
 namespace babel {
 
@@ -64,10 +58,12 @@ struct UpdateLogo : public Packet {
 	}
 
 };
+
 struct UpdateUser : public Packet {
 	char		username[128];
 	char		password[128];
 };
+
 struct UpdateFriend : public Packet {
 	enum class What {Update, Erase};
 	What		what;
@@ -138,39 +134,6 @@ public:
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
-
-class ClientSender : public Sender {
-public:
-	// ClientSender(Client &client): _client{client} {}
-
-	void receivePacket(Packet &packet) override; /* done */
-	void sendPacket(Packet &packet) override; /* done */
-
-private:
-	void parsPacketUpdateClient(UpdateClient const &packet); /* done */
-	void parsPacketUpdateFriendState(UpdateFriendState const &packet);
-	void parsPacketUpdateMessage(UpdateMessage const &packet);
-	void parsCliUpdateCall(CliUpdateCall const &packet);
-
-private:
-	// Client		&_client;
-};
-
-class ServerSender : public Sender {
-public:
-	void receivePacket(Packet &packet) override; /* done */
-	void sendPacket(Packet &packet) override; /* done */
-
-private:
-	void parsPacketConnect(Connect const &packet);
-	void parsPacketgetMessages(GetMessages const &packet);
-	void parsPacketUpdateLogo(UpdateLogo const &packet);
-	void parsPacketUpdateUser(UpdateUser const &packet);
-	void parsPacketUpdateFriend(UpdateFriend const &packet);
-};
-
-extern ClientSender	*clitmp;
-extern ServerSender	*servtmp;
 
 } /* protocol */
 
