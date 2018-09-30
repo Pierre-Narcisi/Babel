@@ -8,7 +8,7 @@
 #include <memory>
 #include "Opts/Opts.hpp"
 #include "frienditem.h"
-#include "serverconnection.h"
+#include "clientprotocol.h"
 
 namespace Ui {
 class ClientMainWindows;
@@ -28,9 +28,9 @@ private:
     void    closeEvent(QCloseEvent *event);
     void    showEvent(QShowEvent *event);
 
-    ::common::Opts          &_opts;
-    ServerConnection        *_srv;
-    Ui::ClientMainWindows   *ui;
+    common::Opts                    &_opts;
+    client::protocol::ClientSender  *_srvCo;
+    Ui::ClientMainWindows           *ui;
 };
 
 #endif // LAUNCHERMAINWINDOWS_H

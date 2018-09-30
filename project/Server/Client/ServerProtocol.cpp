@@ -22,9 +22,9 @@ void ServerSender::receivePacket(babel::protocol::Packet &packet)
 		case babel::protocol::Packet::Type::Connect:
 			parsPacketConnect(reinterpret_cast<babel::protocol::Connect &>(packet));
 			break;
-		case babel::protocol::Packet::Type::getMessages:
+		case babel::protocol::Packet::Type::GetMessages:
 			break;
-		case babel::protocol::Packet::Type::Send:
+		case babel::protocol::Packet::Type::SendMessage:
 			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
 			break;
@@ -42,9 +42,7 @@ void ServerSender::receivePacket(babel::protocol::Packet &packet)
 void ServerSender::sendPacket(babel::protocol::Packet &packet)
 {
 	std::cerr << "Server : send packet" << std::endl;
-	// if (clitmp) {
-	// 	clitmp->receivePacket(packet);
-	// }
+	_sock->send(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
 }
 
 /* verif if username and password are correct */
@@ -55,6 +53,7 @@ void ServerSender::parsPacketConnect(babel::protocol::Connect const &packet)
 	babel::protocol::Respond respond;
 	respond.type = babel::protocol::Packet::Type::Respond;
 	respond.previous = babel::protocol::Packet::Type::Connect;
+	std::cout << respond.packetSize << " o --" << sizeof(respond) << " o" << std::endl;
 
 	auto clients = server_g->db()["client"].getAll().where([&packet](db::Element const &e){
 		return e["username"].as<std::string>() == packet.username

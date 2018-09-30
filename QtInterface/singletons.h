@@ -3,7 +3,7 @@
 
 #include <QNetworkAccessManager>
 #include <QThreadPool>
-#include "serverconnection.h"
+#include "clientprotocol.h"
 
 class Singletons
 {
@@ -12,7 +12,7 @@ public:
                     getManager(void);
     static QThreadPool*
                     getThreadPool(void);
-    static ServerConnection*
+    static client::protocol::ClientSender*
                     getSrvCo(void);
 private:
     Singletons() = default;

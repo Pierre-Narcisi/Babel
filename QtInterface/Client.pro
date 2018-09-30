@@ -6,6 +6,8 @@
 
 QT       += core gui network
 
+QMAKE_CXXFLAGS += -std=c++17 -Wno-missing-field-initializers
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 win32:DEFINES   += TARGET_WINDOWS
@@ -41,7 +43,8 @@ INCLUDEPATH = $$COMMON_PATH
 SOURCES += \
     $$COMMON_PATH/Network/QtSocket.cpp \
     $$COMMON_PATH/Opts/Opts.cpp \
-    ## $$COMMON_PATH/Protocol/Protocol.cpp \
+    $$COMMON_PATH/Protocol/Protocol.cpp \
+    clientprotocol.cpp \
     main.cpp \
     clientmainwindows.cpp \
     singletons.cpp \
@@ -52,15 +55,15 @@ SOURCES += \
     conv.cpp \
     login.cpp \
     mainscreen.cpp \
-    serverconnection.cpp \
     listfrienditem.cpp
 
 HEADERS += \
+    $$COMMON_PATH/Protocol/Protocol.h \
     $$COMMON_PATH/Network/ISocket.hpp \
     $$COMMON_PATH/Network/QtSocket.hpp \
     $$COMMON_PATH/Opts/Opts.hpp \
     $$COMMON_PATH/Constant.hpp \
-    ##$$COMMON_PATH/Protocol/Protocol.h \
+    clientprotocol.h \
     clientmainwindows.h \
     singletons.h \
     cache.h \
@@ -70,7 +73,6 @@ HEADERS += \
     conv.h \
     login.h \
     mainscreen.h \
-    serverconnection.h \
     listfrienditem.h
 
 FORMS += \

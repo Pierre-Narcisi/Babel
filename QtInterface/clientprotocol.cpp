@@ -8,11 +8,46 @@
 #include <iostream>
 #include <functional>
 
-#include "ClientProtocol.hpp"
+#include "clientprotocol.h"
 
 namespace client {
 
 namespace protocol {
+
+int ClientSender::run(void) {
+    try {
+        _sock = new nw::qt::TCPSocket(_parent);
+
+        _sock->connect(_host.toStdString(), _port);
+        _sock->addHandlerOnReadable([this] (std::size_t len) -> int {
+            auto *buffer = new char[len + 1];
+
+            _sock->receive(reinterpret_cast<std::uint8_t*>(buffer), len);
+            receivePacket(*reinterpret_cast<babel::protocol::Packet*>(buffer));
+            emit onPacketReceived(*reinterpret_cast<babel::protocol::Packet*>(buffer));
+            delete buffer;
+            return 0;
+        });
+        _sock->setOnDisconnect([this] {
+            emit disconnected();
+        });
+        return (0);
+    } catch (...) {
+        return (-1);
+    }
+}
+
+void ClientSender::setHost(const QString &host) {
+    _host = host;
+}
+
+void ClientSender::setPort(quint16 port) {
+    _port = port;
+}
+
+void ClientSender::setParent(QObject *parent) {
+    _parent = parent;
+}
 
 void ClientSender::receivePacket(babel::protocol::Packet &packet)
 {
@@ -27,19 +62,20 @@ void ClientSender::receivePacket(babel::protocol::Packet &packet)
 		case babel::protocol::Packet::Type::UpdateFriendState:
 			parsPacketUpdateFriendState(reinterpret_cast<babel::protocol::UpdateFriendState &>(packet));
 			break;
+        default: break;
 	}
 }
 
 void ClientSender::sendPacket(babel::protocol::Packet &packet)
 {
-	/* send the packet */
+    _sock->send(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
 }
 
 void ClientSender::parsPacketUpdateClient(babel::protocol::UpdateClient const &packet)
 {
 	_client.username = packet.username;
 	char const *icon = reinterpret_cast<char const *>(&packet + 1);
-	for (auto i = 0; i < packet.size; ++i)
+        for (std::size_t i = 0; i < packet.size; ++i)
 		_client.icon.push_back(icon[i]);
 }
 
@@ -54,18 +90,18 @@ void ClientSender::parsPacketUpdateFriendState(babel::protocol::UpdateFriendStat
 		f->name = packet.name;
 		if (packet.size != 0) {
 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
-			for (auto i = 0; i < packet.size; ++i)
+                        for (std::size_t i = 0; i < packet.size; ++i)
 				f->icon.push_back(icon[i]);
 		}
 	} else {
 		_client.friends.push_back(Friend{
 			.state = packet.state,
 			.username = packet.username,
-			.name = packet.name
+                        .name = packet.name
 		});
 		if (packet.size != 0) {
 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
-			for (auto i = 0; i < packet.size; ++i)
+                        for (std::size_t i = 0; i < packet.size; ++i)
 				_client.friends.back().icon.push_back(icon[i]);
 		}
 	}

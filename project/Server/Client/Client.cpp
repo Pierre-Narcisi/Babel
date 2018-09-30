@@ -13,7 +13,9 @@ namespace srv {
 Client::Client(::boost::asio::io_service &ios):
 _sock(std::make_unique<::nw::boost::TCPSocket>(ios)),
 _infos(std::make_unique<Client::Info>())
-{}
+{
+	_sender.setSocket(_sock.get());
+}
 
 std::string const	&Client::getUsername(void) const
 {

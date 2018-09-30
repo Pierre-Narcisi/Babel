@@ -12,8 +12,9 @@ QThreadPool *Singletons::getThreadPool(void)
     return QThreadPool::globalInstance();
 }
 
-ServerConnection *Singletons::getSrvCo(void) {
-    static auto *_m = new ServerConnection();
+client::protocol::ClientSender *Singletons::getSrvCo(void) {
+    static client::Client                   _clt;
+    static client::protocol::ClientSender   _m(_clt);
 
-    return (_m);
+    return (&_m);
 }

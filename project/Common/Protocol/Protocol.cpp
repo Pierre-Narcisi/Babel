@@ -24,9 +24,9 @@ void Sender::parsPacketRespond(Respond const &packet)
 			std::cerr << "Respond";break;
 		case Packet::Type::Connect:
 			std::cerr << "Connect";break;
-		case Packet::Type::getMessages:
+        case Packet::Type::GetMessages:
 			std::cerr << "getMessages";break;
-		case Packet::Type::Send:
+		case Packet::Type::SendMessage:
 			std::cerr << "Send";break;
 		case Packet::Type::UpdateLogo:
 			std::cerr << "UpdateLogo";break;
@@ -38,6 +38,7 @@ void Sender::parsPacketRespond(Respond const &packet)
 			std::cerr << "UpdateClient";break;
 		case Packet::Type::UpdateMessage:
 			std::cerr << "UpdateMessage";break;
+        default: break;
 	}
 	std::cerr << std::endl;
 }
