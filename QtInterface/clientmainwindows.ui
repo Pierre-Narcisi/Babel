@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>709</width>
-    <height>363</height>
+    <width>799</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Indie-studio Launcher</string>
+   <string>Babel</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
@@ -35,7 +35,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ListGameItem" name="listGames" native="true">
+     <widget class="ListFriends" name="listFriends" native="true">
       <property name="minimumSize">
        <size>
         <width>260</width>
@@ -51,74 +51,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QTextEdit" name="descriptionText">
-        <property name="styleSheet">
-         <string notr="true">background: transparent;
-border: none;</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <property name="leftMargin">
-         <number>9</number>
-        </property>
-        <property name="topMargin">
-         <number>9</number>
-        </property>
-        <property name="rightMargin">
-         <number>9</number>
-        </property>
-        <property name="bottomMargin">
-         <number>9</number>
-        </property>
-        <item>
-         <widget class="QProgressBar" name="downloadProgress">
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="textVisible">
-           <bool>true</bool>
-          </property>
-          <property name="invertedAppearance">
-           <bool>false</bool>
-          </property>
-          <property name="format">
-           <string notr="true">%p%</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="gameActionButton">
-          <property name="text">
-           <string>Download</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-          <property name="default">
-           <bool>true</bool>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <widget class="conv" name="widget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -127,18 +60,54 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>709</width>
+     <width>799</width>
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMy_Account">
+    <property name="title">
+     <string>My Account</string>
+    </property>
+    <addaction name="actionAdd_Friend"/>
+    <addaction name="actionDelete_Friend"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings_2"/>
+   </widget>
+   <addaction name="menuMy_Account"/>
   </widget>
+  <action name="actionAdd_Friend">
+   <property name="text">
+    <string>Add Friend</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionDelete_Friend">
+   <property name="text">
+    <string>Delete Friend</string>
+   </property>
+  </action>
+  <action name="actionSettings_2">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>ListGameItem</class>
+   <class>ListFriends</class>
    <extends>QWidget</extends>
-   <header>listgameitem.h</header>
+   <header>listfrienditem.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>conv</class>
+   <extends>QWidget</extends>
+   <header>conv.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

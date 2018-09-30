@@ -7,9 +7,6 @@
 #include "cache.h"
 #include "singletons.h"
 #include "frienditem.h"
-#include "hashchecker.h"
-#include "resoucesdownloader.h"
-#include "gamelauncher.h"
 #include "ui_frienditem.h"
 
 static inline QSize    operator+(QSize s, int toadd)
@@ -26,21 +23,14 @@ static inline QSize    operator-(QSize s, int tosub)
     return s;
 }
 
-FriendItem::FriendItem(json::Entity &data, QWidget *parent) :
+FriendItem::FriendItem(QString const &name, QWidget *parent) :
     QWidget(parent),
-    stateMessage(""),
-    buttonText(""),
-    speed(""),
-    descriptionHtml(""),
     error(false),
-    progress(0),
-    checkingFiles(true),
     ready(false),
-    _data(data),
     ui(new Ui::FriendItem)
 {
     ui->setupUi(this);
-    this->ui->GameNameLabel->setText(QString::fromStdString(data["name"].getData<json::String>().get()));
+    this->ui->FriendNameLabel->setText(name);
 }
 
 FriendItem::~FriendItem()
@@ -48,26 +38,21 @@ FriendItem::~FriendItem()
     delete ui;
 }
 
-json::Entity FriendItem::getDataSheet()
-{
-    return (_data);
-}
-
 void FriendItem::select()
 {
     this->setProperty("selectedItem", true);
-    this->ui->GameNameLabel->setProperty("selectedItem", true);
+    this->ui->FriendNameLabel->setProperty("selectedItem", true);
     this->style()->polish(this);
-    this->ui->GameNameLabel->style()->polish(this->ui->GameNameLabel);
+    this->ui->FriendNameLabel->style()->polish(this->ui->FriendNameLabel);
     emit onSelectChange(this, true);
 }
 
 void FriendItem::unSelect()
 {
     this->setProperty("selectedItem", {});
-    this->ui->GameNameLabel->setProperty("selectedItem", {});
+    this->ui->FriendNameLabel->setProperty("selectedItem", {});
     this->style()->polish(this);
-    this->ui->GameNameLabel->style()->polish(this->ui->GameNameLabel);
+    this->ui->FriendNameLabel->style()->polish(this->ui->FriendNameLabel);
     emit onSelectChange(this, false);
 }
 
@@ -92,7 +77,6 @@ void FriendItem::paintEvent(QPaintEvent *)
 
 void FriendItem::mousePressEvent(QMouseEvent *)
 {
-    std::cout << "wtf\n";
     select();
 }
 

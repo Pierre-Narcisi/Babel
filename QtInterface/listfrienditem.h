@@ -6,12 +6,12 @@
 #include <QScrollBar>
 #include "frienditem.h"
 
-class ListGameItem : public QScrollArea
+class ListFriends : public QScrollArea
 {
     Q_OBJECT
 public:
-    explicit ListGameItem(QWidget *parent = nullptr);
-    ~ListGameItem();
+    explicit ListFriends(QWidget *parent = nullptr);
+    ~ListFriends();
 
     void        addWidget(FriendItem *);
     FriendItem    *getSelectedItem(void);

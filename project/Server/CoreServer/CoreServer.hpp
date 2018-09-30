@@ -22,12 +22,16 @@ public:
 	~CoreServer();
 	
 	void	start(void);
+	inline db::Db &db(void) { return _db; }
+	bool	isConnected(std::string const &username) const;
+
 private:
 	class CoreArgs;
 
 	void	_handleStop(void);
 	void	_startAccept(void);
 	void	_handleAccept(Client::ptr newClient, const ::boost::system::error_code& error);
+	void	_instanciateDb(void);
 
 	std::unique_ptr<CoreArgs>		_args;
 	::boost::asio::io_service		_ios;
@@ -49,5 +53,7 @@ private:
 	std::uint16_t	_port;
 	std::string	_dbFileName;
 };
+
+extern CoreServer *server_g;
 
 }

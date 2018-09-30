@@ -1,4 +1,4 @@
-Project(babel-client)
+Project(babel_server)
 cmake_minimum_required(VERSION 3.5)
 add_definitions("-std=c++17")
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -9,13 +9,15 @@ include_directories(../Common)
 include_directories(..)
 include_directories(.)
 
-add_executable(babel-client
+add_executable(babel_server
 	../Common/Chopper/Chopper.cpp
 	../Common/Network/BoostSocket.cpp
+	../Common/Protocol/Protocol.cpp
 	../Common/Opts/Opts.cpp
 	main.cpp
 	Client/Client.cpp
+	Client/ServerProtocol.cpp
 	CoreServer/CoreServer.cpp
 	../Db/Db.cpp
 	../Db/DbData.cpp)
- target_link_libraries(babel-client ${CONAN_LIBS})
+ target_link_libraries(babel_server ${CONAN_LIBS})

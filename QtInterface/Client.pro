@@ -6,6 +6,8 @@
 
 QT       += core gui network
 
+QMAKE_CXXFLAGS += -std=c++17 -Wno-missing-field-initializers
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 win32:DEFINES   += TARGET_WINDOWS
@@ -14,7 +16,7 @@ macos:DEFINES   += TARGET_MACOS
 
 CLIENT_VERSION = 0.1.0
 
-TARGET = Babel-Client
+TARGET = babel_client
 TEMPLATE = app
 
 RC_FILE = Client.rc
@@ -30,35 +32,56 @@ DEFINES += QT_DEPRECATED_WARNINGS "VERSION=$$CLIENT_VERSION"
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-win32:LIBS  += $$PWD/libs/Json/windows/Json.dll
-unix:LIBS   += -L$$PWD/libs/Json/linux -lstatic_Json
-macos:LIBS  += -L$$PWD/libs/Json/macsos -lstatic_Json
+#win32:LIBS  += $$PWD/libs/Json/windows/Json.dll
+#unix:LIBS   += -L$$PWD/libs/Json/linux -lstatic_Json
+#macos:LIBS  += -L$$PWD/libs/Json/macsos -lstatic_Json
 
-INCLUDEPATH =   $$PWD/libs/Json/includes
+COMMON_PATH = $$PWD/../project/Common/
+
+INCLUDEPATH = $$COMMON_PATH
 
 SOURCES += \
+    $$COMMON_PATH/Network/QtSocket.cpp \
+    $$COMMON_PATH/Opts/Opts.cpp \
+    $$COMMON_PATH/Protocol/Protocol.cpp \
+    clientprotocol.cpp \
     main.cpp \
     clientmainwindows.cpp \
-    listgameitem.cpp \
     singletons.cpp \
     cache.cpp \
     version.cpp \
     about.cpp \
-    frienditem.cpp
+    frienditem.cpp \
+    conv.cpp \
+    login.cpp \
+    mainscreen.cpp \
+    listfrienditem.cpp
 
 HEADERS += \
+    $$COMMON_PATH/Protocol/Protocol.h \
+    $$COMMON_PATH/Network/ISocket.hpp \
+    $$COMMON_PATH/Network/QtSocket.hpp \
+    $$COMMON_PATH/Opts/Opts.hpp \
+    $$COMMON_PATH/Constant.hpp \
+    clientprotocol.h \
     clientmainwindows.h \
-    listgameitem.h \
     singletons.h \
     cache.h \
     version.h \
     about.h \
-    frienditem.h
+    frienditem.h \
+    conv.h \
+    login.h \
+    mainscreen.h \
+    listfrienditem.h
 
 FORMS += \
     clientmainwindows.ui \
     about.ui \
-    frienditem.ui
+    frienditem.ui \
+    conv.ui \
+    login.ui \
+    mainscreen.ui
 
 RESOURCES += \
     resources.qrc

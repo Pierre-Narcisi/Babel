@@ -7,9 +7,27 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 
-#include "BabelStruct.h"
+#ifdef IMPL_PACKCONST
+#undef IMPL_PACKCONST
+#endif
+#define IMPL_PACKCONST(T) explicit T(): Packet(sizeof(T), Packet::Type::T) {}
+
+#ifdef IMPL_PACKDYN
+#undef IMPL_PACKDYN
+#endif
+#define IMPL_PACKDYN(T) \
+	void *operator new[](std::size_t s) { \
+		auto	psize = sizeof(T) + s + 1; \
+		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
+		ptr->packetSize = psize; \
+		ptr->type = Packet::Type::T; \
+		return ptr; \
+	}
+
+
 
 namespace babel {
 
@@ -21,18 +39,24 @@ struct Packet {
 	enum class Type {
 		Respond,
 		Connect,
-		getMessages,
-		Send,
+		GetMessages,
+		SendMessage,
 		UpdateLogo,
 		UpdateUser,
 		UpdateFriend,
 		UpdateClient,
 		UpdateFriendState,
-		UpdateMessage
+		UpdateMessage,
+		CliUpdateCall,
+		ServUpdateCall
 	} type;
+	Packet(): packetSize(sizeof(Packet)) {}
+	Packet(std::size_t s, Type t): type(t), packetSize(s) {}
+	std::size_t packetSize;
 };
 
 struct Respond : public Packet {
+	IMPL_PACKCONST(Respond)
 	enum Type : bool {OK = true, KO = false};
 	Packet::Type	previous;
 	Respond::Type	respond;
@@ -40,11 +64,14 @@ struct Respond : public Packet {
 
 /* Client -> Server */
 struct Connect : public Packet {
+	IMPL_PACKCONST(Connect)
 	char		username[128];
 	char		password[128];
+	bool		needRegister;
 };
 
 struct GetMessages : public Packet {
+	IMPL_PACKCONST(GetMessages)
 	char		username[128];
 	std::size_t	start;
 	std::size_t	number;
@@ -54,17 +81,17 @@ struct UpdateLogo : public Packet {
 	std::size_t	size;
 	char		buffer[];
 
-	void *operator new[](std::size_t s)
-	{
-		return ::operator new(sizeof(UpdateLogo) + s + 1);
-	}
-
+	IMPL_PACKDYN(UpdateLogo);
 };
+
 struct UpdateUser : public Packet {
+	IMPL_PACKCONST(UpdateUser)
 	char		username[128];
 	char		password[128];
 };
+
 struct UpdateFriend : public Packet {
+	IMPL_PACKCONST(UpdateFriend)
 	enum class What {Update, Erase};
 	What		what;
 	char		username[128];
@@ -76,11 +103,7 @@ struct SendMessage : public Packet {
 	std::size_t	size;
 	char		buffer[]; /* message */
 
-	void *operator new[](std::size_t s)
-	{
-		return ::operator new(sizeof(SendMessage) + s + 1);
-	}
-
+	IMPL_PACKDYN(SendMessage)
 };
 
 /* Server -> Client */
@@ -89,10 +112,7 @@ struct UpdateClient : public Packet {
 	std::size_t	size;
 	char		buffer[]; /* icon */
 
-	static void *operator new[](std::size_t s)
-	{
-		return ::operator new(sizeof(UpdateClient) + s + 1);
-	}
+	IMPL_PACKDYN(UpdateClient)
 };
 
 struct UpdateFriendState : public Packet {
@@ -102,13 +122,11 @@ struct UpdateFriendState : public Packet {
 	std::size_t	size;
 	char		buffer[]; /* icon */
 
-	void *operator new[](std::size_t s)
-	{
-		return ::operator new(sizeof(UpdateFriendState) + s + 1);
-	}
+	IMPL_PACKDYN(UpdateFriendState);
 };
 
 struct UpdateMessage : public Packet {
+	IMPL_PACKCONST(UpdateMessage)
 	struct Message {
 		std::size_t	size;
 		char		buffer[];
@@ -119,11 +137,11 @@ struct UpdateMessage : public Packet {
 };
 
 struct CliUpdateCall : public Packet {
-
+	IMPL_PACKCONST(CliUpdateCall)
 };
 
 struct ServUpdateCall : public Packet {
-	
+	IMPL_PACKCONST(ServUpdateCall)
 };
 
 class Sender {
@@ -131,47 +149,10 @@ public:
 	virtual void receivePacket(Packet &packet) = 0;
 	virtual void sendPacket(Packet &packet) = 0;
 
+    static std::string humanReadable(Packet::Type packType);
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
-
-class ClientSender : public Sender {
-public:
-	ClientSender(Client &client): _client{client} {}
-
-	void receivePacket(Packet &packet) override; /* done */
-	void sendPacket(Packet &packet) override; /* done */
-
-private:
-	void parsPacketUpdateClient(UpdateClient const &packet); /* done */
-	void parsPacketUpdateFriendState(UpdateFriendState const &packet);
-	void parsPacketUpdateMessage(UpdateMessage const &packet);
-	void parsCliUpdateCall(CliUpdateCall const &packet);
-
-private:
-	Client		&_client;
-};
-
-class ServerSender : public Sender {
-public:
-	ServerSender(db::Db &db): _db{db} {}
-
-	void receivePacket(Packet &packet) override; /* done */
-	void sendPacket(Packet &packet) override; /* done */
-
-private:
-	void parsPacketConnect(Connect const &packet);
-	void parsPacketgetMessages(GetMessages const &packet);
-	void parsPacketUpdateLogo(UpdateLogo const &packet);
-	void parsPacketUpdateUser(UpdateUser const &packet);
-	void parsPacketUpdateFriend(UpdateFriend const &packet);
-
-private:
-	db::Db		&_db;
-};
-
-extern ClientSender	*clitmp;
-extern ServerSender	*servtmp;
 
 } /* protocol */
 

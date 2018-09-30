@@ -59,7 +59,8 @@ void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 }
 
 std::size_t	TCPSocket::send(std::uint8_t *buff, std::size_t len) {
-	return _socket.write_some(::boost::asio::buffer(buff, len));
+	auto ret = _socket.send(::boost::asio::buffer(buff, len));
+	return ret;
 }
 
 std::size_t	TCPSocket::receive(std::uint8_t *buff, std::size_t len) {

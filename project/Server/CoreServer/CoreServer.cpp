@@ -14,11 +14,15 @@
 
 namespace srv {
 
+CoreServer *server_g = nullptr;
+
 using btcp = ::boost::asio::ip::tcp;
 CoreServer::CoreServer(int ac, char **av):
-		_args(std::make_unique<CoreArgs>(ac, av)),
-		_acceptor(_ios, btcp::endpoint(btcp::v4(), _args->port())),
-		_signals(_ios) {
+_args(std::make_unique<CoreArgs>(CoreArgs(ac, av))),
+_acceptor(_ios, btcp::endpoint(btcp::v4(), _args->port())),
+_signals(_ios)
+{
+	server_g = this;
 	_signals.add(SIGINT);
 	_signals.add(SIGTERM);
 #if defined(SIGQUIT)
@@ -26,17 +30,20 @@ CoreServer::CoreServer(int ac, char **av):
 #endif // defined(SIGQUIT)
 	_signals.async_wait(boost::bind(&CoreServer::_handleStop, this));
 
+	_instanciateDb();
 	_acceptor.listen();
 	_startAccept();
 }
 
-CoreServer::~CoreServer() {
+CoreServer::~CoreServer()
+{
+	_db.exportDb(_args->dbFileName());
 	std::cout << "Server stoped" << std::endl;
 }
 
 void CoreServer::_handleStop(void)
 {
-  _ios.stop();
+	_ios.stop();
 }
 
 void CoreServer::start(void)
@@ -54,7 +61,17 @@ void CoreServer::start(void)
 		t.join();
 }
 
-void	CoreServer::_startAccept(void) {
+bool	CoreServer::isConnected(std::string const &username) const
+{
+	for (auto e : _clts) {
+		if (e->getUsername() == username)
+			return true;
+	}
+	return false;
+}
+
+void	CoreServer::_startAccept(void)
+{
 	Client::ptr newClient = Client::create(_acceptor.get_io_service());
 
 	_acceptor.async_accept(newClient->getSocket().getBoostSocket(),
@@ -67,8 +84,8 @@ void	CoreServer::_startAccept(void) {
 			});
 		});
 }
-	
-void CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error_code& error)
+
+void	CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error_code& error)
 {
 	if (!error) {
 		std::cout << "New client connected" << std::endl;
@@ -79,7 +96,26 @@ void CoreServer::_handleAccept(Client::ptr newClient, const boost::system::error
 	}
 }
 
-CoreServer::CoreArgs::CoreArgs(int ac, char **av) {
+void	CoreServer::_instanciateDb()
+{
+	_db.createTable("client", {
+		{"username", db::Data::Type::String},
+		{"password", db::Data::Type::String},
+		{"icon", db::Data::Type::String}
+	}, srv::Client::Info::serializer, srv::Client::Info::deserializer);
+	_db.createTable("friend", {
+		{"clientRef", db::Data::Type::Number},
+		{"name", db::Data::Type::String},
+	}, srv::Friend::serializer, srv::Friend::deserializer);
+	_db.createTable("friendListRef", {
+		{"clientKey", db::Data::Type::Number},
+		{"friendKey", db::Data::Type::Number}
+	}, srv::FriendRef::serializer);
+	_db.importDb(_args->dbFileName());
+}
+
+CoreServer::CoreArgs::CoreArgs(int ac, char **av)
+{
 	common::Opts	opts(ac, av);
 
 	opts.setUsage("Usage", std::string(av[0]) + " [arguments...]");

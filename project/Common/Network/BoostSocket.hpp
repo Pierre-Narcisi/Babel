@@ -16,7 +16,7 @@
 namespace nw {
 namespace boost {
 
-class TCPSocket: public ITCPSocket {
+class TCPSocket: public ATCPSocket {
 public:
 	TCPSocket();
 	TCPSocket(::boost::asio::io_service &srv);
@@ -29,13 +29,9 @@ public:
 
 	inline ::boost::asio::ip::tcp::socket
 				&getBoostSocket(void) { return _socket; }
-	inline void	setOnDisconnect(std::function<void(void)> const &hdl) { _onDisconnect = hdl; }
-	void		start(void);
-protected:
-	void		_onReceiveHandler(::boost::system::error_code const &e);
-	std::function<void(void)>
-			_onDisconnect;
+	void			start(void);
 private:
+	void		_onReceiveHandler(::boost::system::error_code const &e);
 
 	::boost::asio::io_service	*_ios;
 	::boost::asio::ip::tcp::socket	_socket;
