@@ -51,6 +51,8 @@ public:
 signals:
     void    disconnected(void);
     void    onPacketReceived(babel::protocol::Packet&);
+    void    onFriendListChange(std::vector<Friend> const &friends);
+
 
 private:
 	void parsPacketUpdateClient(babel::protocol::UpdateClient const &packet); /* done */

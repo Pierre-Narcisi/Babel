@@ -95,7 +95,7 @@ void ServerSender::parsPacketConnect(babel::protocol::Connect const &packet)
 			if (t.good()) {
 				icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 			}
-			babel::protocol::UpdateFriendState *update = new babel::protocol::UpdateFriendState[icon.size()];
+			auto *update = new babel::protocol::UpdateFriendState[icon.size()];
 			update->type = babel::protocol::Packet::Type::UpdateFriendState;
 			std::strncpy(update->username, f.username.c_str(), 128);
 			std::strncpy(update->name, f.name.c_str(), 128);

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 
 #ifdef IMPL_PACKCONST
 #undef IMPL_PACKCONST
@@ -148,6 +149,7 @@ public:
 	virtual void receivePacket(Packet &packet) = 0;
 	virtual void sendPacket(Packet &packet) = 0;
 
+    static std::string humanReadable(Packet::Type packType);
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };

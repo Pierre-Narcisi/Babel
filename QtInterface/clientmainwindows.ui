@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Indie-studio Launcher</string>
+   <string>Babel</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">

@@ -33,6 +33,20 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         qApp->quit();
     });
 
+    QObject::connect(_srvCo, &client::protocol::ClientSender::onPacketReceived,
+                   [this] (babel::protocol::Packet &pack) {
+        std::cerr << babel::protocol::Sender::humanReadable(pack.type) << std::endl;
+    });
+
+    QObject::connect(_srvCo, &client::protocol::ClientSender::onFriendListChange,
+                     [this] (std::vector<client::Friend> const &friends) {
+        this->ui->listFriends->clean();
+        for (auto &f: friends) {
+            auto *itm = new FriendItem(f.name, this);
+            this->ui->listFriends->addWidget(itm);
+        }
+    });
+
     QAction *about = this->ui->menuBar->addAction("About");
     connect(about, &QAction::triggered, [this] () {
         About   aboutModal(this);
@@ -47,9 +61,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
 
     /* Show 10 friends */
     for (auto i = 0; i < 10; i++) {
-        auto *tmp = new FriendItem("Pote-" + QString::number(i), this);
-        this->ui->listFriends->addWidget(tmp);
-        tmp->select();
+
     }
 }
 

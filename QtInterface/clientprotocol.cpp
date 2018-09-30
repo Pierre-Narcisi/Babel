@@ -21,10 +21,18 @@ int ClientSender::run(void) {
         _sock->connect(_host.toStdString(), _port);
         _sock->addHandlerOnReadable([this] (std::size_t len) -> int {
             auto *buffer = new char[len + 1];
+            auto *b = buffer;
 
             _sock->receive(reinterpret_cast<std::uint8_t*>(buffer), len);
-            receivePacket(*reinterpret_cast<babel::protocol::Packet*>(buffer));
-            emit onPacketReceived(*reinterpret_cast<babel::protocol::Packet*>(buffer));
+            while (true) {
+                auto *p = reinterpret_cast<babel::protocol::Packet*>(b);
+                receivePacket(*p);
+                emit onPacketReceived(*p);
+                b = b + p->packetSize;
+                if (reinterpret_cast<std::uintptr_t>(b)
+                        - reinterpret_cast<std::uintptr_t>(buffer) >= len)
+                    break;
+            }
             delete buffer;
             return 0;
         });
@@ -105,6 +113,7 @@ void ClientSender::parsPacketUpdateFriendState(babel::protocol::UpdateFriendStat
 				_client.friends.back().icon.push_back(icon[i]);
 		}
 	}
+    emit onFriendListChange(_client.friends);
 }
 
 }

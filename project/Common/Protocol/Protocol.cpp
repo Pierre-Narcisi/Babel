@@ -19,28 +19,34 @@ namespace protocol {
 void Sender::parsPacketRespond(Respond const &packet)
 {
 	std::cerr << "respond " << (packet.respond ? "OK" : "KO") << " to ";
-	switch (packet.previous) {
-		case Packet::Type::Respond:
-			std::cerr << "Respond";break;
-		case Packet::Type::Connect:
-			std::cerr << "Connect";break;
-        case Packet::Type::GetMessages:
-			std::cerr << "getMessages";break;
-		case Packet::Type::SendMessage:
-			std::cerr << "Send";break;
-		case Packet::Type::UpdateLogo:
-			std::cerr << "UpdateLogo";break;
-		case Packet::Type::UpdateUser:
-			std::cerr << "UpdateUser";break;
-		case Packet::Type::UpdateFriend:
-			std::cerr << "UpdateFriend";break;
-		case Packet::Type::UpdateClient:
-			std::cerr << "UpdateClient";break;
-		case Packet::Type::UpdateMessage:
-			std::cerr << "UpdateMessage";break;
-        default: break;
-	}
+	std::cerr << humanReadable(packet.previous);
 	std::cerr << std::endl;
+}
+
+std::string Sender::humanReadable(Packet::Type packetType) {
+    switch (packetType) {
+        case Packet::Type::Respond:
+            return "Respond";
+        case Packet::Type::Connect:
+            return "Connect";
+        case Packet::Type::GetMessages:
+            return "getMessages";
+        case Packet::Type::SendMessage:
+            return "Send";
+        case Packet::Type::UpdateLogo:
+            return "UpdateLogo";
+        case Packet::Type::UpdateUser:
+            return "UpdateUser";
+        case Packet::Type::UpdateFriend:
+            return "UpdateFriend";
+        case Packet::Type::UpdateClient:
+            return "UpdateClient";
+        case Packet::Type::UpdateMessage:
+            return "UpdateMessage";
+        case Packet::Type::UpdateFriendState:
+            return "UpdateFriendState";
+        default: return "Unknown";
+    }
 }
 
 } /* protocol */
