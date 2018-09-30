@@ -94,6 +94,17 @@ void ClientMainWindows::showEvent(QShowEvent *) {
         if (ret != QDialog::Accepted)
             this->close();
     });
+
+    auto *s = Singletons::getSettings();
+
+    auto    w = (*s)["window"].toObject();
+    auto    winPos = w["pos"].toObject();
+    auto    winSize = w["size"].toObject();
+
+    this->move(winPos["x"].toInt(), winPos["y"].toInt());
+
+    this->resize(winSize["w"].toInt(), winSize["h"].toInt());
+
 }
 
 void ClientMainWindows::closeEvent(QCloseEvent *)
