@@ -36,19 +36,19 @@ namespace protocol {
 /* Common */
 
 struct Packet {
-	enum class Type {
-        Respond = 1,
-        Connect = 2,
-        GetMessages = 3,
-        SendMessage = 4,
-        UpdateLogo = 5,
-        UpdateUser = 6,
-        UpdateFriend = 7,
-        UpdateClient = 8,
-        UpdateFriendState = 9,
-        UpdateMessage = 10,
-        CliUpdateCall = 11,
-        ServUpdateCall = 12
+    enum class Type : std::uint8_t {
+        Respond,
+        Connect,
+        GetMessages,
+        SendMessage,
+        UpdateLogo,
+        UpdateUser,
+        UpdateFriend,
+        UpdateClient,
+        UpdateFriendState,
+        UpdateMessage,
+        CliUpdateCall,
+        ServUpdateCall
 	} type;
 	Packet(): packetSize(sizeof(Packet)) {}
 	Packet(std::size_t s, Type t): type(t), packetSize(s) {}
