@@ -9,16 +9,27 @@
 
 login::login(QWidget *parent) :
     QDialog(parent),
+    _cr((*Singletons::getSettings())["credentials"].toObject()),
     ui(new Ui::login)
 {
-    _register = 0;
     ui->setupUi(this);
+
+    ui->lineEdit_name->setText(_cr["username"].toString());
+    ui->lineEdit_password->setText(_cr["password"].toString());
+    ui->checkBoxRemember->setChecked(!ui->lineEdit_password->text().isEmpty());
 
     QObject::connect(ui->checkBox, &QCheckBox::stateChanged, [this] (int state) {
         if (state == Qt::Checked)
             this->ui->pushButton->setText("Register");
         else
             this->ui->pushButton->setText("Login");
+    });
+
+    QObject::connect(ui->checkBoxRemember, &QCheckBox::stateChanged, [this] (int state) {
+        if (state == Qt::Checked)
+            _cr["password"] = ui->lineEdit_password->text().toStdString().c_str();
+        else
+            _cr["password"] = "";
     });
 
     QObject::connect(Singletons::getSrvCo(), &client::protocol::ClientSender::onPacketReceived,
@@ -45,11 +56,9 @@ login::~login()
 void login::on_pushButton_clicked()
 {
     auto *srvCo = Singletons::getSrvCo();
-//  QCryptographicHash  passHashor(QCryptographicHash::Sha3_512);
-//  passHashor.addData(ui->lineEdit_password->text().toLatin1());
 
     QString name = ui->lineEdit_name->text();
-    QString password = ui->lineEdit_password->text().toLatin1(); //passHashor.result().toBase64();
+    QString password = ui->lineEdit_password->text();
     babel::protocol::Connect    pack;
 
     std::strcpy(pack.username, name.toStdString().c_str());
@@ -58,9 +67,13 @@ void login::on_pushButton_clicked()
 
     srvCo->sendPacket(pack);
     this->setEnabled(false);
+
+    _cr["username"] = name;
+    if (ui->checkBoxRemember->isChecked())
+        _cr["password"] = password;
 }
 
 void login::on_login_finished(int)
 {
-    //exit(0);
+    (*Singletons::getSettings())["credentials"] = _cr;
 }

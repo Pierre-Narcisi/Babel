@@ -55,7 +55,8 @@ SOURCES += \
     conv.cpp \
     login.cpp \
     mainscreen.cpp \
-    listfrienditem.cpp
+    listfrienditem.cpp \
+    settings.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -73,7 +74,8 @@ HEADERS += \
     conv.h \
     login.h \
     mainscreen.h \
-    listfrienditem.h
+    listfrienditem.h \
+    settings.h
 
 FORMS += \
     clientmainwindows.ui \

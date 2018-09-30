@@ -98,5 +98,17 @@ void ClientMainWindows::showEvent(QShowEvent *) {
 
 void ClientMainWindows::closeEvent(QCloseEvent *)
 {
+    auto &s = *Singletons::getSettings();
 
+    s["window"] = QJsonObject {
+        {"pos", QJsonObject {
+            {"x", this->pos().x()},
+            {"y", this->pos().y()}
+        }},
+        {"size", QJsonObject {
+            {"w", this->width()},
+            {"h", this->height()}
+        }},
+    };
+    s.save();
 }
