@@ -1,19 +1,18 @@
 #ifndef SINGLETONS_H
 #define SINGLETONS_H
 
-#include <QNetworkAccessManager>
 #include <QThreadPool>
 #include "clientprotocol.h"
+#include "settings.h"
 
 class Singletons
 {
 public:
-    static QNetworkAccessManager*
-                    getManager(void);
     static QThreadPool*
                     getThreadPool(void);
     static client::protocol::ClientSender*
                     getSrvCo(void);
+    static Settings *getSettings(void);
 private:
     Singletons() = default;
 };

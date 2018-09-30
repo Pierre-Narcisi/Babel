@@ -2,6 +2,8 @@
 #define LOGIN_H
 
 #include <QDialog>
+#include <QJsonObject>
+#include <QJsonValue>
 
 namespace Ui {
 class login;
@@ -21,8 +23,8 @@ private slots:
     void on_login_finished(int result);
 
 private:
-    int _register;
-    Ui::login *ui;
+    QJsonObject _cr;
+    Ui::login   *ui;
 };
 
 #endif // LOGIN_H
