@@ -17,3 +17,21 @@ Settings *Singletons::getSettings(void) {
 
     return (&_s);
 }
+
+ListFriends  *Singletons::getListFriendWidget(void) {
+    auto &s = Singletons::_get();
+
+    return s._listFriendInstance;
+}
+
+void         Singletons::setListFriendWidget(ListFriends *w) {
+    auto &s = Singletons::_get();
+
+    s._listFriendInstance = w;
+}
+
+Singletons  &Singletons::_get() {
+    static Singletons _s;
+
+    return _s;
+}

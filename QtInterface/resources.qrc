@@ -2,4 +2,8 @@
     <qresource prefix="/images">
         <file alias="logo">assets/logo.png</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="call">assets/call.png</file>
+        <file alias="send">assets/send.png</file>
+    </qresource>
 </RCC>

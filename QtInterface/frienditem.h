@@ -25,6 +25,7 @@ signals:
 public:
     bool    error;
     bool    ready;
+    QString name;
 
 private slots:
 

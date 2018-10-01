@@ -23,14 +23,15 @@ static inline QSize    operator-(QSize s, int tosub)
     return s;
 }
 
-FriendItem::FriendItem(QString const &name, QWidget *parent) :
+FriendItem::FriendItem(QString const &n, QWidget *parent) :
     QWidget(parent),
     error(false),
     ready(false),
+    name(n),
     ui(new Ui::FriendItem)
 {
     ui->setupUi(this);
-    this->ui->FriendNameLabel->setText(name);
+    this->ui->FriendNameLabel->setText(n);
 }
 
 FriendItem::~FriendItem()

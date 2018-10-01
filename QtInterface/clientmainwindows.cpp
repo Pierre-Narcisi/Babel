@@ -26,6 +26,9 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     _srvCo->setHost(QString::fromStdString(_opts["host"]->as<common::Opts::String>()));
     _srvCo->setPort(_opts["port"]->as<common::Opts::Int>());
     _srvCo->setParent(nullptr);
+
+    Singletons::setListFriendWidget(ui->listFriends);
+
     QObject::connect(_srvCo, &client::protocol::ClientSender::disconnected, [this] {
         QMessageBox::critical(this, "Connection lost",
                               "Connection lost with the server\n"
@@ -59,10 +62,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         (void) itm;
     });
 
-    /* Show 10 friends */
-    for (auto i = 0; i < 10; i++) {
 
-    }
 }
 
 ClientMainWindows::~ClientMainWindows()
