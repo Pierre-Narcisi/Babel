@@ -7,6 +7,7 @@
 #include "PaWrapper.hpp"
 #include <iostream>
 #include <vector>
+#include <cstring>
 
 PaWrapper::PaWrapper() {
 	if (Pa_Initialize() != paNoError) {
@@ -25,7 +26,7 @@ PaWrapper::PaWrapper() {
 	_in.hostApiSpecificStreamInfo = NULL;
 
 
-	/// Initialise the encoder
+	/*/// Initialise the encoder
 	int err;
 	_encoder = opus_encoder_create(48000, 2, OPUS_APPLICATION_AUDIO, &err);
 	if (err != OPUS_OK) {
@@ -33,7 +34,7 @@ PaWrapper::PaWrapper() {
 		std::cout << opus_strerror(err) << std::endl;
 		exit(0);
 	}
-	opus_encoder_ctl(_encoder, OPUS_SET_BITRATE(64000));
+	opus_encoder_ctl(_encoder, OPUS_SET_BITRATE(64000));*/
 
 
 	/// Initialise speakers
@@ -48,14 +49,14 @@ PaWrapper::PaWrapper() {
 	_out.hostApiSpecificStreamInfo = NULL;
 
 
-	/// Initialise decoder
+	/*/// Initialise decoder
 	_decoder = opus_decoder_create(48000, 2, &err);
 	if (err<0)
 	{
 		std::cout << "Error: failed to create decoder" << std::endl;
 		exit(0);
 	}
-	opus_decoder_ctl(_decoder, OPUS_SET_BITRATE(64000));
+	opus_decoder_ctl(_decoder, OPUS_SET_BITRATE(64000));*/
 
 	if (Pa_OpenStream(
 		&_streamIn, &_in, NULL, SAMPLE_RATE, FRAMES_PER_BUFFER, paClipOff, NULL, NULL) != paNoError) {
@@ -70,62 +71,68 @@ PaWrapper::PaWrapper() {
 }
 
 void PaWrapper::startRecord() {
-	float leftBuffer[FRAMES_PER_BUFFER];
-	float rightBuffer[FRAMES_PER_BUFFER];
-	unsigned char comp[FRAMES_PER_BUFFER*4];
-	void *buffers[2];
-	buffers[0] = leftBuffer;
-	buffers[1] = rightBuffer;
+	if (Pa_IsStreamActive(_streamIn) != 1)
+		Pa_StartStream(_streamIn);
+}
 
-	int size = 0;
-	int sizeout = 0;
+void PaWrapper::record() {
+	int err = 0;
 
-	Pa_StartStream(_streamIn);
-	Pa_StartStream(_streamOut);
+	std::memset(_buff.buffers, 0, sizeof(_buff));
 
-	while (Pa_IsStreamActive(_streamIn) == 1 && Pa_IsStreamActive(_streamOut) == 1) {
-
-		std::cout << "READ AVAILABLE : " << Pa_GetStreamReadAvailable( _streamIn ) << std::endl;
-		int oui = 0;
-			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-				leftBuffer[i] = 0.0f;
-			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-				rightBuffer[i] = 0.0f;
-		if (Pa_GetStreamReadAvailable( _streamIn ) >= FRAMES_PER_BUFFER) {
-
-			if ((oui = Pa_ReadStream(_streamIn, buffers, FRAMES_PER_BUFFER)) != paNoError) {
-				std::cout << "Read "
-					  << Pa_GetErrorText(oui) << std::endl;
-			}
-
+	if (Pa_IsStreamActive(_streamIn) == 1 && Pa_GetStreamReadAvailable( _streamIn ) >= FRAMES_PER_BUFFER) {
+		if ((err = Pa_ReadStream(_streamIn, _buff.buffers, FRAMES_PER_BUFFER)) != paNoError) {
+			std::cout << "Read " << Pa_GetErrorText(err) << std::endl;
+		}
 			/*if ((size = opus_encode_float(_encoder,
 						      reinterpret_cast<float*>(buffers), FRAMES_PER_BUFFER, comp, FRAMES_PER_BUFFER * 2)) < 0) {
 				std::cout << "Encode " << opus_strerror(size) << std::endl;
 				exit(0);
-			}*/
+			}
 
-			/*for (int i = 0; i < FRAMES_PER_BUFFER; i++)
+			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
 				leftBuffer[i] = 0.0f;
 			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-				rightBuffer[i] = 0.0f;*/
+				rightBuffer[i] = 0.0f;
 
-			/*if (size > 0 && (sizeout = opus_decode_float(_decoder, comp, size,
+			if (size > 0 && (sizeout = opus_decode_float(_decoder, comp, size,
 							       reinterpret_cast<float*>(buffers), FRAMES_PER_BUFFER, 0)) < 0) {
 				std::cout << "Decode " << opus_strerror(sizeout) << std::endl;
 				exit(0);
 			}*/
-
 		}
-			listenRecord(buffers);
+}
+
+void PaWrapper::stopRecord() {
+	if (Pa_IsStreamActive(_streamIn) == 1)
+		Pa_StopStream(_streamIn);
+}
+
+
+void PaWrapper::startPlay() {
+	if (Pa_IsStreamActive(_streamOut) != 1)
+		Pa_StartStream(_streamOut);
+}
+
+void PaWrapper::play(PaBuffer const & buff) {
+	int err;
+
+	if (Pa_IsStreamActive(_streamOut) == 1) {
+		err = Pa_WriteStream(_streamOut, buff.buffers,
+				     FRAMES_PER_BUFFER);
+		if (err != paNoError) {
+			std::cout << "Write " << Pa_GetErrorText(err)
+				  << std::endl;
+			exit(0);
+		}
 	}
 }
 
-void PaWrapper::listenRecord(void **buffer) {
-	int oui;
+void PaWrapper::stopPlay() {
+	if (Pa_IsStreamActive(_streamOut) == 1)
+		Pa_StopStream(_streamOut);
+}
 
-	oui = Pa_WriteStream(_streamOut, buffer, FRAMES_PER_BUFFER);
-	if (oui != paNoError) {
-		std::cout << "Write " << Pa_GetErrorText(oui) << std::endl;
-		exit(0);
-	}
+PaBuffer& PaWrapper::getBuffer() {
+	return _buff;
 }
