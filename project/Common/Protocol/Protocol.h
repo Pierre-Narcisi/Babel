@@ -20,12 +20,16 @@
 # undef IMPL_PACKDYN
 #endif
 #define IMPL_PACKDYN(T) \
-	void *operator new[](std::uint64_t s) { \
+    static void *operator new(std::size_t, std::size_t s) { \
         auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
         ptr->packetSize = psize; \
+		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
 		return ptr; \
+	} \
+    static void operator delete(void *ptr) { \
+		::operator delete(ptr); \
 	}
 
 #ifdef PACKET_ATTRIBUTE
@@ -87,7 +91,7 @@ struct GetMessages : public Packet {
 
 struct UpdateLogo : public Packet {
 	std::uint64_t	size;
-    char		buffer[];
+    char			buffer[];
     IMPL_PACKDYN(UpdateLogo);
 } PACKET_ATTRIBUTE;
 

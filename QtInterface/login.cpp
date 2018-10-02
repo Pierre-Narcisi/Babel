@@ -40,6 +40,7 @@ login::login(QWidget *parent) :
         && (p.previous == babel::protocol::Packet::Type::Connect)) {
             this->setEnabled(true);
             if (p.respond == p.KO) {
+                if (p.respond == p.KO) {
                 QMessageBox::information(this, "Connection failed", QString::fromLatin1(p.data));
             } else {
                 this->accept();
