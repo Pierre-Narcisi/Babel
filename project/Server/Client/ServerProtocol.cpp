@@ -14,7 +14,9 @@ namespace protocol {
 	
 void ServerSender::receivePacket(babel::protocol::Packet &packet)
 {
-	std::cerr << "Server : receive packet" << std::endl;
+	std::cerr << "Server: receive packet: "
+		<< babel::protocol::Sender::humanReadable(packet.type)
+		<< std::endl;
 	switch (packet.type) {
 		case babel::protocol::Packet::Type::Respond:
 			parsPacketRespond(reinterpret_cast<babel::protocol::Respond &>(packet));
@@ -50,23 +52,30 @@ void ServerSender::parsPacketConnect(babel::protocol::Connect const &packet)
 {
 	std::cerr << "receive connection" << std::endl;
 
-	babel::protocol::Respond respond;
-	respond.type = babel::protocol::Packet::Type::Respond;
-	respond.previous = babel::protocol::Packet::Type::Connect;
-	std::cout << respond.packetSize << " o --" << sizeof(respond) << " o" << std::endl;
-
 	auto clients = server_g->db()["client"].getAll().where([&packet](db::Element const &e){
 		return e["username"].as<std::string>() == packet.username
 		&& e["password"].as<std::string>() == packet.password;
 	});
 	/* verif client isn't already connected */
 	if (clients.size() == 0) {
-		respond.respond = babel::protocol::Respond::Type::KO;
-		sendPacket(respond);
+		std::string	msg("Authentification failed, check your credentials.");
+		auto *respond = new babel::protocol::Respond[msg.size()];
+		respond->type = babel::protocol::Packet::Type::Respond;
+		respond->previous = babel::protocol::Packet::Type::Connect;
+		respond->respond = babel::protocol::Respond::Type::KO;
+		std::memmove(respond->data, msg.c_str(), msg.size());
+
+		sendPacket(*respond);
+		delete[] respond;
 	} else {
 		/* respond */
-		respond.respond = babel::protocol::Respond::Type::OK;
-		sendPacket(respond);
+		auto *respond = new babel::protocol::Respond[sizeof(_uniqueId)];
+		respond->type = babel::protocol::Packet::Type::Respond;
+		respond->previous = babel::protocol::Packet::Type::Connect;
+		respond->respond = babel::protocol::Respond::Type::OK;
+		*reinterpret_cast<std::uintptr_t*>(respond->data) = _uniqueId;
+		sendPacket(*respond);
+		delete[] respond;
 
 		/* client info */
 		auto cli = Client::Info::deserializer(clients.back(), server_g->db());

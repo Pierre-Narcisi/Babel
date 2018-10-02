@@ -9,26 +9,30 @@
 
 #include <cstddef>
 #include <string>
+#include <iostream>
 
 #ifdef IMPL_PACKCONST
-#undef IMPL_PACKCONST
+# undef IMPL_PACKCONST
 #endif
 #define IMPL_PACKCONST(T) explicit T(): Packet(sizeof(T), Packet::Type::T) {}
 
 #ifdef IMPL_PACKDYN
-#undef IMPL_PACKDYN
+# undef IMPL_PACKDYN
 #endif
 #define IMPL_PACKDYN(T) \
-	void *operator new[](std::size_t s) { \
-		auto	psize = sizeof(T) + s + 1; \
+	void *operator new[](std::uint64_t s) { \
+        auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
-		ptr->packetSize = psize; \
+        ptr->packetSize = psize; \
 		ptr->type = Packet::Type::T; \
 		return ptr; \
 	}
 
-
-
+#ifdef PACKET_ATTRIBUTE
+# undef PACKET_ATTRIBUTE
+#endif
+#define PACKET_ATTRIBUTE __attribute__((packed, gcc_struct))
+	
 namespace babel {
 
 namespace protocol {
@@ -50,17 +54,21 @@ struct Packet {
         CliUpdateCall,
         ServUpdateCall
 	} type;
-	Packet(): packetSize(sizeof(Packet)) {}
-	Packet(std::size_t s, Type t): type(t), packetSize(s) {}
-	std::size_t packetSize;
-};
+
+	Packet() {}
+    Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
+
+    std::uint64_t packetSize;
+} PACKET_ATTRIBUTE;
 
 struct Respond : public Packet {
-	IMPL_PACKCONST(Respond)
 	enum Type : bool {OK = true, KO = false};
 	Packet::Type	previous;
 	Respond::Type	respond;
-};
+    std::uint64_t	size;
+    char            data[];
+    IMPL_PACKDYN(Respond);
+} PACKET_ATTRIBUTE;
 
 /* Client -> Server */
 struct Connect : public Packet {
@@ -68,27 +76,26 @@ struct Connect : public Packet {
 	char		username[128];
 	char		password[128];
 	bool		needRegister;
-};
+} PACKET_ATTRIBUTE;
 
 struct GetMessages : public Packet {
 	IMPL_PACKCONST(GetMessages)
-	char		username[128];
-	std::size_t	start;
-	std::size_t	number;
-};
+	char			username[128];
+	std::uint64_t	start;
+	std::uint64_t	number;
+} PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {
-	std::size_t	size;
-	char		buffer[];
-
-	IMPL_PACKDYN(UpdateLogo);
-};
+	std::uint64_t	size;
+    char		buffer[];
+    IMPL_PACKDYN(UpdateLogo);
+} PACKET_ATTRIBUTE;
 
 struct UpdateUser : public Packet {
 	IMPL_PACKCONST(UpdateUser)
 	char		username[128];
 	char		password[128];
-};
+} PACKET_ATTRIBUTE;
 
 struct UpdateFriend : public Packet {
 	IMPL_PACKCONST(UpdateFriend)
@@ -96,53 +103,53 @@ struct UpdateFriend : public Packet {
 	What		what;
 	char		username[128];
 	char		name[128];
-};
+} PACKET_ATTRIBUTE;
 
 struct SendMessage : public Packet {
-	char		username[128];
-	std::size_t	size;
-	char		buffer[]; /* message */
+	char			username[128];
+	std::uint64_t	size;
+	char			buffer[]; /* message */
 
 	IMPL_PACKDYN(SendMessage)
-};
+} PACKET_ATTRIBUTE;
 
 /* Server -> Client */
 struct UpdateClient : public Packet {
-	char		username[128];
-	std::size_t	size;
-	char		buffer[]; /* icon */
+	char			username[128];
+	std::uint64_t	size;
+	char			buffer[]; /* icon */
 
 	IMPL_PACKDYN(UpdateClient)
-};
+} PACKET_ATTRIBUTE;
 
 struct UpdateFriendState : public Packet {
-	bool		state;
-	char		username[128];
-	char		name[128];
-	std::size_t	size;
-	char		buffer[]; /* icon */
+	bool			state;
+	char			username[128];
+	char			name[128];
+	std::uint64_t	size;
+	char			buffer[]; /* icon */
 
 	IMPL_PACKDYN(UpdateFriendState);
-};
+} PACKET_ATTRIBUTE;
 
 struct UpdateMessage : public Packet {
 	IMPL_PACKCONST(UpdateMessage)
 	struct Message {
-		std::size_t	size;
-		char		buffer[];
-	};
-	char		username[128];
-	std::size_t	nbMessage;
-	Message		messages[];
-};
+		std::uint64_t	size;
+		char			buffer[];
+	} PACKET_ATTRIBUTE;
+	char			username[128];
+	std::uint64_t	nbMessage;
+	Message			messages[];
+} PACKET_ATTRIBUTE;
 
 struct CliUpdateCall : public Packet {
 	IMPL_PACKCONST(CliUpdateCall)
-};
+} PACKET_ATTRIBUTE;
 
 struct ServUpdateCall : public Packet {
 	IMPL_PACKCONST(ServUpdateCall)
-};
+} PACKET_ATTRIBUTE;
 
 class Sender {
 public:

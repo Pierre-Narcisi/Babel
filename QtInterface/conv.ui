@@ -14,7 +14,11 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton#callButton {
+   <string notr="true">QLabel#labelPseudo {
+	font-size: 20px;
+	color: rgb(85, 87, 83);
+}
+QPushButton#callButton {
 	padding: 10px 20px
 }
 QPushButton#sendButton {
@@ -61,7 +65,7 @@ QPushButton:pressed {
        <item>
         <widget class="QLabel" name="labelPseudo">
          <property name="text">
-          <string>          </string>
+          <string>     </string>
          </property>
         </widget>
        </item>

@@ -16,6 +16,7 @@ namespace protocol {
 
 class ServerSender : public babel::protocol::Sender {
 public:
+	ServerSender(): _uniqueId(reinterpret_cast<std::uintptr_t>(this)) {}
 	void receivePacket(babel::protocol::Packet &packet) override; /* done */
 	void sendPacket(babel::protocol::Packet &packet) override; /* done */
 	void setSocket(nw::ATCPSocket *sock) { _sock = sock; }
@@ -28,6 +29,7 @@ private:
 	void parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet);
 
 	nw::ATCPSocket *_sock;
+	std::uintptr_t	_uniqueId;
 };
 
 

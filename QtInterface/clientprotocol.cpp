@@ -20,20 +20,24 @@ int ClientSender::run(void) {
 
         _sock->connect(_host.toStdString(), _port);
         _sock->addHandlerOnReadable([this] (std::size_t len) -> int {
-            auto *buffer = new char[len + 1];
-            auto *b = buffer;
+            auto        *buffer = new char[len + 1];
+            auto        *b = buffer;
+            std::size_t l = 0;
 
             _sock->receive(reinterpret_cast<std::uint8_t*>(buffer), len);
+            std::cout << "Rcv Size = " << len << std::endl;
             while (true) {
                 auto *p = reinterpret_cast<babel::protocol::Packet*>(b);
+
                 receivePacket(*p);
                 emit onPacketReceived(*p);
-                b = b + p->packetSize;
-                if (reinterpret_cast<std::uintptr_t>(b)
-                        - reinterpret_cast<std::uintptr_t>(buffer) >= len)
+                std::cout << "Packet Size = " << p->packetSize << std::endl;
+                b += p->packetSize;
+                l += p->packetSize;
+                if (l >= len)
                     break;
             }
-            delete buffer;
+            delete[] buffer;
             return 0;
         });
         _sock->setOnDisconnect([this] {
