@@ -7,7 +7,8 @@
 
 #include <iostream>
 #include <functional>
-
+#include <QFile>
+#include <memory>
 #include "clientprotocol.h"
 
 namespace client {
@@ -17,25 +18,16 @@ namespace protocol {
 int ClientSender::run(void) {
     try {
         _sock = new nw::qt::TCPSocket(_parent);
+        nw::Chopper::Hooks	h;
+        h.onCommandReceived = [this] (nw::Chopper::ByteArray &bytes) {
+            auto *p = reinterpret_cast<babel::protocol::Packet*>(bytes.buffer);
+            std::cout << "Packet Size = " << p->packetSize << std::endl;
+            this->receivePacket(*p);
+            emit onPacketReceived(*p);
+        };
+        _chop = std::make_unique<nw::Chopper>(*_sock, h);
 
         _sock->connect(_host.toStdString(), _port);
-        _sock->addHandlerOnReadable([this] (std::size_t len) -> int {
-            auto *buffer = new char[len + 1];
-            auto *b = buffer;
-
-            _sock->receive(reinterpret_cast<std::uint8_t*>(buffer), len);
-            while (true) {
-                auto *p = reinterpret_cast<babel::protocol::Packet*>(b);
-                receivePacket(*p);
-                emit onPacketReceived(*p);
-                b = b + p->packetSize;
-                if (reinterpret_cast<std::uintptr_t>(b)
-                        - reinterpret_cast<std::uintptr_t>(buffer) >= len)
-                    break;
-            }
-            delete buffer;
-            return 0;
-        });
         _sock->setOnDisconnect([this] {
             emit disconnected();
         });
@@ -76,7 +68,7 @@ void ClientSender::receivePacket(babel::protocol::Packet &packet)
 
 void ClientSender::sendPacket(babel::protocol::Packet &packet)
 {
-    _sock->send(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
+    _chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
 }
 
 void ClientSender::parsPacketUpdateClient(babel::protocol::UpdateClient const &packet)
@@ -109,7 +101,14 @@ void ClientSender::parsPacketUpdateFriendState(babel::protocol::UpdateFriendStat
 		});
 		if (packet.size != 0) {
 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
-                        for (std::size_t i = 0; i < packet.size; ++i)
+
+//            QFile out("TEST.jpeg");
+
+//            out.open(QFile::WriteOnly);
+//            out.write(icon, packet.size);
+//            out.close();
+            _client.friends.back().icon.reserve(packet.size);
+            for (std::size_t i = 0; i < packet.size; ++i)
 				_client.friends.back().icon.push_back(icon[i]);
 		}
 	}

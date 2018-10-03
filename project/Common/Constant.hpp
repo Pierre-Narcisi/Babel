@@ -16,5 +16,5 @@ namespace constant {
 	constexpr std::uint16_t		defThreadNbr = 4;
 
     /* Client Program default args */
-    constexpr char const        *defHost = "localhost";
+	constexpr char const        *defHost = "localhost";
 }

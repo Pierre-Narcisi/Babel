@@ -7,6 +7,7 @@
 QT       += core gui network
 
 QMAKE_CXXFLAGS += -std=c++17 -Wno-missing-field-initializers
+CONFIG += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,7 +15,7 @@ win32:DEFINES   += TARGET_WINDOWS
 unix:DEFINES    += TARGET_UNIX
 macos:DEFINES   += TARGET_MACOS
 
-CLIENT_VERSION = 0.1.0
+CLIENT_VERSION = 0.0.1
 
 TARGET = babel_client
 TEMPLATE = app
@@ -44,6 +45,7 @@ SOURCES += \
     $$COMMON_PATH/Network/QtSocket.cpp \
     $$COMMON_PATH/Opts/Opts.cpp \
     $$COMMON_PATH/Protocol/Protocol.cpp \
+    $$COMMON_PATH/Chopper/Chopper.cpp \
     clientprotocol.cpp \
     main.cpp \
     clientmainwindows.cpp \
@@ -56,7 +58,8 @@ SOURCES += \
     login.cpp \
     mainscreen.cpp \
     listfrienditem.cpp \
-    settings.cpp
+    settings.cpp \
+    friendsmanager.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -64,6 +67,7 @@ HEADERS += \
     $$COMMON_PATH/Network/QtSocket.hpp \
     $$COMMON_PATH/Opts/Opts.hpp \
     $$COMMON_PATH/Constant.hpp \
+    $$COMMON_PATH/Chopper/Chopper.hpp \
     clientprotocol.h \
     clientmainwindows.h \
     singletons.h \
@@ -75,7 +79,8 @@ HEADERS += \
     login.h \
     mainscreen.h \
     listfrienditem.h \
-    settings.h
+    settings.h \
+    friendsmanager.h
 
 FORMS += \
     clientmainwindows.ui \

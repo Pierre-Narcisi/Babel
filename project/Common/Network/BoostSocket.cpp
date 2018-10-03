@@ -43,9 +43,7 @@ void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 	auto	len = _socket.available();
 
 	if (!e && len) {
-		for (auto &it: _hdls) {
-			it.operator()(len);
-		}
+		_hdl.operator()(len);
 	} else if ((::boost::asio::error::eof == e)
 	|| (::boost::asio::error::connection_reset == e)
 	|| (!len)) {

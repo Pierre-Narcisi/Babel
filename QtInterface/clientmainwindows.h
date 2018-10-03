@@ -29,7 +29,7 @@ private:
     void    showEvent(QShowEvent *event);
 
     common::Opts                    &_opts;
-    client::protocol::ClientSender  *_srvCo;
+    client::protocol::ClientSender  &_srvCo;
     Ui::ClientMainWindows           *ui;
 };
 

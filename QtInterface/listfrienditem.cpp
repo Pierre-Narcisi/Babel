@@ -24,6 +24,15 @@ ListFriends::ListFriends(QWidget *parent):
     connect(_hb, &QScrollBar::rangeChanged, [this] (int, int) {
         QTimer::singleShot(10, [this] () { _resizeFrame(); } );
     });
+
+    connect(&Singletons::getFriendsManager(), &FriendsManager::listUpdated,
+            [this] (std::shared_ptr<std::vector<FriendsManager::FriendInfo*>> list) {
+        this->clean();
+        for (auto *f: *list) {
+            auto *itm = new FriendItem(*f, this);
+            this->addWidget(itm);
+        }
+    });
 }
 
 ListFriends::~ListFriends()

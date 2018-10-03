@@ -13,10 +13,9 @@ namespace qt {
 TCPSocket::TCPSocket(QObject *parent):
         _socket(parent) {
     QObject::connect(&_socket, &QTcpSocket::readyRead, [this] {
-        std::size_t len = _socket.bytesAvailable();
-
-        for (auto &it: _hdls) {
-            it.operator()(len);
+        std::size_t len;
+        while ((len = _socket.bytesAvailable())) {
+            _hdl.operator()(len);
         }
     });
 

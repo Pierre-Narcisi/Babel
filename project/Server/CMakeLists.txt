@@ -18,6 +18,7 @@ add_executable(babel_server
 	Client/Client.cpp
 	Client/ServerProtocol.cpp
 	CoreServer/CoreServer.cpp
+	Resources/Resources.cpp
 	../Db/Db.cpp
 	../Db/DbData.cpp)
  target_link_libraries(babel_server ${CONAN_LIBS})

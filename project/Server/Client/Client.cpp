@@ -24,20 +24,20 @@ std::string const	&Client::getUsername(void) const
 
 void	Client::start(void)
 {
-	_sock->addHandlerOnReadable(::boost::bind(
-		&Client::_onReadableHandler,
-		this,
-		::boost::placeholders::_1));
+	// _sock->addHandlerOnReadable(::boost::bind(
+	// 	&Client::_onReadableHandler,
+	// 	this,
+	// 	::boost::placeholders::_1));
 	getSocket().start();
 }
 
 int	Client::_onReadableHandler(std::size_t len)
 {
-	std::cout << len << std::endl;
-	std::uint8_t buffer[len];
-	_sock->receive(buffer, len);
-	_sender.receivePacket(reinterpret_cast<babel::protocol::Packet &>(buffer));
-	// std::cout << std::string((char*) buffer, len) << std::endl;
+	// std::cout << len << std::endl;
+	// std::uint8_t buffer[len];
+	// _sock->receive(buffer, len);
+	// _sender.receivePacket(reinterpret_cast<babel::protocol::Packet &>(buffer));
+	// // std::cout << std::string((char*) buffer, len) << std::endl;
 	return (0);
 }
 
