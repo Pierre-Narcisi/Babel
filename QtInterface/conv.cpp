@@ -9,10 +9,21 @@ conv::conv(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->ui->labelPseudo->setText("");
+    this->ui->labelName->setText("");
     QTimer::singleShot(0, [this] () {
-        auto *l = Singletons::getListFriendWidget();
-        QObject::connect(l, &ListFriends::onSelectChange, [this] (FriendItem *itm) {
-            this->ui->labelPseudo->setText(itm->name);
+        auto &l = Singletons::getListFriendWidget();
+        QObject::connect(&l, &ListFriends::onSelectChange, [this] (FriendItem *itm) {
+            this->ui->labelPseudo->setText(itm->myFriend.pseudo);
+            this->ui->labelName->setText(itm->myFriend.username);
+            try {
+                auto f = Singletons::getFriendsManager()[itm->myFriend.username.toStdString()];
+                this->ui->iconViewer->setPixmap(
+                            QPixmap::fromImage(
+                                f.icon.scaled(
+                                    this->ui->iconViewer->size(),
+                                    Qt::KeepAspectRatioByExpanding)));
+            } catch (...) {}
         });
     });
 }

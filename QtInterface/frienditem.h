@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QNetworkAccessManager>
+#include "friendsmanager.h"
 
 namespace Ui {
     class FriendItem;
@@ -12,7 +13,7 @@ class FriendItem : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FriendItem(QString const &name, QWidget *parent);
+    explicit FriendItem(FriendsManager::FriendInfo &n, QWidget *parent);
     ~FriendItem();
 
     void            select(void);
@@ -25,12 +26,12 @@ signals:
 public:
     bool    error;
     bool    ready;
-    QString name;
+
+    FriendsManager::FriendInfo  &myFriend;
 
 private slots:
 
 private:
-    void            _initIcon(void);
     virtual void    paintEvent(QPaintEvent *) final;
     virtual void    mousePressEvent(QMouseEvent *event) final;
     virtual void	showEvent(QShowEvent *event) final;

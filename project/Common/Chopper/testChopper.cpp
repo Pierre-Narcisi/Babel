@@ -5,8 +5,8 @@
 
 int main()
 {
-	CC::Chopper		ch({
-		.onCommandReceived = [] (CC::Chopper::ByteArray &bytes) {
+	nw::Chopper		ch({
+		.onCommandReceived = [] (nw::Chopper::ByteArray &bytes) {
 			std::cout << "bytes length = " << bytes.length << " --> ";
 			for (std::uint32_t i = 0; i < bytes.length; i++) {
 				std::cout << (char) bytes.buffer[i];
@@ -17,7 +17,7 @@ int main()
 			ch.receivePacket(buffer, l);
 		}
 	});
-	CC::Chopper::ByteArray	test;
+	nw::Chopper::ByteArray	test;
 	
 	test.buffer = (std::uint8_t*) malloc(64);
 	test.length = 64;
@@ -27,7 +27,7 @@ int main()
 	}
 
 	std::cout << "Chop array :" << std::endl;
-	// auto vec = CC::Chopper::chop(test);
+	// auto vec = nw::Chopper::chop(test);
 
 	// for (auto &itm: *vec) {
 	// 	std::cout 	<< "id = " << itm.header->id << " "
@@ -45,7 +45,7 @@ int main()
 
 	// std::cout << std::endl << "Repack array :" << std::endl;
 	// for (auto &itm: *vec) {
-	// 	auto pack = std::make_shared<CC::Chopper::Packet>(itm);
+	// 	auto pack = std::make_shared<nw::Chopper::Packet>(itm);
 
 	// 	ch.receivePacket(pack);
 	// }

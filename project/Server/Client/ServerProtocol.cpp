@@ -5,6 +5,7 @@
 ** ServerProtocol.cpp
 */
 
+#include <memory>
 #include "ServerProtocol.hpp"
 #include "CoreServer/CoreServer.hpp"
 #include "Client/Client.hpp"
@@ -42,10 +43,25 @@ void ServerSender::receivePacket(babel::protocol::Packet &packet)
 	}
 }
 
+void ServerSender::setSocket(nw::ATCPSocket *sock) {
+	_sock = sock;
+
+	nw::Chopper::Hooks	h;
+
+	h.onCommandReceived = [this] (nw::Chopper::ByteArray &bytes) {
+		this->receivePacket(
+			*(reinterpret_cast<babel::protocol::Packet*>(
+				bytes.buffer)));
+	};
+	_chop = std::make_unique<nw::Chopper>(*_sock, h);
+}
+
 void ServerSender::sendPacket(babel::protocol::Packet &packet)
 {
-	std::cerr << "Server : send packet" << std::endl;
-	_sock->send(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
+	std::cerr << "Server : send packet ("
+		<< packet.packetSize << ")" << std::endl;
+	
+	_chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
 }
 
 /* verif if username and password are correct */

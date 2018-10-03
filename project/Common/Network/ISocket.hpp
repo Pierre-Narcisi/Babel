@@ -33,14 +33,13 @@ public:
 	using Handler = std::function<int(std::size_t)>;
 	
 	ASocket(Type connectionType): _type(connectionType) {}
-	inline std::function<void()>
-				addHandlerOnReadable(typename ASocket::Handler &&func);
+	inline void	setOnReadable(typename ASocket::Handler &&func);
 	
 protected:
 	inline Type	_getType(void) const { return _type; }
 
-	std::list<Handler>	_hdls;
-	Type			_type;
+	Handler		_hdl;
+	Type		_type;
 };
 
 class ATCPSocket: public ASocket {
@@ -51,17 +50,13 @@ public:
 	inline void	setOnDisconnect(std::function<void(void)> const &hdl) { _onDisconnect = hdl; }
 protected:
 	using		ASocket::_getType;
-	using		ASocket::_hdls;
+	using		ASocket::_hdl;
 	std::function<void(void)>
 			_onDisconnect;
 };
 
-std::function<void()>
-ASocket::addHandlerOnReadable(Handler &&func) {
-	auto	it = _hdls.insert(_hdls.end(), func);
-
-	return [this, it] {
-		_hdls.erase(it);
-	};
+void	ASocket::setOnReadable(Handler &&func) {
+	_hdl = func;
 }
+
 }

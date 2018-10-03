@@ -9,7 +9,7 @@
 
 login::login(QWidget *parent) :
     QDialog(parent),
-    _cr((*Singletons::getSettings())["credentials"].toObject()),
+    _cr(Singletons::getSettings()["credentials"].toObject()),
     ui(new Ui::login)
 {
     ui->setupUi(this);
@@ -32,7 +32,7 @@ login::login(QWidget *parent) :
             _cr["password"] = "";
     });
 
-    QObject::connect(Singletons::getSrvCo(), &client::protocol::ClientSender::onPacketReceived,
+    QObject::connect(&Singletons::getSrvCo(), &client::protocol::ClientSender::onPacketReceived,
                      [this] (babel::protocol::Packet &pack) {
         auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
 
@@ -40,7 +40,6 @@ login::login(QWidget *parent) :
         && (p.previous == babel::protocol::Packet::Type::Connect)) {
             this->setEnabled(true);
             if (p.respond == p.KO) {
-                if (p.respond == p.KO) {
                 QMessageBox::information(this, "Connection failed", QString::fromLatin1(p.data));
             } else {
                 this->accept();
@@ -56,7 +55,7 @@ login::~login()
 
 void login::on_pushButton_clicked()
 {
-    auto *srvCo = Singletons::getSrvCo();
+    auto &srvCo = Singletons::getSrvCo();
 
     QString name = ui->lineEdit_name->text();
     QString password = ui->lineEdit_password->text();
@@ -66,7 +65,7 @@ void login::on_pushButton_clicked()
     std::strcpy(pack.password, password.toStdString().c_str());
     pack.needRegister = ui->checkBox->isChecked();
 
-    srvCo->sendPacket(pack);
+    srvCo.sendPacket(pack);
     this->setEnabled(false);
 
     _cr["username"] = name;
@@ -76,5 +75,5 @@ void login::on_pushButton_clicked()
 
 void login::on_login_finished(int)
 {
-    (*Singletons::getSettings())["credentials"] = _cr;
+    Singletons::getSettings()["credentials"] = _cr;
 }

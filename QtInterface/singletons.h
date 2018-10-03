@@ -5,17 +5,20 @@
 #include "clientprotocol.h"
 #include "settings.h"
 #include "listfrienditem.h"
+#include "friendsmanager.h"
 
 class Singletons
 {
 public:
-    static QThreadPool*
+    static QThreadPool&
                     getThreadPool(void);
-    static client::protocol::ClientSender*
+    static client::protocol::ClientSender&
                     getSrvCo(void);
-    static Settings *getSettings(void);
+    static Settings &getSettings(void);
+    static FriendsManager&
+                    getFriendsManager(void);
 
-    static ListFriends  *getListFriendWidget(void);
+    static ListFriends  &getListFriendWidget(void);
     static void         setListFriendWidget(ListFriends *w);
 private:
     Singletons() = default;
