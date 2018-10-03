@@ -56,7 +56,8 @@ SOURCES += \
     login.cpp \
     mainscreen.cpp \
     listfrienditem.cpp \
-    settings.cpp
+    settings.cpp \
+    call.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -75,7 +76,8 @@ HEADERS += \
     login.h \
     mainscreen.h \
     listfrienditem.h \
-    settings.h
+    settings.h \
+    call.h
 
 FORMS += \
     clientmainwindows.ui \
