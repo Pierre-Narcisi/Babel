@@ -20,15 +20,15 @@
 # undef IMPL_PACKDYN
 #endif
 #define IMPL_PACKDYN(T) \
-    static void *operator new(std::size_t, std::size_t s) { \
-        auto	psize = sizeof(T) + s + 1; \
+	static void *operator new(std::size_t, std::size_t s) { \
+	auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
-        ptr->packetSize = psize; \
+	ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
 		return ptr; \
 	} \
-    static void operator delete(void *ptr) { \
+	static void operator delete(void *ptr) { \
 		::operator delete(ptr); \
 	}
 
@@ -69,14 +69,16 @@ struct Respond : public Packet {
 	enum Type : bool {OK = true, KO = false};
 	Packet::Type	previous;
 	Respond::Type	respond;
-    std::uint64_t	size;
-    char            data[];
-    IMPL_PACKDYN(Respond);
+	std::uint64_t	size;
+	char		data[];
+	IMPL_PACKDYN(Respond);
 } PACKET_ATTRIBUTE;
 
 /* Client -> Server */
 struct Connect : public Packet {
 	IMPL_PACKCONST(Connect)
+	enum Type : char {CONNECT, CREATE};
+	Connect::Type	connectionType;
 	char		username[128];
 	char		password[128];
 	bool		needRegister;
@@ -84,15 +86,15 @@ struct Connect : public Packet {
 
 struct GetMessages : public Packet {
 	IMPL_PACKCONST(GetMessages)
-	char			username[128];
+	char		username[128];
 	std::uint64_t	start;
 	std::uint64_t	number;
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {
 	std::uint64_t	size;
-    char			buffer[];
-    IMPL_PACKDYN(UpdateLogo);
+	char		buffer[];
+	IMPL_PACKDYN(UpdateLogo);
 } PACKET_ATTRIBUTE;
 
 struct UpdateUser : public Packet {
@@ -103,7 +105,7 @@ struct UpdateUser : public Packet {
 
 struct UpdateFriend : public Packet {
 	IMPL_PACKCONST(UpdateFriend)
-	enum class What {Update, Erase};
+	enum class What {NEW, UPDATE, ERASE};
 	What		what;
 	char		username[128];
 	char		name[128];
@@ -160,7 +162,7 @@ public:
 	virtual void receivePacket(Packet &packet) = 0;
 	virtual void sendPacket(Packet &packet) = 0;
 
-    static std::string humanReadable(Packet::Type packType);
+	static std::string humanReadable(Packet::Type packType);
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
