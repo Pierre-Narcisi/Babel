@@ -19,8 +19,7 @@ namespace protocol {
 namespace data {
 
 struct ConnectReponse {
-	std::uint32_t	ip;
-	std::uint16_t	udpPort;
+	std::uint64_t	id;
 } PACKET_ATTRIBUTE;
 
 }

@@ -126,7 +126,7 @@ struct UpdateFriendState : public Packet {
 	bool			state;
 	char			username[128];
 	char			name[128];
-	std::uint64_t	size;
+	std::uint64_t		size;
 	char			buffer[]; /* icon */
 
 	IMPL_PACKDYN(UpdateFriendState);
