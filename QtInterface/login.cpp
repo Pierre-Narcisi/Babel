@@ -16,6 +16,8 @@ login::login(QWidget *parent) :
 
     ui->lineEdit_name->setText(_cr["username"].toString());
     ui->lineEdit_password->setText(_cr["password"].toString());
+    ui->lineEdit_name->setMaxLength(sizeof(babel::protocol::Connect::username));
+    ui->lineEdit_password->setMaxLength(sizeof(babel::protocol::Connect::password));
     ui->checkBoxRemember->setChecked(!ui->lineEdit_password->text().isEmpty());
 
     QObject::connect(ui->checkBox, &QCheckBox::stateChanged, [this] (int state) {
