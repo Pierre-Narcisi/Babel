@@ -86,11 +86,14 @@ void ServerSender::parsPacketConnect(babel::protocol::Connect const &packet)
 		delete respond;
 	} else {
 		/* respond */
-		auto *respond = new (sizeof(_uniqueId)) babel::protocol::Respond;
+		auto *respond = new (sizeof(::protocol::data::ConnectReponse))
+					babel::protocol::Respond;
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = babel::protocol::Packet::Type::Connect;
 		respond->respond = babel::protocol::Respond::Type::OK;
-		*reinterpret_cast<std::uintptr_t*>(respond->data) = _uniqueId;
+		auto *data = reinterpret_cast<::protocol::data::ConnectReponse*>(respond->data);
+		data->id = _uniqueId;
+		data->udpRelayPort = server_g->getUdpRelayServer().getListenerPort();
 		sendPacket(*respond);
 		delete respond;
 

@@ -20,7 +20,8 @@ using btcp = ::boost::asio::ip::tcp;
 CoreServer::CoreServer(int ac, char **av):
 _args(std::make_unique<CoreArgs>(CoreArgs(ac, av))),
 _acceptor(_ios, btcp::endpoint(btcp::v4(), _args->port())),
-_signals(_ios)
+_signals(_ios),
+_udpRelay(_ios)
 {
 	server_g = this;
 	_signals.add(SIGINT);
@@ -31,8 +32,6 @@ _signals(_ios)
 	_signals.async_wait(boost::bind(&CoreServer::_handleStop, this));
 
 	_instanciateDb();
-	_acceptor.listen();
-	_startAccept();
 }
 
 CoreServer::~CoreServer()
@@ -49,6 +48,9 @@ void CoreServer::_handleStop(void)
 void CoreServer::start(void)
 {
 	std::vector<::boost::thread>	_threads;
+	_udpRelay.start();
+	_acceptor.listen();
+	_startAccept();
 
 	_threads.reserve(_args->threadNbr());
 	for (int i = 0; i < _args->threadNbr(); i++)

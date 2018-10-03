@@ -19,6 +19,7 @@ add_executable(babel_server
 	Client/ServerProtocol.cpp
 	CoreServer/CoreServer.cpp
 	Resources/Resources.cpp
+	UdpRelayServer/UdpRelayServer.cpp
 	../Db/Db.cpp
 	../Db/DbData.cpp)
  target_link_libraries(babel_server ${CONAN_LIBS})
