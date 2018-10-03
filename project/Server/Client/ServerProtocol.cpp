@@ -145,11 +145,13 @@ void ServerSender::sendInfoToClient(db::Element const &client)
 {
 	// attendre la connection udp du client
 	/* respond */
-	auto *respond = new (sizeof(_uniqueId)) babel::protocol::Respond;
+	auto *respond = new (sizeof(::protocol::data::ConnectReponse))
+				babel::protocol::Respond;
 	respond->type = babel::protocol::Packet::Type::Respond;
 	respond->previous = babel::protocol::Packet::Type::Connect;
 	respond->respond = babel::protocol::Respond::Type::OK;
-	*reinterpret_cast<std::uintptr_t*>(respond->data) = _uniqueId;
+	auto *data = reinterpret_cast<::protocol::data::ConnectReponse*>(respond->data);
+	data->id = _uniqueId;
 	sendPacket(*respond);
 	delete respond;
 

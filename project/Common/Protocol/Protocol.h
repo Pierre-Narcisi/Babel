@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+#include "data.h"
 
 #ifdef IMPL_PACKCONST
 # undef IMPL_PACKCONST
@@ -23,7 +24,7 @@
 	static void *operator new(std::size_t, std::size_t s) { \
 	auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
-	ptr->packetSize = psize; \
+		ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
 		return ptr; \
@@ -31,11 +32,6 @@
 	static void operator delete(void *ptr) { \
 		::operator delete(ptr); \
 	}
-
-#ifdef PACKET_ATTRIBUTE
-# undef PACKET_ATTRIBUTE
-#endif
-#define PACKET_ATTRIBUTE __attribute__((packed, gcc_struct))
 	
 namespace babel {
 
@@ -132,7 +128,7 @@ struct UpdateFriendState : public Packet {
 	bool			state;
 	char			username[128];
 	char			name[128];
-	std::uint64_t	size;
+	std::uint64_t		size;
 	char			buffer[]; /* icon */
 
 	IMPL_PACKDYN(UpdateFriendState);

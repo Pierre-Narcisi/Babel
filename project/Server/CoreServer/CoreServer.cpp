@@ -31,8 +31,6 @@ _signals(_ios)
 	_signals.async_wait(boost::bind(&CoreServer::_handleStop, this));
 
 	_instanciateDb();
-	_acceptor.listen();
-	_startAccept();
 }
 
 CoreServer::~CoreServer()
@@ -49,6 +47,8 @@ void CoreServer::_handleStop(void)
 void CoreServer::start(void)
 {
 	std::vector<::boost::thread>	_threads;
+	_acceptor.listen();
+	_startAccept();
 
 	_threads.reserve(_args->threadNbr());
 	for (int i = 0; i < _args->threadNbr(); i++)
