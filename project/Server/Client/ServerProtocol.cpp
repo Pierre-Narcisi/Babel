@@ -93,7 +93,6 @@ void ServerSender::parsPacketConnect(babel::protocol::Connect const &packet)
 		respond->respond = babel::protocol::Respond::Type::OK;
 		auto *data = reinterpret_cast<::protocol::data::ConnectReponse*>(respond->data);
 		data->id = _uniqueId;
-		data->udpRelayPort = server_g->getUdpRelayServer().getListenerPort();
 		sendPacket(*respond);
 		delete respond;
 

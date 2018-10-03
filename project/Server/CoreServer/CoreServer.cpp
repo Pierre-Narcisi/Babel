@@ -20,8 +20,7 @@ using btcp = ::boost::asio::ip::tcp;
 CoreServer::CoreServer(int ac, char **av):
 _args(std::make_unique<CoreArgs>(CoreArgs(ac, av))),
 _acceptor(_ios, btcp::endpoint(btcp::v4(), _args->port())),
-_signals(_ios),
-_udpRelay(_ios)
+_signals(_ios)
 {
 	server_g = this;
 	_signals.add(SIGINT);
@@ -48,7 +47,6 @@ void CoreServer::_handleStop(void)
 void CoreServer::start(void)
 {
 	std::vector<::boost::thread>	_threads;
-	_udpRelay.start();
 	_acceptor.listen();
 	_startAccept();
 

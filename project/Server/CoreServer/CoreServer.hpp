@@ -13,7 +13,6 @@
 #include <boost/asio.hpp>
 #include "Client/Client.hpp"
 #include "Db/Db.h"
-#include "UdpRelayServer/UdpRelayServer.hpp"
 
 namespace srv {
 
@@ -25,7 +24,6 @@ public:
 	void	start(void);
 	inline db::Db &db(void) { return _db; }
 	bool	isConnected(std::string const &username) const;
-	auto	&getUdpRelayServer(void) { return _udpRelay; }
 private:
 	class CoreArgs;
 
@@ -40,7 +38,6 @@ private:
 	boost::asio::signal_set			_signals;
 	std::list<::boost::shared_ptr<Client>>	_clts; /* list all connected clients */
 	db::Db					_db; /* store all data of clients, their friends and their conversations */
-	srv::UdpRelayServer			_udpRelay; /* UDP hole punching server */
 };
 
 class CoreServer::CoreArgs {
