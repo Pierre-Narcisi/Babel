@@ -16,7 +16,6 @@ add_executable(babel_server
 	../Common/Opts/Opts.cpp
 	main.cpp
 	Client/Client.cpp
-	Client/ServerProtocol.cpp
 	CoreServer/CoreServer.cpp
 	Resources/Resources.cpp
 	../Db/Db.cpp
