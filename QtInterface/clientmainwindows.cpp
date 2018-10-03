@@ -23,28 +23,22 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
 {
     ui->setupUi(this);
 
-    _srvCo->setHost(QString::fromStdString(_opts["host"]->as<common::Opts::String>()));
-    _srvCo->setPort(_opts["port"]->as<common::Opts::Int>());
-    _srvCo->setParent(nullptr);
-    QObject::connect(_srvCo, &client::protocol::ClientSender::disconnected, [this] {
+    _srvCo.setHost(QString::fromStdString(_opts["host"]->as<common::Opts::String>()));
+    _srvCo.setPort(_opts["port"]->as<common::Opts::Int>());
+    _srvCo.setParent(nullptr);
+
+    Singletons::setListFriendWidget(ui->listFriends);
+
+    QObject::connect(&_srvCo, &client::protocol::ClientSender::disconnected, [this] {
         QMessageBox::critical(this, "Connection lost",
                               "Connection lost with the server\n"
                               "Babel will be closed");
         qApp->quit();
     });
 
-    QObject::connect(_srvCo, &client::protocol::ClientSender::onPacketReceived,
+    QObject::connect(&_srvCo, &client::protocol::ClientSender::onPacketReceived,
                    [this] (babel::protocol::Packet &pack) {
         std::cerr << babel::protocol::Sender::humanReadable(pack.type) << std::endl;
-    });
-
-    QObject::connect(_srvCo, &client::protocol::ClientSender::onFriendListChange,
-                     [this] (std::vector<client::Friend> const &friends) {
-        this->ui->listFriends->clean();
-        for (auto &f: friends) {
-            auto *itm = new FriendItem(f.name, this);
-            this->ui->listFriends->addWidget(itm);
-        }
     });
 
     QAction *about = this->ui->menuBar->addAction("About");
@@ -59,10 +53,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         (void) itm;
     });
 
-    /* Show 10 friends */
-    for (auto i = 0; i < 10; i++) {
 
-    }
 }
 
 ClientMainWindows::~ClientMainWindows()
@@ -78,7 +69,7 @@ void ClientMainWindows::showEvent(QShowEvent *) {
     first = false;
     this->setEnabled(false);
     QTimer::singleShot(0, [this] () {
-        if (_srvCo->run()) {
+        if (_srvCo.run()) {
             QMessageBox::critical(this, "Connection Error",
                                 "Failed to connect to host ("
                                 + QString::fromStdString(_opts["host"]->as<common::Opts::String>())
@@ -95,9 +86,9 @@ void ClientMainWindows::showEvent(QShowEvent *) {
             this->close();
     });
 
-    auto *s = Singletons::getSettings();
+    auto &s = Singletons::getSettings();
 
-    auto    w = (*s)["window"].toObject();
+    auto    w = s["window"].toObject();
     auto    winPos = w["pos"].toObject();
     auto    winSize = w["size"].toObject();
 
@@ -109,7 +100,7 @@ void ClientMainWindows::showEvent(QShowEvent *) {
 
 void ClientMainWindows::closeEvent(QCloseEvent *)
 {
-    auto &s = *Singletons::getSettings();
+    auto &s = Singletons::getSettings();
 
     s["window"] = QJsonObject {
         {"pos", QJsonObject {

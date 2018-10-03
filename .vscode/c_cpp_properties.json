@@ -7,9 +7,9 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/project/Common/**",
                 "${workspaceFolder}/project/Server/**",
-                "/usr/include/x86_64-linux-gnu/qt5/QtNetwork",
                 "/usr/include/c++/7",
-                "/usr/include/x86_64-linux-gnu/c++/7"
+                "/usr/include/x86_64-linux-gnu/c++/7",
+                "/usr/include/x86_64-linux-gnu/qt5/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

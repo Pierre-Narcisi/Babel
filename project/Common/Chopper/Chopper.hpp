@@ -14,11 +14,12 @@
 #include <unordered_map>
 #include <functional>
 #include <queue>
+#include "Network/ISocket.hpp"
 
 #ifdef DEBUG_MAX_PACKET_LEN
-	static const int max_packet_length = DEBUG_MAX_PACKET_LEN;
+	static const std::uint16_t	max_packet_length = DEBUG_MAX_PACKET_LEN;
 #else
-	static const int max_packet_length = 2048;
+	static const std::uint16_t	max_packet_length = 2048;
 #endif
 
 namespace nw {
@@ -33,15 +34,15 @@ public:
 	struct ByteArray;
 	struct Hooks {
 		std::function<void(ByteArray &)> onCommandReceived;
-		std::function<void(std::uint8_t*, std::size_t)> onPacketNeedToBeSend;
 	};
 public:
-	Chopper(Hooks &&h): _hooks(h) {}
+	Chopper(Hooks const &h);
+	Chopper(ASocket &sock, Hooks const &h);
 
 	void	receivePacket(std::uint8_t *buffer, std::size_t len);
 	void	sendCommand(std::uint8_t *buffer, std::size_t len);
 
-	static inline const std::size_t
+    static inline std::size_t
 		getMaxPacketSize(void) { return max_packet_length; }
 private:
 	void			_sendNextPacket(void);
@@ -49,9 +50,17 @@ private:
 	static std::shared_ptr<ByteArray>
 				_pack(std::vector<std::shared_ptr<Packet>> &toPack);
 
+	ASocket			&_sock;
 	Hooks			_hooks;
 	std::queue<QueueItem>	_qu;
 	std::unordered_map<std::uint32_t, std::vector<std::shared_ptr<Packet>>>	_cache;
+    struct {
+        std::uint8_t    *_buf;
+        std::size_t     _l;
+        std::size_t     _rest;
+        std::size_t     _pLen;
+        bool            _headerIncomplete;
+    }   _save;
 };
 
 class Chopper::Packet  {
@@ -67,14 +76,12 @@ public:
 	std::uint8_t	*getData(void) const;
 
 	struct	PackHeader{
-		static void operator delete(void* ptr) {
-			free(ptr);
-		}
-		std::size_t	id;
+        std::uint32_t	magic;
+		std::uint32_t	id;
 		std::uint32_t	packet_index;
 		std::uint32_t	packet_max;
 		std::uint16_t	packet_length;
-	} __attribute__((packed));
+	} __attribute__((packed, gcc_struct));
 
 	std::shared_ptr<PackHeader>	header;
 

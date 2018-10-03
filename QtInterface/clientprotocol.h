@@ -13,6 +13,7 @@
 
 #include "Network/QtSocket.hpp"
 #include "Protocol/Protocol.h"
+#include "Chopper/Chopper.hpp"
 
 namespace client {
 
@@ -66,6 +67,8 @@ private:
     QString             _host;
     quint16             _port;
     nw::ATCPSocket      *_sock;
+    std::unique_ptr<nw::Chopper>
+                        _chop;
 };
 
 }
