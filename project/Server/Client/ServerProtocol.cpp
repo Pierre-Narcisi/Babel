@@ -110,6 +110,7 @@ void	ServerSender::connectToAccount(babel::protocol::Connect const &packet)
 		sendPacket(*respond);
 		delete respond;
 	} else {
+		// if (server_g)
 		sendInfoToClient(clients.back());
 	}
 }
