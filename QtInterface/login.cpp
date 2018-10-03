@@ -63,9 +63,13 @@ void login::on_pushButton_clicked()
     QString password = ui->lineEdit_password->text();
     babel::protocol::Connect    pack;
 
+    if (ui->checkBox->isChecked()) {
+        pack.connectionType = babel::protocol::Connect::Type::CREATE;
+    } else {
+        pack.connectionType = babel::protocol::Connect::Type::CONNECT;
+    }
     std::strcpy(pack.username, name.toStdString().c_str());
     std::strcpy(pack.password, password.toStdString().c_str());
-    pack.needRegister = ui->checkBox->isChecked();
 
     srvCo.sendPacket(pack);
     this->setEnabled(false);

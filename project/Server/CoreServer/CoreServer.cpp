@@ -63,7 +63,9 @@ void CoreServer::start(void)
 
 bool	CoreServer::isConnected(std::string const &username) const
 {
+	std::cout << "to find : " << username << std::endl;
 	for (auto e : _clts) {
+		std::cout << e->getUsername() << std::endl;
 		if (e->getUsername() == username)
 			return true;
 	}
