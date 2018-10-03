@@ -93,13 +93,13 @@ void Chopper::Packet::set(std::uint32_t i, std::uint32_t m, std::uint8_t *buf, s
 }
 
 std::uint32_t	Chopper::_getByteArrayHash(std::uint8_t *buffer, std::size_t len) {
-    std::uint32_t	result = 0;
-    const std::uint32_t	prime = 31;
+	std::uint32_t	result = 0;
+	const std::uint32_t	prime = 31;
 
-    for (size_t i = 0; i < len; ++i) {
-        result = buffer[i] + (result * prime);
-    }
-    return result;
+	for (size_t i = 0; i < len; ++i) {
+		result = buffer[i] + (result * prime);
+	}
+	return result;
 }
 
 std::shared_ptr<Chopper::ByteArray>
@@ -134,6 +134,7 @@ void	Chopper::receivePacket(std::uint8_t *buffer, std::size_t len)
 		auto packed = this->_pack(itm->second);
 		if (_hooks.onCommandReceived != nullptr)
 			_hooks.onCommandReceived(*packed);
+		_cache.erase(itm);
 	}
 }
 
