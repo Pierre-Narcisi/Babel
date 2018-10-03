@@ -2,9 +2,11 @@
 #include "conv.h"
 #include "ui_conv.h"
 #include "singletons.h"
+#include "callform.h"
 
 conv::conv(QWidget *parent) :
     QWidget(parent),
+    _curFriendInfo(nullptr),
     ui(new Ui::conv)
 {
     ui->setupUi(this);
@@ -17,7 +19,8 @@ conv::conv(QWidget *parent) :
             this->ui->labelPseudo->setText(itm->myFriend.pseudo);
             this->ui->labelName->setText(itm->myFriend.username);
             try {
-                auto f = Singletons::getFriendsManager()[itm->myFriend.username.toStdString()];
+                auto &f = Singletons::getFriendsManager()[itm->myFriend.username.toStdString()];
+                _curFriendInfo = &f;
                 this->ui->iconViewer->setPixmap(
                             QPixmap::fromImage(
                                 f.icon.scaled(
@@ -25,6 +28,13 @@ conv::conv(QWidget *parent) :
                                     Qt::KeepAspectRatioByExpanding)));
             } catch (...) {}
         });
+    });
+
+    QObject::connect(this->ui->callButton, &QPushButton::clicked, [this] {
+        CallForm *callWindow = new CallForm(this);
+
+        callWindow->setFriendInfo(_curFriendInfo);
+        callWindow->show();
     });
 }
 
