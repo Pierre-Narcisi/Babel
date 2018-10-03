@@ -24,29 +24,30 @@ void Sender::parsPacketRespond(Respond const &packet)
 }
 
 std::string Sender::humanReadable(Packet::Type packetType) {
-    switch (packetType) {
-        case Packet::Type::Respond:
-            return "Respond";
-        case Packet::Type::Connect:
-            return "Connect";
-        case Packet::Type::GetMessages:
-            return "getMessages";
-        case Packet::Type::SendMessage:
-            return "Send";
-        case Packet::Type::UpdateLogo:
-            return "UpdateLogo";
-        case Packet::Type::UpdateUser:
-            return "UpdateUser";
-        case Packet::Type::UpdateFriend:
-            return "UpdateFriend";
-        case Packet::Type::UpdateClient:
-            return "UpdateClient";
-        case Packet::Type::UpdateMessage:
-            return "UpdateMessage";
-        case Packet::Type::UpdateFriendState:
-            return "UpdateFriendState";
-        default: return "Unknown";
-    }
+	switch (packetType) {
+		case Packet::Type::Respond:
+			return "Respond";
+		case Packet::Type::Connect:
+			return "Connect";
+		case Packet::Type::GetMessages:
+			return "getMessages";
+		case Packet::Type::SendMessage:
+			return "Send";
+		case Packet::Type::UpdateLogo:
+			return "UpdateLogo";
+		case Packet::Type::UpdateUser:
+			return "UpdateUser";
+		case Packet::Type::UpdateFriend:
+			return "UpdateFriend";
+		case Packet::Type::UpdateClient:
+			return "UpdateClient";
+		case Packet::Type::UpdateMessage:
+			return "UpdateMessage";
+		case Packet::Type::UpdateFriendState:
+			return "UpdateFriendState";
+		default:
+			return "Unknown";
+	}
 }
 
 } /* protocol */

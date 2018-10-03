@@ -11,7 +11,7 @@
 #include <boost/shared_ptr.hpp>
 #include "Network/BoostSocket.hpp"
 #include "Chopper/Chopper.hpp"
-#include "ServerProtocol.hpp"
+#include "Protocol/Protocol.h"
 #include "Db/Db.h"
 
 #include <iostream>
@@ -20,7 +20,7 @@ namespace srv {
 
 class CoreServer;
 
-class Client: public ::boost::enable_shared_from_this<Client> {
+class Client: public ::boost::enable_shared_from_this<Client>, public babel::protocol::Sender {
 public:
 	using ptr = ::boost::shared_ptr<Client>;
 	struct Info;
@@ -36,14 +36,30 @@ public:
 	void	start(void);
 
 	inline void	setOnDisconnect(std::function<void(void)> &&hdl) { _sock->setOnDisconnect(hdl); }
+
+	void receivePacket(babel::protocol::Packet &packet) override; /* done */
+	void sendPacket(babel::protocol::Packet &packet) override; /* done */
+
 private:
 	explicit Client(::boost::asio::io_service &ios);
+
+	void parsPacketConnect(babel::protocol::Connect const &packet); /* done */
+	void parsPacketgetMessages(babel::protocol::GetMessages const &packet);
+	void parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet);
+	void parsPacketUpdateUser(babel::protocol::UpdateUser const &packet);
+	void parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet);
+
+	void sendErrorRespond(std::string const &errorMessage);
+	void connectToAccount(babel::protocol::Connect const &packet);
+	void createAccount(babel::protocol::Connect const &packet);
+	void sendInfoToClient(db::Element const &client);
 
 	int		_onReadableHandler(std::size_t len);
 	db::Key		newFriend(std::string const &friendName, db::Db &db);
 
 	std::unique_ptr<nw::ATCPSocket>	_sock; /* use abstract class instead ? */
-	protocol::ServerSender		_sender;
+	std::unique_ptr<nw::Chopper>	_chop;
+	std::uintptr_t			_uniqueId;
 	std::unique_ptr<Info>		_infos;
 };
 

@@ -10,6 +10,7 @@ Client -> Server
 
 Connect :
 	attributes :
+		connectionType :: ENUM {CONNECT, CREATE}
 		username :: String128
 		password :: String128
 	respond :
@@ -42,7 +43,7 @@ UpdateUserInfo :
 	
 UpdateFriend :
 	attributes :
-		what :: ENUM {Update, Erase}
+		what :: ENUM {NEW, UPDATE, ERASE}
 		username :: String128
 		name :: String128
 

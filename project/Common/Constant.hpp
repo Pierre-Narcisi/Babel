@@ -13,6 +13,7 @@ namespace constant {
     /* Server Program default args */
 	constexpr std::uint16_t		defPort = 7654;
 	constexpr char const		*defDbFileName = ".db";
+	constexpr char const		*defUserFileIcon = "defaultFileIcon.png";
 	constexpr std::uint16_t		defThreadNbr = 4;
 
     /* Client Program default args */
