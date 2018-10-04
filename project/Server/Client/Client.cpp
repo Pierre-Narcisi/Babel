@@ -157,6 +157,7 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 		sendErrorRespond("Authentification failed, You already connected.");
 	} else {
 		sendInfoToClient(clients.back());
+		updateStateOfFriends(true);
 	}
 }
 
@@ -248,6 +249,35 @@ void Client::sendInfoToClient(db::Element const &client)
 		sendPacket(*update);
 		delete update;
 	}
+}
+
+void	Client::updateStateOfFriends(bool state)
+{
+	auto clients = server_g->db()["client"].getAll().where([this](db::Element const &e){
+		return e["username"].as<std::string>() == _infos->username;
+	});
+	/* get my friend list */
+	auto friendsRef = server_g->db()["friendListRef"].getAll().where([this](db::Element const &e) {
+		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username;
+	});
+	/* foreach friend */
+	for (auto e : friendsRef) {
+		/* if he's connected */
+		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
+		if (server_g->isConnected(f.username)) {
+			server_g->getClient(f.username).sendUpdateFriendState(_infos->username, state);
+		}
+	}
+}
+
+void Client::sendUpdateFriendState(std::string const &username, bool state)
+{
+	auto update = new (0) babel::protocol::UpdateFriendState;
+	update->type = babel::protocol::Packet::Type::UpdateFriendState;
+	std::strncpy(update->username, username.c_str(), 128);
+	update->state = state;
+	sendPacket(*update);
+	delete update;
 }
 
 db::Key	Client::newFriend(std::string const &friendName, db::Db &db)
