@@ -43,6 +43,9 @@ public:
 	void receivePacket(babel::protocol::Packet &packet) override; /* done */
 	void sendPacket(babel::protocol::Packet &packet) override; /* done */
 
+	void sendUpdateFriendState(std::string const &username, bool state);
+	void updateStateOfFriends(bool state);
+
 private:
 	explicit Client(::boost::asio::io_service &ios);
 

@@ -93,6 +93,7 @@ void	CoreServer::_startAccept(void)
 			auto it = this->_clts.insert(this->_clts.end(), newClient);
 			newClient->setOnDisconnect([this, it] {
 				std::cout << "Client disconnected" << std::endl;
+				it->get()->updateStateOfFriends(false);
 				this->_clts.erase(it);
 			});
 		});
