@@ -45,6 +45,8 @@ struct Packet {
         Connect,
         GetMessages,
         SendMessage,
+	CallRequest,
+	CallRespond,
         UpdateLogo,
         UpdateUser,
         UpdateFriend,
@@ -85,6 +87,18 @@ struct GetMessages : public Packet {
 	char		username[128];
 	std::uint64_t	start;
 	std::uint64_t	number;
+} PACKET_ATTRIBUTE;
+
+struct CallRequest : public Packet {
+	IMPL_PACKCONST(CallRequest)
+	char	username[128];
+} PACKET_ATTRIBUTE;
+
+struct CallRespond : public Packet {
+	IMPL_PACKCONST(CallRespond)
+	enum Type : bool {ACCEPT = true, REJECT = false};
+    CallRespond::Type	respond;
+    char                username[128];
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>274</width>
-    <height>256</height>
+    <width>366</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,22 +25,30 @@
 	icon-size: 20px;
 }
 
-QPushButton#buttonCallEnd {
+QPushButton#buttonCallEnd, QPushButton#buttonReject {
 	background-color: rgba(204, 0, 0, 0.2)
 }
 
-QPushButton#buttonCallEnd:hover {
+QPushButton#buttonCallEnd:hover, QPushButton#buttonReject:hover {
 	background-color: rgb(204, 0, 0)
+}
+
+QPushButton#buttonAccept {
+	background-color: rgba(78, 154, 6, 0.2);
+}
+
+QPushButton#buttonAccept:hover {
+	background-color: rgb(78, 154, 6);
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <item>
-    <spacer name="verticalSpacer_2">
+    <spacer name="verticalSpacer_3">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -51,7 +59,75 @@ QPushButton#buttonCallEnd:hover {
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="layoutDemand">
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonAccept">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/call</normaloff>:/icons/call</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonReject">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/call_end</normaloff>:/icons/call_end</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutOnCall">
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -73,6 +149,9 @@ QPushButton#buttonCallEnd:hover {
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/call_end</normaloff>:/icons/call_end</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

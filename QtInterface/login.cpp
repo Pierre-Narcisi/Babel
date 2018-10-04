@@ -6,6 +6,8 @@
 #include "login.h"
 #include "singletons.h"
 #include "ui_login.h"
+#include "settings.h"
+#include "clientprotocol.h"
 
 login::login(QWidget *parent) :
     QDialog(parent),

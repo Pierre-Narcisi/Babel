@@ -68,6 +68,9 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 			break;
 		case babel::protocol::Packet::Type::SendMessage:
 			break;
+		case babel::protocol::Packet::Type::CallRequest:
+			parsPacketCallRequest(reinterpret_cast<babel::protocol::CallRequest &>(packet));
+			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
 			break;
 		case babel::protocol::Packet::Type::UpdateUser:
@@ -87,6 +90,31 @@ void Client::sendPacket(babel::protocol::Packet &packet)
 		<< packet.packetSize << ")" << std::endl;
 	
 	_chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
+}
+
+void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
+	try {
+		auto &to = server_g->getClient(packet.username);
+
+		auto *respond = new (0) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::OK;
+
+		sendPacket(*respond);
+		delete respond;
+
+		std::strcpy(packet.username, _infos->username.c_str());
+		to.sendPacket(packet);
+	} catch (...) {
+		std::string	msg("user not connnected.");
+		auto *respond = new (msg.size()) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::KO;
+		std::memmove(respond->data, msg.c_str(), msg.size());
+
+		sendPacket(*respond);
+		delete respond;
+	}
 }
 
 /* verif if username and password are correct */

@@ -12,7 +12,9 @@
 #include "frienditem.h"
 #include "login.h"
 #include "singletons.h"
+#include "settings.h"
 #include "about.h"
+#include "callform.h"
 #include "login.h"
 
 ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
@@ -39,6 +41,16 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     QObject::connect(&_srvCo, &client::protocol::ClientSender::onPacketReceived,
                    [this] (babel::protocol::Packet &pack) {
         std::cerr << babel::protocol::Sender::humanReadable(pack.type) << std::endl;
+    });
+
+    QObject::connect(&_srvCo, &client::protocol::ClientSender::onCallRequest,
+                     [this] (QString username) {
+        auto &f = Singletons::getFriendsManager()[username.toStdString()];
+
+        CallForm *callWindow = new CallForm(this, true);
+
+        callWindow->setFriendInfo(&f);
+        callWindow->show();
     });
 
     QAction *about = this->ui->menuBar->addAction("About");
@@ -89,6 +101,8 @@ void ClientMainWindows::showEvent(QShowEvent *) {
     auto &s = Singletons::getSettings();
 
     auto    w = s["window"].toObject();
+    if (w.empty())
+        return;
     auto    winPos = w["pos"].toObject();
     auto    winSize = w["size"].toObject();
 

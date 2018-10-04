@@ -32,7 +32,11 @@ std::string Sender::humanReadable(Packet::Type packetType) {
 		case Packet::Type::GetMessages:
 			return "getMessages";
 		case Packet::Type::SendMessage:
-			return "Send";
+			return "SendMessage";
+		case Packet::Type::CallRequest:
+			return "CallRequest";
+		case Packet::Type::CallRespond:
+			return "CallRespond";
 		case Packet::Type::UpdateLogo:
 			return "UpdateLogo";
 		case Packet::Type::UpdateUser:

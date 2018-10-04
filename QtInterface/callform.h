@@ -13,18 +13,21 @@ class CallForm : public QDialog
     Q_OBJECT
 
 public:
-    explicit CallForm(QWidget *parent = 0);
+    explicit CallForm(QWidget *parent = 0, bool isDemand = false);
     ~CallForm();
 
     void    setFriendInfo(FriendsManager::FriendInfo *f);
 private slots:
     void    onEndClicked(void);
+    void    onRejectClicked(void);
 private:
-    void    showEvent(QShowEvent *e);
+    virtual void    showEvent(QShowEvent *e);
+    virtual void    paintEvent(QPaintEvent *e);
     void    _paintBlurImage(void);
 
-    Ui::CallForm                *ui;
     FriendsManager::FriendInfo  *_f;
+    bool                        _isDemand;
+    Ui::CallForm                *ui;
 };
 
 #endif // CALLFORM_H

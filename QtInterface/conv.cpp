@@ -3,6 +3,7 @@
 #include "ui_conv.h"
 #include "singletons.h"
 #include "callform.h"
+#include "listfrienditem.h"
 
 conv::conv(QWidget *parent) :
     QWidget(parent),

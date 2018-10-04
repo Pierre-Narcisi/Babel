@@ -37,12 +37,7 @@ FriendItem::FriendItem(FriendsManager::FriendInfo &n, QWidget *parent) :
                     myFriend.icon.scaled(
                         this->ui->FriendImg->size(),
                         Qt::KeepAspectRatioByExpanding)));
-    auto w = new QWidget(this);
-    w->setMaximumWidth(1);
-    w->setStyleSheet((myFriend.connected
-                      ? "background-color: #00e600;"
-                      : "background-color: #e60000;"));
-    this->ui->horizontalLayout->insertWidget(0, w);
+    this->ui->stateIndicator->setProperty("connected", myFriend.connected);
 }
 
 FriendItem::~FriendItem()

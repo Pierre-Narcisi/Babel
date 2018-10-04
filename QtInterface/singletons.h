@@ -1,11 +1,11 @@
 #ifndef SINGLETONS_H
 #define SINGLETONS_H
 
-#include <QThreadPool>
-#include "clientprotocol.h"
-#include "settings.h"
-#include "listfrienditem.h"
-#include "friendsmanager.h"
+class QThreadPool;
+namespace client { namespace protocol { class ClientSender; }}
+class Settings;
+class FriendsManager;
+class ListFriends;
 
 class Singletons
 {

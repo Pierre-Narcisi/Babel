@@ -72,6 +72,17 @@ bool	CoreServer::isConnected(std::string const &username) const
 	return false;
 }
 
+Client	&CoreServer::getClient(std::string const &username)
+{
+	std::cout << "to find : " << username << std::endl;
+	for (auto e : _clts) {
+		std::cout << e->getUsername() << std::endl;
+		if (e->getUsername() == username)
+			return *e;
+	}
+	throw std::exception();
+}
+
 void	CoreServer::_startAccept(void)
 {
 	Client::ptr newClient = Client::create(_acceptor.get_io_service());

@@ -62,6 +62,9 @@ void ClientSender::receivePacket(babel::protocol::Packet &packet)
 		case babel::protocol::Packet::Type::UpdateFriendState:
 			parsPacketUpdateFriendState(reinterpret_cast<babel::protocol::UpdateFriendState &>(packet));
 			break;
+        case babel::protocol::Packet::Type::CallRequest:
+            emit onCallRequest(reinterpret_cast<babel::protocol::CallRequest&>(packet).username);
+            break;
         default: break;
 	}
 }
