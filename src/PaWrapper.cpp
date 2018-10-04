@@ -11,7 +11,7 @@
 
 PaWrapper::PaWrapper() {
 	if (Pa_Initialize() != paNoError) {
-		std::cout << "JE ME TIRE, lES RAGEUX SONT DANS LES RETROS" << std::endl;
+		std::cout << "Error: Initialisation PortAudio" << std::endl;
 		exit(0);
 	}
 
@@ -26,16 +26,15 @@ PaWrapper::PaWrapper() {
 	_in.hostApiSpecificStreamInfo = NULL;
 
 
-	/*/// Initialise the encoder
+	/// Initialise the encoder
 	int err;
-	_encoder = opus_encoder_create(48000, 2, OPUS_APPLICATION_AUDIO, &err);
+	_encoder = opus_encoder_create(SAMPLE_RATE, 2, OPUS_APPLICATION_AUDIO, &err);
 	if (err != OPUS_OK) {
 		std::cout << "ERROR: couldn't create encoder. " << OPUS_OK << " " << err << std::endl;
 		std::cout << opus_strerror(err) << std::endl;
 		exit(0);
 	}
-	opus_encoder_ctl(_encoder, OPUS_SET_BITRATE(64000));*/
-
+	opus_encoder_ctl(_encoder, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE));
 
 	/// Initialise speakers
 	_out.device = Pa_GetDefaultOutputDevice(); /* default output device */
@@ -49,14 +48,13 @@ PaWrapper::PaWrapper() {
 	_out.hostApiSpecificStreamInfo = NULL;
 
 
-	/*/// Initialise decoder
-	_decoder = opus_decoder_create(48000, 2, &err);
+	/// Initialise decoder
+	_decoder = opus_decoder_create(SAMPLE_RATE, 2, &err);
 	if (err<0)
 	{
 		std::cout << "Error: failed to create decoder" << std::endl;
 		exit(0);
 	}
-	opus_decoder_ctl(_decoder, OPUS_SET_BITRATE(64000));*/
 
 	if (Pa_OpenStream(
 		&_streamIn, &_in, NULL, SAMPLE_RATE, FRAMES_PER_BUFFER, paClipOff, NULL, NULL) != paNoError) {
@@ -78,29 +76,20 @@ void PaWrapper::startRecord() {
 void PaWrapper::record() {
 	int err = 0;
 
-	std::memset(_buff.buffers, 0, sizeof(_buff));
+	_buff.clear();
+	_buff.resize(MAX_PACKET);
 
 	if (Pa_IsStreamActive(_streamIn) == 1 && Pa_GetStreamReadAvailable( _streamIn ) >= FRAMES_PER_BUFFER) {
-		if ((err = Pa_ReadStream(_streamIn, _buff.buffers, FRAMES_PER_BUFFER)) != paNoError) {
+		if ((err = Pa_ReadStream(_streamIn, _buff.data(), FRAMES_PER_BUFFER)) != paNoError) {
 			std::cout << "Read " << Pa_GetErrorText(err) << std::endl;
 		}
-			/*if ((size = opus_encode_float(_encoder,
-						      reinterpret_cast<float*>(buffers), FRAMES_PER_BUFFER, comp, FRAMES_PER_BUFFER * 2)) < 0) {
-				std::cout << "Encode " << opus_strerror(size) << std::endl;
-				exit(0);
-			}
+	}
 
-			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-				leftBuffer[i] = 0.0f;
-			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-				rightBuffer[i] = 0.0f;
-
-			if (size > 0 && (sizeout = opus_decode_float(_decoder, comp, size,
-							       reinterpret_cast<float*>(buffers), FRAMES_PER_BUFFER, 0)) < 0) {
-				std::cout << "Decode " << opus_strerror(sizeout) << std::endl;
-				exit(0);
-			}*/
-		}
+	_comp.data.clear();
+	_comp.data.resize(FRAMES_PER_BUFFER * 2);
+	if ((_comp.length = opus_encode_float(_encoder, _buff.data(), FRAMES_PER_BUFFER, _comp.data.data(), FRAMES_PER_BUFFER)) < 0) {
+		std::cout << "Compression " << opus_strerror(_comp.length) << std::endl;
+	}
 }
 
 void PaWrapper::stopRecord() {
@@ -114,12 +103,19 @@ void PaWrapper::startPlay() {
 		Pa_StartStream(_streamOut);
 }
 
-void PaWrapper::play(PaBuffer const & buff) {
+void PaWrapper::play(CompData const & buff) {
 	int err;
 
+
+	_buff.clear();
+	_buff.resize(FRAMES_PER_BUFFER * 2);
+
+	if ((err = opus_decode_float(_decoder, buff.data.data(), buff.length, _buff.data(), FRAMES_PER_BUFFER, 0)) < 0) {
+		std::cout << "Decompression " << opus_strerror(err) << std::endl;
+	}
+
 	if (Pa_IsStreamActive(_streamOut) == 1) {
-		err = Pa_WriteStream(_streamOut, buff.buffers,
-				     FRAMES_PER_BUFFER);
+		err = Pa_WriteStream(_streamOut, _buff.data(), FRAMES_PER_BUFFER);
 		if (err != paNoError) {
 			std::cout << "Write " << Pa_GetErrorText(err)
 				  << std::endl;
@@ -133,6 +129,6 @@ void PaWrapper::stopPlay() {
 		Pa_StopStream(_streamOut);
 }
 
-PaBuffer& PaWrapper::getBuffer() {
-	return _buff;
+CompData& PaWrapper::getData() {
+	return _comp;
 }

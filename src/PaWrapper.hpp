@@ -8,12 +8,16 @@
 #pragma once
 
 #include "includes/portaudio.h"
+#include "opus/opus.h"
+#include <vector>
 
-#define SAMPLE_RATE (44100)
-#define FRAMES_PER_BUFFER (1024)
+#define SAMPLE_RATE (48000)
+#define FRAMES_PER_BUFFER (960)
+#define MAX_PACKET (FRAMES_PER_BUFFER * 2 * 2)
 
-struct PaBuffer {
-	float buffers[2][FRAMES_PER_BUFFER];
+struct CompData {
+	std::vector<unsigned char>	data;
+	int				length;
 };
 
 class PaWrapper {
@@ -24,18 +28,19 @@ public:
 	void record();
 	void stopRecord();
 	void startPlay();
-	void play(PaBuffer const&);
+	void play(CompData const&);
 	void stopPlay();
 
-	PaBuffer &getBuffer();
+	CompData &getData();
+
 
 private:
-
-	PaBuffer		_buff;
+	CompData		_comp;
+	std::vector<float>	_buff;
 	PaStreamParameters	_in;
 	PaStreamParameters	_out;
-	//OpusEncoder		*_encoder;
-	//OpusDecoder		*_decoder;
+	OpusEncoder		*_encoder;
+	OpusDecoder		*_decoder;
 	PaStream 		*_streamIn;
 	PaStream 		*_streamOut;
 };
