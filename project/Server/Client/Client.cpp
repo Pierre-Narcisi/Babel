@@ -106,7 +106,7 @@ void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
 		std::strcpy(packet.username, _infos->username.c_str());
 		to.sendPacket(packet);
 	} catch (...) {
-		std::string	msg("user not connnected.");
+		std::string	msg("user not connected.");
 		auto *respond = new (msg.size()) babel::protocol::Respond;
 		respond->previous = packet.type;
 		respond->respond = babel::protocol::Respond::Type::KO;
