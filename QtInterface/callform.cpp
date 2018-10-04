@@ -22,7 +22,7 @@ CallForm::CallForm(QWidget *parent, bool isDemand) :
     ui->setupUi(this);
 
     //this->setMaximumSize(this->width(), this->height());
-    this->setMinimumSize(100, 150);
+    this->setMinimumSize(this->width(), this->height());
     this->setModal(false);
 
     if (!parent) {

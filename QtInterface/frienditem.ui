@@ -107,7 +107,7 @@ QLabel[selectedItem=&quot;true&quot;] {
 	background-color: rgb(136, 138, 133);
 }
 QPushButton[connected=&quot;true&quot;]{
-	background-color: green;
+	background-color: rgb(115, 210, 22);
 }</string>
      </property>
      <property name="text">
