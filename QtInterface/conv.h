@@ -2,6 +2,7 @@
 #define CONV_H
 
 #include <QWidget>
+#include "friendsmanager.h"
 
 namespace Ui {
 class conv;
@@ -16,7 +17,8 @@ public:
     ~conv();
 
 private:
-    Ui::conv *ui;
+    FriendsManager::FriendInfo  *_curFriendInfo;
+    Ui::conv                    *ui;
 };
 
 #endif // CONV_H

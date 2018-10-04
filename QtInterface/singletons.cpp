@@ -1,3 +1,9 @@
+#include <QThreadPool>
+#include "clientprotocol.h"
+#include "settings.h"
+#include "listfrienditem.h"
+#include "friendsmanager.h"
+
 #include "singletons.h"
 
 QThreadPool &Singletons::getThreadPool(void)
