@@ -32,3 +32,8 @@ conv::~conv()
 {
     delete ui;
 }
+
+void conv::on_callButton_clicked()
+{
+
+}

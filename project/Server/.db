@@ -2,11 +2,12 @@
 {"friendKey":Number;"clientKey":Number}
 {0;0;1}
 {1;1;0}
-"client":3:3
+"client":4:4
 {"icon":String;"password":String;"username":String}
 {0;"";"test";"test"}
 {1;"";"toto42";"toto"}
 {2;"defaultFileIcon.png";"siseulementtusavais";"Grogustin"}
+{3;"defaultFileIcon.png";"moi";"moi"}
 "friend":2:2
 {"name":String;"clientRef":Number}
 {0;"Chuck Norris";0}
