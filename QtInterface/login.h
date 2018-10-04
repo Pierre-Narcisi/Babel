@@ -9,6 +9,10 @@ namespace Ui {
 class login;
 }
 
+namespace babel { namespace protocol {
+class Packet;
+}}
+
 class login : public QDialog
 {
     Q_OBJECT
@@ -18,6 +22,8 @@ public:
     ~login();
 
 private slots:
+    void onPacketReceived(babel::protocol::Packet &pack);
+
     void on_pushButton_clicked();
 
     void on_login_finished(int result);

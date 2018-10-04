@@ -33,6 +33,9 @@ public:
 	std::string const		&getUsername(void) const;
 	inline Client::Info		&getInfos(void) {return *_infos; }
 
+	auto		&getCallMap(void) { return _callMap; }
+	const auto	&getCallMap(void) const { return _callMap; }
+
 	void	start(void);
 
 	inline void	setOnDisconnect(std::function<void(void)> &&hdl) { _sock->setOnDisconnect(hdl); }
@@ -45,12 +48,18 @@ private:
 
 	void parsPacketConnect(babel::protocol::Connect const &packet); /* done */
 	void parsPacketCallRequest(babel::protocol::CallRequest &packet);
+	void parsPacketCallRespond(babel::protocol::CallRespond &packet);
+	void parsPacketCallEnd(babel::protocol::CallEnd &packet);
 	void parsPacketgetMessages(babel::protocol::GetMessages const &packet);
 	void parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet);
 	void parsPacketUpdateUser(babel::protocol::UpdateUser const &packet);
 	void parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet);
 
-	void sendErrorRespond(std::string const &errorMessage);
+	enum class SetMapType : bool { ADD = true, REMOVE = false};
+	static void setCallMap(Client *c1, Client *c2, SetMapType type);
+	void sendErrorRespond(
+		babel::protocol::Packet::Type type,
+		std::string const &errorMessage);
 	void connectToAccount(babel::protocol::Connect const &packet);
 	void createAccount(babel::protocol::Connect const &packet);
 	void sendInfoToClient(db::Element const &client);
@@ -62,6 +71,8 @@ private:
 	std::unique_ptr<nw::Chopper>	_chop;
 	std::uintptr_t			_uniqueId;
 	std::unique_ptr<Info>		_infos;
+	std::unordered_map<std::string, Client*>
+					_callMap;
 };
 
 struct Client::Info {

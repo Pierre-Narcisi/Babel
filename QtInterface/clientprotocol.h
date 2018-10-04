@@ -47,6 +47,9 @@ public:
     void setPort(quint16 port);
     void setParent(QObject *parent);
 
+    Client          &getClient(void) { return _client; }
+    const Client    &getClient(void) const { return _client; }
+
     int run(void);
 
 signals:
@@ -54,6 +57,7 @@ signals:
     void    onPacketReceived(babel::protocol::Packet&);
     void    onFriendListChange(std::vector<Friend> const &friends);
     void    onCallRequest(QString username);
+    void    onCallEnd(QString username);
 
 private:
 	void parsPacketUpdateClient(babel::protocol::UpdateClient const &packet); /* done */

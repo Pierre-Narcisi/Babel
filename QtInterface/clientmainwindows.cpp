@@ -38,19 +38,15 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         qApp->quit();
     });
 
-    QObject::connect(&_srvCo, &client::protocol::ClientSender::onPacketReceived,
-                   [this] (babel::protocol::Packet &pack) {
-        std::cerr << babel::protocol::Sender::humanReadable(pack.type) << std::endl;
-    });
-
     QObject::connect(&_srvCo, &client::protocol::ClientSender::onCallRequest,
                      [this] (QString username) {
-        auto &f = Singletons::getFriendsManager()[username.toStdString()];
+        auto        &f = Singletons::getFriendsManager()[username.toStdString()];
+        CallForm    *callWindow = new CallForm(nullptr, true);
 
-        CallForm *callWindow = new CallForm(this, true);
-
+        std::cout << "Hein .???" << std::endl;
         callWindow->setFriendInfo(&f);
         callWindow->show();
+        std::cout << "DEUX .???" << std::endl;
     });
 
     QAction *about = this->ui->menuBar->addAction("About");
@@ -71,6 +67,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
 ClientMainWindows::~ClientMainWindows()
 {
     delete ui;
+    qApp->quit();
 }
 
 void ClientMainWindows::showEvent(QShowEvent *) {

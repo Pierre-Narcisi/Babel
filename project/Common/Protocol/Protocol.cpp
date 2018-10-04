@@ -37,6 +37,8 @@ std::string Sender::humanReadable(Packet::Type packetType) {
 			return "CallRequest";
 		case Packet::Type::CallRespond:
 			return "CallRespond";
+		case Packet::Type::CallEnd:
+			return "CallEnd";
 		case Packet::Type::UpdateLogo:
 			return "UpdateLogo";
 		case Packet::Type::UpdateUser:

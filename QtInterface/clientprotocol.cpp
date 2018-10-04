@@ -51,7 +51,8 @@ void ClientSender::setParent(QObject *parent) {
 
 void ClientSender::receivePacket(babel::protocol::Packet &packet)
 {
-	std::cerr << "Client : receive packet" << std::endl;
+    std::cerr << "Client : receive packet ("
+              << humanReadable(packet.type) << ")" << std::endl;
 	switch (packet.type) {
 		case babel::protocol::Packet::Type::Respond:
 			parsPacketRespond(reinterpret_cast<babel::protocol::Respond &>(packet));
@@ -64,6 +65,9 @@ void ClientSender::receivePacket(babel::protocol::Packet &packet)
 			break;
         case babel::protocol::Packet::Type::CallRequest:
             emit onCallRequest(reinterpret_cast<babel::protocol::CallRequest&>(packet).username);
+            break;
+        case babel::protocol::Packet::Type::CallEnd:
+            emit onCallEnd(reinterpret_cast<babel::protocol::CallEnd&>(packet).username);
             break;
         default: break;
 	}
