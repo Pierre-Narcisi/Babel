@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "friendsmanager.h"
+#include "clientprotocol.h"
 
 namespace Ui {
 class CallForm;
@@ -20,6 +21,7 @@ public:
 private slots:
     void    onEndClicked(void);
     void    onRejectClicked(void);
+    void    onPacketReceived(babel::protocol::Packet &packet);
 private:
     virtual void    showEvent(QShowEvent *e);
     virtual void    paintEvent(QPaintEvent *e);

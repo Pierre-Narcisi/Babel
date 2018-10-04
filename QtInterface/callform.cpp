@@ -5,7 +5,6 @@
 #include "callform.h"
 #include "ui_callform.h"
 #include "singletons.h"
-#include "clientprotocol.h"
 
 #include <iostream>
 
@@ -24,27 +23,31 @@ CallForm::CallForm(QWidget *parent, bool isDemand) :
     this->setMinimumSize(this->width(), this->height());
     this->setModal(false);
 
+    this->setAttribute(Qt::WA_DeleteOnClose, true);
     QObject::connect(this->ui->buttonCallEnd, &QPushButton::clicked,
-                     this, &CallForm::onEndClicked);
+                    this, &CallForm::onEndClicked);
     QObject::connect(this->ui->buttonReject, &QPushButton::clicked,
-                     this, &CallForm::onRejectClicked);
+                    this, &CallForm::onRejectClicked);
     QObject::connect(&Singletons::getSrvCo(), &client::protocol::ClientSender::onPacketReceived,
-                     [this] (babel::protocol::Packet &pack) {
-        auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
-        auto &r = reinterpret_cast<babel::protocol::CallRespond&>(pack);
+                    this, &CallForm::onPacketReceived);
+}
 
-        if ((pack.type == babel::protocol::Packet::Type::Respond)
-        && (p.previous == babel::protocol::Packet::Type::CallRequest)) {
-            if (p.respond == babel::protocol::Respond::KO) {
-                QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
-                this->close();
-            }
-        } else if (pack.type == babel::protocol::Packet::Type::CallRespond
-        && (_f->username.toStdString() == std::string(r.username))) {
-            if (r.respond == babel::protocol::CallRespond::REJECT)
-                this->close();
+void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
+    auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
+    auto &r = reinterpret_cast<babel::protocol::CallRespond&>(pack);
+
+    if ((pack.type == babel::protocol::Packet::Type::Respond)
+    && (p.previous == babel::protocol::Packet::Type::CallRequest)) {
+        if (p.respond == babel::protocol::Respond::KO) {
+            QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
+            this->close();
         }
-    });
+    } else if (pack.type == babel::protocol::Packet::Type::CallRespond
+    && (_f->username.toStdString() == std::string(r.username))) {
+        if (r.respond == babel::protocol::CallRespond::REJECT) {
+            this->close();
+        }
+    }
 }
 
 void    CallForm::onEndClicked(void) {
