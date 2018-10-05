@@ -59,8 +59,13 @@ SOURCES += \
     mainscreen.cpp \
     listfrienditem.cpp \
     settings.cpp \
+<<<<<<< HEAD
     call.cpp \
     friendsmanager.cpp
+=======
+    friendsmanager.cpp \
+    callform.cpp
+>>>>>>> b5d478d793b4271d09b0081a44716a1466b150c6
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -81,8 +86,13 @@ HEADERS += \
     mainscreen.h \
     listfrienditem.h \
     settings.h \
+<<<<<<< HEAD
     call.h \
     friendsmanager.h
+=======
+    friendsmanager.h \
+    callform.h
+>>>>>>> b5d478d793b4271d09b0081a44716a1466b150c6
 
 FORMS += \
     clientmainwindows.ui \
@@ -90,7 +100,8 @@ FORMS += \
     frienditem.ui \
     conv.ui \
     login.ui \
-    mainscreen.ui
+    mainscreen.ui \
+    callform.ui
 
 RESOURCES += \
     resources.qrc

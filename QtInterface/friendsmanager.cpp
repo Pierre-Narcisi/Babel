@@ -1,5 +1,6 @@
 #include "friendsmanager.h"
 #include "singletons.h"
+#include "clientprotocol.h"
 
 FriendsManager::FriendsManager(QObject *parent) : QObject(parent) {
     QObject::connect(&Singletons::getSrvCo(), &client::protocol::ClientSender::onFriendListChange,

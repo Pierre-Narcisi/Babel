@@ -24,6 +24,7 @@ public:
 	void	start(void);
 	inline db::Db &db(void) { return _db; }
 	bool	isConnected(std::string const &username) const;
+	Client	&getClient(std::string const &username);
 private:
 	class CoreArgs;
 

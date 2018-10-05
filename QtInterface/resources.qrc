@@ -5,5 +5,6 @@
     <qresource prefix="/icons">
         <file alias="call">assets/call.png</file>
         <file alias="send">assets/send.png</file>
+        <file alias="call_end">assets/call_end.svg</file>
     </qresource>
 </RCC>

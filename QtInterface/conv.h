@@ -2,6 +2,7 @@
 #define CONV_H
 
 #include <QWidget>
+#include "friendsmanager.h"
 
 namespace Ui {
 class conv;
@@ -19,7 +20,8 @@ private slots:
     void on_callButton_clicked();
 
 private:
-    Ui::conv *ui;
+    FriendsManager::FriendInfo  *_curFriendInfo;
+    Ui::conv                    *ui;
 };
 
 #endif // CONV_H

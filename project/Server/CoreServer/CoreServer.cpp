@@ -72,6 +72,17 @@ bool	CoreServer::isConnected(std::string const &username) const
 	return false;
 }
 
+Client	&CoreServer::getClient(std::string const &username)
+{
+	std::cout << "to find : " << username << std::endl;
+	for (auto e : _clts) {
+		std::cout << e->getUsername() << std::endl;
+		if (e->getUsername() == username)
+			return *e;
+	}
+	throw std::exception();
+}
+
 void	CoreServer::_startAccept(void)
 {
 	Client::ptr newClient = Client::create(_acceptor.get_io_service());
@@ -82,6 +93,7 @@ void	CoreServer::_startAccept(void)
 			auto it = this->_clts.insert(this->_clts.end(), newClient);
 			newClient->setOnDisconnect([this, it] {
 				std::cout << "Client disconnected" << std::endl;
+				it->get()->updateStateOfFriends(false);
 				this->_clts.erase(it);
 			});
 		});

@@ -68,6 +68,9 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 			break;
 		case babel::protocol::Packet::Type::SendMessage:
 			break;
+		case babel::protocol::Packet::Type::CallRequest:
+			parsPacketCallRequest(reinterpret_cast<babel::protocol::CallRequest &>(packet));
+			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
 			break;
 		case babel::protocol::Packet::Type::UpdateUser:
@@ -87,6 +90,31 @@ void Client::sendPacket(babel::protocol::Packet &packet)
 		<< packet.packetSize << ")" << std::endl;
 	
 	_chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
+}
+
+void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
+	try {
+		auto &to = server_g->getClient(packet.username);
+
+		auto *respond = new (0) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::OK;
+
+		sendPacket(*respond);
+		delete respond;
+
+		std::strcpy(packet.username, _infos->username.c_str());
+		to.sendPacket(packet);
+	} catch (...) {
+		std::string	msg("user not connected.");
+		auto *respond = new (msg.size()) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::KO;
+		std::memmove(respond->data, msg.c_str(), msg.size());
+
+		sendPacket(*respond);
+		delete respond;
+	}
 }
 
 /* verif if username and password are correct */
@@ -129,6 +157,7 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 		sendErrorRespond("Authentification failed, You already connected.");
 	} else {
 		sendInfoToClient(clients.back());
+		updateStateOfFriends(true);
 	}
 }
 
@@ -220,6 +249,35 @@ void Client::sendInfoToClient(db::Element const &client)
 		sendPacket(*update);
 		delete update;
 	}
+}
+
+void	Client::updateStateOfFriends(bool state)
+{
+	auto clients = server_g->db()["client"].getAll().where([this](db::Element const &e){
+		return e["username"].as<std::string>() == _infos->username;
+	});
+	/* get my friend list */
+	auto friendsRef = server_g->db()["friendListRef"].getAll().where([this](db::Element const &e) {
+		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username;
+	});
+	/* foreach friend */
+	for (auto e : friendsRef) {
+		/* if he's connected */
+		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
+		if (server_g->isConnected(f.username)) {
+			server_g->getClient(f.username).sendUpdateFriendState(_infos->username, state);
+		}
+	}
+}
+
+void Client::sendUpdateFriendState(std::string const &username, bool state)
+{
+	auto update = new (0) babel::protocol::UpdateFriendState;
+	update->type = babel::protocol::Packet::Type::UpdateFriendState;
+	std::strncpy(update->username, username.c_str(), 128);
+	update->state = state;
+	sendPacket(*update);
+	delete update;
 }
 
 db::Key	Client::newFriend(std::string const &friendName, db::Db &db)

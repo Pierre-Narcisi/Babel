@@ -53,7 +53,7 @@ signals:
     void    disconnected(void);
     void    onPacketReceived(babel::protocol::Packet&);
     void    onFriendListChange(std::vector<Friend> const &friends);
-
+    void    onCallRequest(QString username);
 
 private:
 	void parsPacketUpdateClient(babel::protocol::UpdateClient const &packet); /* done */

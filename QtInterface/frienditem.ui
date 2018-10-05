@@ -38,7 +38,7 @@ QLabel#FriendIcon {
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>8</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
@@ -47,7 +47,7 @@ QLabel#FriendIcon {
     <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>8</number>
    </property>
    <property name="bottomMargin">
     <number>0</number>
@@ -75,22 +75,6 @@ QLabel#FriendIcon {
     </widget>
    </item>
    <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>9</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <widget class="QLabel" name="FriendNameLabel">
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -109,6 +93,25 @@ QLabel[selectedItem=&quot;true&quot;] {
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="stateIndicator">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	max-width: 6px;
+	max-height: 6px;
+	border: none;
+	border-radius: 3px;
+	background-color: red;
+}
+QPushButton[connected=&quot;true&quot;]{
+	background-color: green;
+}</string>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>

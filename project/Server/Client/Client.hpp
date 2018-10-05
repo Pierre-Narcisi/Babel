@@ -40,10 +40,14 @@ public:
 	void receivePacket(babel::protocol::Packet &packet) override; /* done */
 	void sendPacket(babel::protocol::Packet &packet) override; /* done */
 
+	void sendUpdateFriendState(std::string const &username, bool state);
+	void updateStateOfFriends(bool state);
+
 private:
 	explicit Client(::boost::asio::io_service &ios);
 
 	void parsPacketConnect(babel::protocol::Connect const &packet); /* done */
+	void parsPacketCallRequest(babel::protocol::CallRequest &packet);
 	void parsPacketgetMessages(babel::protocol::GetMessages const &packet);
 	void parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet);
 	void parsPacketUpdateUser(babel::protocol::UpdateUser const &packet);
@@ -57,7 +61,7 @@ private:
 	int		_onReadableHandler(std::size_t len);
 	db::Key		newFriend(std::string const &friendName, db::Db &db);
 
-	std::unique_ptr<nw::ATCPSocket>	_sock; /* use abstract class instead ? */
+	std::unique_ptr<nw::ATCPSocket>	_sock;
 	std::unique_ptr<nw::Chopper>	_chop;
 	std::uintptr_t			_uniqueId;
 	std::unique_ptr<Info>		_infos;
