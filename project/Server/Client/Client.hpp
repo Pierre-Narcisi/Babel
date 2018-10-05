@@ -12,6 +12,9 @@
 #include "Network/BoostSocket.hpp"
 #include "Chopper/Chopper.hpp"
 #include "Protocol/Protocol.h"
+#include <sys/types.h>
+#include <stdio.h>
+#include <fstream> 
 #include "Db/Db.h"
 
 #include <iostream>

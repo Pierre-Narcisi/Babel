@@ -109,8 +109,8 @@ struct UpdateLogo : public Packet {
 
 struct UpdateUser : public Packet {
 	IMPL_PACKCONST(UpdateUser)
-	char		username[128];
 	char		password[128];
+	char		newpassword[128];
 } PACKET_ATTRIBUTE;
 
 struct UpdateFriend : public Packet {
