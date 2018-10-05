@@ -69,9 +69,8 @@ private:
 	static void setCallMap(Client *c1, Client *c2, SetMapType type);
 	bool	isFriend(std::string const &name, db::Key *ref = nullptr);
 
-	void sendErrorRespond(
-		babel::protocol::Packet::Type type,
-		std::string const &errorMessage);
+	void sendValidRespond(babel::protocol::Packet::Type type, std::string const &message);
+	void sendErrorRespond(babel::protocol::Packet::Type type, std::string const &errorMessage);
 	void connectToAccount(babel::protocol::Connect const &packet);
 	void createAccount(babel::protocol::Connect const &packet);
 	void sendInfoToClient(db::Element const &client);

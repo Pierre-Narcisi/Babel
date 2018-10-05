@@ -14,6 +14,7 @@ namespace constant {
 	constexpr std::uint16_t		defPort = 4242;
 	constexpr char const		*defDbFileName = ".db";
 	constexpr char const		*defUserFileIcon = "defaultFileIcon.png";
+	constexpr char const		*ressourcesFolder = ".ressources/";
 	constexpr std::uint16_t		defThreadNbr = 4;
 
     /* Client Program default args */
