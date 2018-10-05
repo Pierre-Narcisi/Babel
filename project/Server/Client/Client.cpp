@@ -207,13 +207,30 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 
 void Client::updateFriend(babel::protocol::UpdateFriend const &packet)
 {
-
+	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
+		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
+		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;
+	});
+	if (refFriend.size() == 0) {
+		sendErrorRespond("error : " + std::string(packet.username) + " isn't in your friend list.");
+	}
+	server_g->db()["friend"][refFriend.back()["friendKey"].as<db::Key>()]["name"] = packet.name;
 }
 
 void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 {
-	/* remove me -> friend */
-	/* remove friend -> me */
+	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
+		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
+		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;
+	});
+	auto reverseRefFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
+		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == packet.username
+		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username;
+	});
+	server_g->db()["friend"].remove(refFriend.back()["friendKey"].as<db::Key>());
+	server_g->db()["friend"].remove(reverseRefFriend.back()["friendKey"].as<db::Key>());
+	server_g->db()["friendListRef"].remove(refFriend.back()["primary_key"].as<db::Key>());
+	server_g->db()["friendListRef"].remove(reverseRefFriend.back()["primary_key"].as<db::Key>());
 }
 
 void	Client::connectToAccount(babel::protocol::Connect const &packet)
