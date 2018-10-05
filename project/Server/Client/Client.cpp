@@ -568,4 +568,34 @@ void	FriendRef::serializer(FriendRef const &ref, db::Element &elem, db::Db &db)
 	elem["friendKey"] = ref.friendKey;
 }
 
+void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
+{
+	int fd;
+	std::ofstream myfile;
+
+	if (stat(".ressources", NULL) == -1)
+		mkdir(".ressources", 754);
+	if (chdir(".ressources") == -1)
+		return;
+	remove(_infos->username.c_str);
+	myfile.open(_infos->username);
+	myfile << packet.buffer;
+	myfile.close();
+	if (chdir("-") == -1)
+		return;
+}
+
+void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
+{
+	auto client = server_g->db()["client"].getAll().where([this, &packet](db::Element const &e){
+		return e["username"].as<std::string>() == _infos->username
+		&& e["password"].as<std::string>() == packet.password;
+	});
+	if (client.size() == 0) {
+		sendErrorRespond("Wrong password.");
+	} else {
+		client.back()["password"] = packet.newpassword;
+	}
+}
+
 }
