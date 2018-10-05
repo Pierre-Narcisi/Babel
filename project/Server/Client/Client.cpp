@@ -138,6 +138,12 @@ void Client::parsPacketGetClientIp(babel::protocol::GetClientIp const &packet) {
 		sendErrorRespond(packet.type, msg);
 	} else {
 		auto &clt = server_g->getClient(packet.username);
+		if (clt.isFriend(_infos->username) == false) {
+			sendErrorRespond(packet.type,
+				"You are not in the friend list of "
+				+ std::string(packet.username) + ".");
+			return;
+		}
 		auto endpoint = clt.getSocket().getBoostSocket().remote_endpoint();
 		auto *respond = new (sizeof(proto::data::GetClientIpRespond)) babel::protocol::Respond;
 		respond->previous = packet.type;
@@ -247,7 +253,7 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 	if (server_g->db()["client"].getAll().where([&packet](db::Element const &e) {
 		return e["username"].as<std::string>() == packet.username;
 	}).size() == 0) {
-		sendErrorRespond("error : username " + std::string(packet.username) + "doesn't not exist");
+		sendErrorRespond(packet.type, "error : username " + std::string(packet.username) + "doesn't not exist");
 	} else {
 		switch (packet.what) {
 			case babel::protocol::UpdateFriend::What::NEW:
@@ -302,20 +308,33 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 	sendUpdateFriendState(friendInfos, true, true);
 }
 
+bool Client::isFriend(std::string const &name, db::Key *ref) {
+	std::cout << "Ah: " << name << std::endl;
+	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &name] (db::Element const &e) {
+		auto me = server_g->db()["client"][e["clientKey"].as<db::Key>()];
+		auto youRef = server_g->db()["friend"][e["friendKey"].as<db::Key>()]["clientRef"].as<db::Key>();
+
+		return me["username"].as<std::string>() == _infos->username
+		&& server_g->db()["client"][youRef]["username"].as<std::string>() == name;
+	});
+	if (ref && refFriend.size())
+		*ref = refFriend.back()["primary_key"].as<db::Key>();
+	return (refFriend.size() != 0);
+}
+
 void Client::updateFriend(babel::protocol::UpdateFriend const &packet)
 {
-	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
-		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
-		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;
-	});
-	if (refFriend.size() == 0) {
-		sendErrorRespond("error : " + std::string(packet.username) + " isn't in your friend list.");
+	db::Key refFriend;
+
+	if (isFriend(packet.username, &refFriend)) {
+		sendErrorRespond(packet.type, "error : " + std::string(packet.username) + " isn't in your friend list.");
 	}
-	server_g->db()["friend"][refFriend.back()["friendKey"].as<db::Key>()]["name"] = packet.name;
+	server_g->db()["friend"][refFriend]["name"] = packet.name;
 }
 
 void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 {
+	//TODO: fix this shit
 	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
 		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
 		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;

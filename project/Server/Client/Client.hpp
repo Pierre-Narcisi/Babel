@@ -64,6 +64,8 @@ private:
 
 	enum class SetMapType : bool { ADD = true, REMOVE = false};
 	static void setCallMap(Client *c1, Client *c2, SetMapType type);
+	bool	isFriend(std::string const &name, db::Key *ref = nullptr);
+
 	void sendErrorRespond(
 		babel::protocol::Packet::Type type,
 		std::string const &errorMessage);
