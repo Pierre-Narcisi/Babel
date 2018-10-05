@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.10)
+project(babel)
+set(CMAKE_CXX_STANDARD 17)
+
+set(COMMON_FLAGS "-Wall -Wextra -Werror -O3 -Wno-maybe-uninitialized -Wno-address")
+
+include_directories(.)
+include_directories(project)
+include_directories(includes)
+include_directories(/usr/include)
+
+
+add_executable(babel
+	test/Main.cpp test/PaWrapper.cpp test/PaWrapper.hpp test/Test.cpp)
+
+target_link_libraries(babel ${CMAKE_SOURCE_DIR}/lib/libportaudio.a)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/libm.so)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/librt.so)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/libasound.so)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/libjack.so)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/libpthread.so)
+target_link_libraries(babel /usr/lib/x86_64-linux-gnu/libopus.so)
