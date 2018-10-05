@@ -32,7 +32,7 @@ conv::conv(QWidget *parent) :
     });
 
     QObject::connect(this->ui->callButton, &QPushButton::clicked, [this] {
-        CallForm *callWindow = new CallForm(this);
+        CallForm *callWindow = new CallForm(nullptr);
 
         callWindow->setFriendInfo(_curFriendInfo);
         callWindow->show();

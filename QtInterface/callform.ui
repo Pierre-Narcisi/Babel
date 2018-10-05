@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>366</width>
-    <height>350</height>
+    <width>251</width>
+    <height>231</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton {
+   <string notr="true">QPushButton[flat=&quot;true&quot;] {
 	min-width: 50;
 	min-height:50;
 	max-width: 50;
@@ -82,6 +82,9 @@ QPushButton#buttonAccept:hover {
         <iconset resource="resources.qrc">
          <normaloff>:/icons/call</normaloff>:/icons/call</iconset>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -108,6 +111,9 @@ QPushButton#buttonAccept:hover {
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/call_end</normaloff>:/icons/call_end</iconset>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -152,6 +158,9 @@ QPushButton#buttonAccept:hover {
        </property>
        <property name="checkable">
         <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

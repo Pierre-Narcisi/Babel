@@ -24,6 +24,8 @@ public:
 
     explicit FriendsManager(QObject *parent = nullptr);
 
+    void clean(void) { _friends.clear(); }
+
     FriendInfo  &operator[](std::string const &name);
 signals:
     void listUpdated(std::shared_ptr<std::vector<FriendInfo*>> list);

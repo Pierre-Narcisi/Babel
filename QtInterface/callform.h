@@ -21,14 +21,19 @@ public:
 private slots:
     void    onEndClicked(void);
     void    onRejectClicked(void);
+    void    onAcceptClicked(void);
     void    onPacketReceived(babel::protocol::Packet &packet);
+    void    onCallEnd(QString name);
 private:
     virtual void    showEvent(QShowEvent *e);
     virtual void    paintEvent(QPaintEvent *e);
     void    _paintBlurImage(void);
+    void    _registerCallEnd(void);
+    void    _initCall(void);
 
     FriendsManager::FriendInfo  *_f;
     bool                        _isDemand;
+    bool                        _isInit = false;
     Ui::CallForm                *ui;
 };
 
