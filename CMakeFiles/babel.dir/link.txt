@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/babel.dir/test/Main.cpp.o CMakeFiles/babel.dir/test/PaWrapper.cpp.o CMakeFiles/babel.dir/test/Test.cpp.o  -o babel lib/libportaudio.a -lm /usr/lib/x86_64-linux-gnu/librt.so /usr/lib/x86_64-linux-gnu/libasound.so /usr/lib/x86_64-linux-gnu/libjack.so -lpthread /usr/lib/x86_64-linux-gnu/libopus.so 

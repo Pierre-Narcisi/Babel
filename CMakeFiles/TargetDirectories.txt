@@ -1,3 +1,0 @@
-/home/seb/babel/CMakeFiles/rebuild_cache.dir
-/home/seb/babel/CMakeFiles/edit_cache.dir
-/home/seb/babel/CMakeFiles/babel.dir

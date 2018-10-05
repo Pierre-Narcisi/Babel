@@ -1,0 +1,69 @@
+[settings]
+    arch=x86_64
+    build_type=Release
+    compiler=gcc
+    compiler.libcxx=libstdc++11
+    compiler.version=8
+    os=Linux
+
+[requires]
+    boost/1.Y.Z
+
+[options]
+
+
+[full_settings]
+    arch=x86_64
+    arch_build=x86_64
+    build_type=Release
+    compiler=gcc
+    compiler.libcxx=libstdc++11
+    compiler.version=8
+    os=Linux
+    os_build=Linux
+
+[full_requires]
+    boost/1.68.0@conan/stable:8e3d642b17aeadb52db5ecf436e0619216db366a
+
+[full_options]
+    boost:fPIC=False
+    boost:header_only=False
+    boost:magic_autolink=False
+    boost:shared=False
+    boost:skip_lib_rename=False
+    boost:without_atomic=True
+    boost:without_chrono=True
+    boost:without_container=True
+    boost:without_context=True
+    boost:without_contract=True
+    boost:without_coroutine=True
+    boost:without_date_time=True
+    boost:without_exception=True
+    boost:without_fiber=True
+    boost:without_filesystem=True
+    boost:without_graph=True
+    boost:without_graph_parallel=True
+    boost:without_iostreams=True
+    boost:without_locale=True
+    boost:without_log=True
+    boost:without_math=True
+    boost:without_mpi=True
+    boost:without_program_options=True
+    boost:without_python=True
+    boost:without_random=True
+    boost:without_regex=True
+    boost:without_serialization=True
+    boost:without_signals=True
+    boost:without_stacktrace=True
+    boost:without_system=False
+    boost:without_test=True
+    boost:without_thread=False
+    boost:without_timer=True
+    boost:without_type_erasure=True
+    boost:without_wave=True
+
+[recipe_hash]
+
+
+[env]
+
