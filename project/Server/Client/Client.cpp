@@ -84,6 +84,15 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 		case babel::protocol::Packet::Type::CallRequest:
 			parsPacketCallRequest(reinterpret_cast<babel::protocol::CallRequest &>(packet));
 			break;
+		case babel::protocol::Packet::Type::CallRespond:
+			parsPacketCallRespond(reinterpret_cast<babel::protocol::CallRespond &>(packet));
+			break;
+		case babel::protocol::Packet::Type::CallEnd:
+			parsPacketCallEnd(reinterpret_cast<babel::protocol::CallEnd &>(packet));
+			break;
+		case babel::protocol::Packet::Type::GetClientIp:
+			parsPacketGetClientIp(reinterpret_cast<babel::protocol::GetClientIp &>(packet));
+			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
 			break;
 		case babel::protocol::Packet::Type::UpdateUser:
@@ -97,17 +106,60 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 	}
 }
 
+void Client::setCallMap(Client *c1, Client *c2, SetMapType type) {
+	if (type == SetMapType::ADD) {
+		c1->getCallMap()[c2->getInfos().username] = c2;
+		c2->getCallMap()[c1->getInfos().username] = c1;
+	} else {
+		auto it1 = c1->_callMap.find(c2->getInfos().username);
+		auto it2 = c2->_callMap.find(c1->getInfos().username);
+
+		if (it1 != c1->getCallMap().end()) {
+			c1->getCallMap().erase(it1);
+		}
+		if (it2 != c2->getCallMap().end()) {
+			c2->getCallMap().erase(it2);
+		}
+	}
+}
+
 void Client::sendPacket(babel::protocol::Packet &packet)
 {
 	std::cerr << "Server : send packet ("
+		<< humanReadable(packet.type) << " -- len="
 		<< packet.packetSize << ")" << std::endl;
 	
 	_chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
 }
 
-void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
+void Client::parsPacketGetClientIp(babel::protocol::GetClientIp const &packet) {
+	if (server_g->isConnected(packet.username) == false) {
+		std::string	msg("user not connected.");
+		sendErrorRespond(packet.type, msg);
+	} else {
+		auto &clt = server_g->getClient(packet.username);
+		if (clt.isFriend(_infos->username) == false) {
+			sendErrorRespond(packet.type,
+				"You are not in the friend list of "
+				+ std::string(packet.username) + ".");
+			return;
+		}
+		auto endpoint = clt.getSocket().getBoostSocket().remote_endpoint();
+		auto *respond = new (sizeof(proto::data::GetClientIpRespond)) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::OK;
+		
+		auto *data = reinterpret_cast<proto::data::GetClientIpRespond*>(respond->data);
+		std::strcpy(data->username, packet.username);
+		data->ip = endpoint.address().to_v4().to_uint();
+		sendPacket(*respond);
+		delete respond;
+	}
+}
+
+void Client::parsPacketCallRespond(babel::protocol::CallRespond &packet) {
 	try {
-		auto &to = server_g->getClient(packet.username);
+		auto &to = server_g->getClient(packet.toUsername);
 
 		auto *respond = new (0) babel::protocol::Respond;
 		respond->previous = packet.type;
@@ -116,17 +168,68 @@ void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
 		sendPacket(*respond);
 		delete respond;
 
-		std::strcpy(packet.username, _infos->username.c_str());
+		if (packet.respond == babel::protocol::CallRespond::REJECT) {
+			setCallMap(this, &to, SetMapType::REMOVE);
+		}
 		to.sendPacket(packet);
 	} catch (...) {
 		std::string	msg("user not connected.");
-		auto *respond = new (msg.size()) babel::protocol::Respond;
+		sendErrorRespond(packet.type, msg);
+	}
+}
+
+void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
+	try {
+		auto &to = server_g->getClient(packet.username);
+
+		if (_callMap.find(packet.username) != _callMap.end()) {
+			std::string	msg(
+				std::string("An other session with ")
+				+ packet.username + " is active.");
+			sendErrorRespond(packet.type, msg);
+			return;
+		}
+		auto *respond = new (0) babel::protocol::Respond;
 		respond->previous = packet.type;
-		respond->respond = babel::protocol::Respond::Type::KO;
-		std::memmove(respond->data, msg.c_str(), msg.size());
+		respond->respond = babel::protocol::Respond::Type::OK;
 
 		sendPacket(*respond);
 		delete respond;
+		std::strcpy(packet.username, _infos->username.c_str());
+		to.sendPacket(packet);
+		setCallMap(this, &to, SetMapType::ADD);
+	} catch (...) {
+		std::string	msg("user not connected.");
+		sendErrorRespond(packet.type, msg);
+	}
+}
+
+void Client::parsPacketCallEnd(babel::protocol::CallEnd &packet) {
+	auto it = _callMap.find(packet.username);
+
+	if (it == _callMap.end()) {
+		std::string	msg(
+				std::string("No active session with ")
+				+ packet.username + " found.");
+		sendErrorRespond(packet.type, msg);
+	} else {
+		try {
+			auto &to = server_g->getClient(packet.username);
+
+			auto *respond = new (0) babel::protocol::Respond;
+			respond->previous = packet.type;
+			respond->respond = babel::protocol::Respond::Type::OK;
+
+			sendPacket(*respond);
+			delete respond;
+			
+			setCallMap(this, &to, SetMapType::REMOVE);
+			std::strcpy(packet.username, _infos->username.c_str());
+			to.sendPacket(packet);
+		} catch (...) {
+			std::string	msg("user not connected.");
+			sendErrorRespond(packet.type, msg);
+		}
 	}
 }
 
@@ -150,7 +253,7 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 	if (server_g->db()["client"].getAll().where([&packet](db::Element const &e) {
 		return e["username"].as<std::string>() == packet.username;
 	}).size() == 0) {
-		sendErrorRespond("error : username " + std::string(packet.username) + "doesn't not exist");
+		sendErrorRespond(packet.type, "error : username " + std::string(packet.username) + "doesn't not exist");
 	} else {
 		switch (packet.what) {
 			case babel::protocol::UpdateFriend::What::NEW:
@@ -205,20 +308,33 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 	sendUpdateFriendState(friendInfos, true, true);
 }
 
+bool Client::isFriend(std::string const &name, db::Key *ref) {
+	std::cout << "Ah: " << name << std::endl;
+	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &name] (db::Element const &e) {
+		auto me = server_g->db()["client"][e["clientKey"].as<db::Key>()];
+		auto youRef = server_g->db()["friend"][e["friendKey"].as<db::Key>()]["clientRef"].as<db::Key>();
+
+		return me["username"].as<std::string>() == _infos->username
+		&& server_g->db()["client"][youRef]["username"].as<std::string>() == name;
+	});
+	if (ref && refFriend.size())
+		*ref = refFriend.back()["primary_key"].as<db::Key>();
+	return (refFriend.size() != 0);
+}
+
 void Client::updateFriend(babel::protocol::UpdateFriend const &packet)
 {
-	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
-		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
-		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;
-	});
-	if (refFriend.size() == 0) {
-		sendErrorRespond("error : " + std::string(packet.username) + " isn't in your friend list.");
+	db::Key refFriend;
+
+	if (isFriend(packet.username, &refFriend)) {
+		sendErrorRespond(packet.type, "error : " + std::string(packet.username) + " isn't in your friend list.");
 	}
-	server_g->db()["friend"][refFriend.back()["friendKey"].as<db::Key>()]["name"] = packet.name;
+	server_g->db()["friend"][refFriend]["name"] = packet.name;
 }
 
 void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 {
+	//TODO: fix this shit
 	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &packet](db::Element const &e) {
 		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username
 		&& server_g->db()["friend"][e["friendKey"].as<db::Key>()]["username"].as<std::string>() == packet.username;
@@ -240,22 +356,24 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 		&& e["password"].as<std::string>() == packet.password;
 	});
 	if (clients.size() == 0) {
-		sendErrorRespond("Authentification failed, check your credentials.");
+		sendErrorRespond(packet.type, "Authentification failed, check your credentials.");
 	} else if (server_g->isConnected(clients.back()["username"].as<std::string>())) {
-		sendErrorRespond("Authentification failed, You already connected.");
+		sendErrorRespond(packet.type, "Authentification failed, You already connected.");
 	} else {
 		sendInfoToClient(clients.back());
 		updateStateOfFriends(true);
 	}
 }
 
-void Client::sendErrorRespond(std::string const &errorMsg)
+void Client::sendErrorRespond(
+	babel::protocol::Packet::Type type,
+	std::string const &errorMsg)
 {
 		auto *respond = new (errorMsg.size()) babel::protocol::Respond;
 		respond->type = babel::protocol::Packet::Type::Respond;
-		respond->previous = babel::protocol::Packet::Type::Connect;
+		respond->previous = type;
 		respond->respond = babel::protocol::Respond::Type::KO;
-		std::memmove(respond->data, errorMsg.c_str(), errorMsg.size());
+		std::memmove(respond->data, errorMsg.c_str(), errorMsg.size() + 1);
 
 		sendPacket(*respond);
 		delete respond;
@@ -293,12 +411,12 @@ void Client::sendInfoToClient(db::Element const &client)
 	_infos->iconfile = client["icon"].as<std::string>();
 	// attendre la connection udp du client
 	/* respond */
-	auto *respond = new (sizeof(::protocol::data::ConnectReponse))
+	auto *respond = new (sizeof(proto::data::ConnectRespond))
 				babel::protocol::Respond;
 	respond->type = babel::protocol::Packet::Type::Respond;
 	respond->previous = babel::protocol::Packet::Type::Connect;
 	respond->respond = babel::protocol::Respond::Type::OK;
-	auto *data = reinterpret_cast<::protocol::data::ConnectReponse*>(respond->data);
+	auto *data = reinterpret_cast<proto::data::ConnectRespond*>(respond->data);
 	data->id = _uniqueId;
 	sendPacket(*respond);
 	delete respond;

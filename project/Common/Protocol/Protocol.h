@@ -47,6 +47,8 @@ struct Packet {
         SendMessage,
 	CallRequest,
 	CallRespond,
+	CallEnd,
+	GetClientIp,
         UpdateLogo,
         UpdateUser,
         UpdateFriend,
@@ -91,14 +93,25 @@ struct GetMessages : public Packet {
 
 struct CallRequest : public Packet {
 	IMPL_PACKCONST(CallRequest)
-	char	username[128];
+	char		username[128];
+} PACKET_ATTRIBUTE;
+
+struct CallEnd : public Packet {
+	IMPL_PACKCONST(CallEnd)
+	char		username[128];
 } PACKET_ATTRIBUTE;
 
 struct CallRespond : public Packet {
 	IMPL_PACKCONST(CallRespond)
 	enum Type : bool {ACCEPT = true, REJECT = false};
     CallRespond::Type	respond;
-    char                username[128];
+    char                fromUsername[128];
+    char                toUsername[128];
+} PACKET_ATTRIBUTE;
+
+struct GetClientIp : public Packet {
+	IMPL_PACKCONST(GetClientIp)
+	char		username[128];
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {

@@ -12,6 +12,7 @@ include_directories(.)
 add_executable(babel_server
 	../Common/Chopper/Chopper.cpp
 	../Common/Network/BoostSocket.cpp
+	../Common/Network/ASocket.cpp
 	../Common/Protocol/Protocol.cpp
 	../Common/Opts/Opts.cpp
 	main.cpp

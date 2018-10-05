@@ -16,6 +16,7 @@ login::login(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->setAttribute(Qt::WA_DeleteOnClose, true);
     ui->lineEdit_name->setText(_cr["username"].toString());
     ui->lineEdit_password->setText(_cr["password"].toString());
     ui->lineEdit_name->setMaxLength(sizeof(babel::protocol::Connect::username));
@@ -37,24 +38,38 @@ login::login(QWidget *parent) :
     });
 
     QObject::connect(&Singletons::getSrvCo(), &client::protocol::ClientSender::onPacketReceived,
-                     [this] (babel::protocol::Packet &pack) {
-        auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
+                     this, &login::onPacketReceived);
+}
 
-        if ((pack.type == babel::protocol::Packet::Type::Respond)
-        && (p.previous == babel::protocol::Packet::Type::Connect)) {
-            this->setEnabled(true);
-            if (p.respond == p.KO) {
-                QMessageBox::information(this, "Connection failed", QString::fromLatin1(p.data));
-            } else {
-                this->accept();
-            }
+void login::onPacketReceived(babel::protocol::Packet &pack) {
+    auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
+
+    if ((pack.type == babel::protocol::Packet::Type::Respond)
+    && (p.previous == babel::protocol::Packet::Type::Connect)) {
+        this->setEnabled(true);
+        if (p.respond == p.KO) {
+            QMessageBox::information(this, "Connection failed", QString::fromLatin1(p.data));
+        } else {
+            this->accept();
         }
-    });
+    }
 }
 
 login::~login()
 {
     delete ui;
+}
+
+void login::showEvent(QShowEvent *e) {
+    Q_UNUSED(e)
+
+    if (ui->checkBoxRemember->isChecked() && !_cannotAutoConnect) {
+           ui->pushButton->click();
+    }
+}
+
+void login::setCannotAutoConnect(bool val) {
+    _cannotAutoConnect = val;
 }
 
 void login::on_pushButton_clicked()

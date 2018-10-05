@@ -42,6 +42,7 @@ COMMON_PATH = $$PWD/../project/Common/
 INCLUDEPATH = $$COMMON_PATH
 
 SOURCES += \
+    $$COMMON_PATH/Network/ASocket.cpp \
     $$COMMON_PATH/Network/QtSocket.cpp \
     $$COMMON_PATH/Opts/Opts.cpp \
     $$COMMON_PATH/Protocol/Protocol.cpp \
@@ -65,6 +66,7 @@ SOURCES += \
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
     $$COMMON_PATH/Network/ISocket.hpp \
+    $$COMMON_PATH/Network/ASocket.hpp \
     $$COMMON_PATH/Network/QtSocket.hpp \
     $$COMMON_PATH/Opts/Opts.hpp \
     $$COMMON_PATH/Constant.hpp \

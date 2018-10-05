@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <functional>
 #include <queue>
-#include "Network/ISocket.hpp"
+#include "Network/ASocket.hpp"
 
 #ifdef DEBUG_MAX_PACKET_LEN
 	static const std::uint16_t	max_packet_length = DEBUG_MAX_PACKET_LEN;
