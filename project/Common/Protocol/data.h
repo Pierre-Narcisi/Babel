@@ -14,13 +14,18 @@
 #endif
 #define PACKET_ATTRIBUTE __attribute__((packed, gcc_struct))
 
-namespace protocol {
+namespace proto {
 
 namespace data {
 
-struct ConnectReponse {
+struct ConnectRespond {
 	std::uint64_t	id;
 } PACKET_ATTRIBUTE;
+
+struct GetClientIpRespond {
+	char		username[128];
+	std::uint32_t	ip;
+}	PACKET_ATTRIBUTE;
 
 }
 

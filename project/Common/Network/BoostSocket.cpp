@@ -21,12 +21,14 @@ TCPSocket::TCPSocket(::boost::asio::io_service &ios):
 	_localIos(false) {}
 
 TCPSocket::~TCPSocket() {
+	disconnect();
 	if (_localIos)
 		delete _ios;
 }
 
 void	TCPSocket::start(void) {
 	_socket.non_blocking(true);
+	this->_isConnected = true;
 	_socket.async_receive(::boost::asio::null_buffers(),
 		::boost::bind(&TCPSocket::_onReceiveHandler, this,
 			::boost::asio::placeholders::error));
@@ -39,6 +41,11 @@ void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
 	start();
 }
 
+void TCPSocket::disconnect(void) {
+	_isConnected = false;
+	_socket.close();
+}
+
 void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 	auto	len = _socket.available();
 
@@ -47,6 +54,7 @@ void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 	} else if ((::boost::asio::error::eof == e)
 	|| (::boost::asio::error::connection_reset == e)
 	|| (!len)) {
+		this->_isConnected = false;
 		if (_onDisconnect != nullptr)
 			_onDisconnect();
 		return;

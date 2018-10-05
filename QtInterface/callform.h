@@ -29,6 +29,7 @@ private:
     virtual void    paintEvent(QPaintEvent *e);
     void    _paintBlurImage(void);
     void    _registerCallEnd(void);
+    void    _initCall(void);
 
     FriendsManager::FriendInfo  *_f;
     bool                        _isDemand;

@@ -77,6 +77,9 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 		case babel::protocol::Packet::Type::CallEnd:
 			parsPacketCallEnd(reinterpret_cast<babel::protocol::CallEnd &>(packet));
 			break;
+		case babel::protocol::Packet::Type::GetClientIp:
+			parsPacketGetClientIp(reinterpret_cast<babel::protocol::GetClientIp &>(packet));
+			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
 			break;
 		case babel::protocol::Packet::Type::UpdateUser:
@@ -110,9 +113,29 @@ void Client::setCallMap(Client *c1, Client *c2, SetMapType type) {
 void Client::sendPacket(babel::protocol::Packet &packet)
 {
 	std::cerr << "Server : send packet ("
+		<< humanReadable(packet.type) << " -- len="
 		<< packet.packetSize << ")" << std::endl;
 	
 	_chop->sendCommand(reinterpret_cast<std::uint8_t*>(&packet), packet.packetSize);
+}
+
+void Client::parsPacketGetClientIp(babel::protocol::GetClientIp const &packet) {
+	if (server_g->isConnected(packet.username) == false) {
+		std::string	msg("user not connected.");
+		sendErrorRespond(packet.type, msg);
+	} else {
+		auto &clt = server_g->getClient(packet.username);
+		auto endpoint = clt.getSocket().getBoostSocket().remote_endpoint();
+		auto *respond = new (sizeof(proto::data::GetClientIpRespond)) babel::protocol::Respond;
+		respond->previous = packet.type;
+		respond->respond = babel::protocol::Respond::Type::OK;
+		
+		auto *data = reinterpret_cast<proto::data::GetClientIpRespond*>(respond->data);
+		std::strcpy(data->username, packet.username);
+		data->ip = endpoint.address().to_v4().to_uint();
+		sendPacket(*respond);
+		delete respond;
+	}
 }
 
 void Client::parsPacketCallRespond(babel::protocol::CallRespond &packet) {
@@ -281,12 +304,12 @@ void Client::sendInfoToClient(db::Element const &client)
 	_infos->iconfile = client["icon"].as<std::string>();
 	// attendre la connection udp du client
 	/* respond */
-	auto *respond = new (sizeof(::protocol::data::ConnectReponse))
+	auto *respond = new (sizeof(proto::data::ConnectRespond))
 				babel::protocol::Respond;
 	respond->type = babel::protocol::Packet::Type::Respond;
 	respond->previous = babel::protocol::Packet::Type::Connect;
 	respond->respond = babel::protocol::Respond::Type::OK;
-	auto *data = reinterpret_cast<::protocol::data::ConnectReponse*>(respond->data);
+	auto *data = reinterpret_cast<proto::data::ConnectRespond*>(respond->data);
 	data->id = _uniqueId;
 	sendPacket(*respond);
 	delete respond;

@@ -72,6 +72,8 @@
     <addaction name="actionDelete_Friend"/>
     <addaction name="separator"/>
     <addaction name="actionSettings_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionDisconnect"/>
    </widget>
    <addaction name="menuMy_Account"/>
   </widget>
@@ -93,6 +95,11 @@
   <action name="actionSettings_2">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="text">
+    <string>Disconnect</string>
    </property>
   </action>
  </widget>

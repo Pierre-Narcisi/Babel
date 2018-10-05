@@ -48,6 +48,7 @@ struct Packet {
 	CallRequest,
 	CallRespond,
 	CallEnd,
+	GetClientIp,
         UpdateLogo,
         UpdateUser,
         UpdateFriend,
@@ -106,6 +107,11 @@ struct CallRespond : public Packet {
     CallRespond::Type	respond;
     char                fromUsername[128];
     char                toUsername[128];
+} PACKET_ATTRIBUTE;
+
+struct GetClientIp : public Packet {
+	IMPL_PACKCONST(GetClientIp)
+	char		username[128];
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {

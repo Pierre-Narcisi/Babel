@@ -53,6 +53,7 @@ private:
 	void parsPacketCallRequest(babel::protocol::CallRequest &packet);
 	void parsPacketCallRespond(babel::protocol::CallRespond &packet);
 	void parsPacketCallEnd(babel::protocol::CallEnd &packet);
+	void parsPacketGetClientIp(babel::protocol::GetClientIp const &packet);
 	void parsPacketgetMessages(babel::protocol::GetMessages const &packet);
 	void parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet);
 	void parsPacketUpdateUser(babel::protocol::UpdateUser const &packet);

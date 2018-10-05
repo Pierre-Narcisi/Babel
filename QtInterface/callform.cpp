@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QHostAddress>
 #include <cstring>
 #include "callform.h"
 #include "ui_callform.h"
@@ -45,6 +46,11 @@ CallForm::CallForm(QWidget *parent, bool isDemand) :
     _registerCallEnd();
 }
 
+CallForm::~CallForm()
+{
+    delete ui;
+}
+
 void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
     auto &p = reinterpret_cast<babel::protocol::Respond&>(pack);
     auto &r = reinterpret_cast<babel::protocol::CallRespond&>(pack);
@@ -60,11 +66,26 @@ void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
     } else if ((pack.type == babel::protocol::Packet::Type::Respond)
     && (p.previous == babel::protocol::Packet::Type::CallRespond)) {
         if (p.respond == babel::protocol::Respond::OK) {
+            _initCall();
             _isDemand = false;
         }
     } else if (pack.type == babel::protocol::Packet::Type::CallRespond
     && (_f->username.toStdString() == std::string(r.fromUsername))) {
         if (r.respond == babel::protocol::CallRespond::REJECT) {
+            this->close();
+        } else {
+            _initCall();
+        }
+    } else if ((pack.type == babel::protocol::Packet::Type::Respond)
+    && (p.previous == babel::protocol::Packet::Type::GetClientIp)) {
+        auto *data = reinterpret_cast<proto::data::GetClientIpRespond*>(p.data);
+        if (_f->username.toStdString() != data->username)
+            return;
+        if (p.respond == babel::protocol::Respond::OK) {
+            QHostAddress ip(data->ip);
+            QMessageBox::information(this, "remote ip: ", ip.toString());
+        } else {
+            QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
             this->close();
         }
     }
@@ -108,9 +129,12 @@ void    CallForm::onCallEnd(QString name) {
         this->close();
 }
 
-CallForm::~CallForm()
-{
-    delete ui;
+void    CallForm::_initCall(void) {
+    babel::protocol::GetClientIp    pack;
+    auto                            &co = Singletons::getSrvCo();
+
+    std::strcpy(pack.username, _f->username.toStdString().c_str());
+    co.sendPacket(pack);
 }
 
 void    CallForm::_registerCallEnd(void) {

@@ -60,6 +60,18 @@ login::~login()
     delete ui;
 }
 
+void login::showEvent(QShowEvent *e) {
+    Q_UNUSED(e)
+
+    if (ui->checkBoxRemember->isChecked() && !_cannotAutoConnect) {
+           ui->pushButton->click();
+    }
+}
+
+void login::setCannotAutoConnect(bool val) {
+    _cannotAutoConnect = val;
+}
+
 void login::on_pushButton_clicked()
 {
     auto &srvCo = Singletons::getSrvCo();

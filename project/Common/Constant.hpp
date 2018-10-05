@@ -17,5 +17,9 @@ namespace constant {
 	constexpr std::uint16_t		defThreadNbr = 4;
 
     /* Client Program default args */
-	constexpr char const        *defHost = "holidev.net";
+#ifdef QT_DEBUG
+    constexpr char const        *defHost = "localhost";
+#else
+    constexpr char const        *defHost = "holidev.net";
+#endif
 }

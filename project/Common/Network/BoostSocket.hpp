@@ -26,6 +26,7 @@ public:
 	virtual std::size_t	receive(std::uint8_t *buff, std::size_t len) final;
 	virtual std::size_t	available(void) const final;
 	virtual void		connect(std::string const &host, std::uint16_t port) final;
+	virtual void		disconnect(void) final;
 
 	inline ::boost::asio::ip::tcp::socket
 				&getBoostSocket(void) { return _socket; }

@@ -50,7 +50,8 @@ public:
     Client          &getClient(void) { return _client; }
     const Client    &getClient(void) const { return _client; }
 
-    int run(void);
+    int     run(void);
+    void    end(void);
 
 signals:
     void    disconnected(void);

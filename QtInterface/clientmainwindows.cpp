@@ -61,13 +61,33 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         (void) itm;
     });
 
-
+    connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);
 }
 
 ClientMainWindows::~ClientMainWindows()
 {
     delete ui;
     qApp->quit();
+}
+
+void ClientMainWindows::onDisconnectClicked(bool) {
+    ui->listFriends->clean();
+    Singletons::getFriendsManager().clean();
+    _srvCo.end();
+    if (_srvCo.run()) {
+        QMessageBox::critical(this, "Connection Error",
+                            "Failed to connect to host ("
+                            + QString::fromStdString(_opts["host"]->as<common::Opts::String>())
+                            + ":"
+                            + QString::number(_opts["port"]->as<common::Opts::Int>())
+                            + ")\nTry with --host \"ip address\" and --port \"port number\"");
+        qApp->quit();
+    }
+    auto *w = new login(this);
+    w->setCannotAutoConnect(true);
+    auto ret = w->exec();
+    if (ret != QDialog::Accepted)
+        this->close();
 }
 
 void ClientMainWindows::showEvent(QShowEvent *) {

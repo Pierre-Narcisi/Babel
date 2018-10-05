@@ -23,6 +23,7 @@ public:
     ~ClientMainWindows();
 
 public slots:
+    void    onDisconnectClicked(bool);
 
 private:
     void    closeEvent(QCloseEvent *event);

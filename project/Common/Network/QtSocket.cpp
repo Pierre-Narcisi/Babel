@@ -20,18 +20,31 @@ TCPSocket::TCPSocket(QObject *parent):
     });
 
     QObject::connect(&_socket, &QTcpSocket::disconnected, [this] {
-        this->_onDisconnect();
+        if (_isConnected) {
+            this->_isConnected = false;
+            this->_onDisconnect();
+        }
     });
+}
+
+TCPSocket::~TCPSocket() {
+    disconnect();
 }
 
 void	TCPSocket::connect(std::string const &host, std::uint16_t port) {
 	_socket.connectToHost(QString::fromStdString(host), port);
-	if (_socket.waitForConnected()) {
+    if (_socket.waitForConnected(5000)) {
+        this->_isConnected = true;
 		return;
 	} else {
 		throw std::runtime_error((std::string("failed to connect: ") +
 			_socket.errorString().toStdString()).c_str());
 	}
+}
+
+void TCPSocket::disconnect(void) {
+    _isConnected = false;
+    _socket.close();
 }
 
 std::size_t	TCPSocket::send(std::uint8_t *buff, std::size_t len) {
