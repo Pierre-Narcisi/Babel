@@ -61,7 +61,8 @@ SOURCES += \
     settings.cpp \
     call.cpp \
     friendsmanager.cpp \
-    callform.cpp
+    callform.cpp \
+    soundwrapper.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -84,7 +85,8 @@ HEADERS += \
     settings.h \
     call.h \
     friendsmanager.h \
-    callform.h
+    callform.h \
+    soundwrapper.h
 
 FORMS += \
     clientmainwindows.ui \
