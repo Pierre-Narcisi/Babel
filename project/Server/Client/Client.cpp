@@ -52,6 +52,19 @@ int	Client::_onReadableHandler(std::size_t len)
 	return (0);
 }
 
+bool Client::iconIsDepackaged(void)
+{
+	return _infos->icon.size() != 0;
+}
+
+void Client::depackageIcon(void)
+{
+	std::ifstream t(_infos->iconfile);
+	if (t.good()) {
+		_infos->icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	}
+}
+
 void Client::receivePacket(babel::protocol::Packet &packet)
 {
 	std::cerr << "Server: receive packet: "
@@ -132,16 +145,75 @@ void Client::parsPacketConnect(babel::protocol::Connect const &packet)
 	}
 }
 
-void parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
+void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 {
-	switch (packet.what) {
-		case babel::protocol::UpdateFriend::What::NEW:
-			break;
-		case babel::protocol::UpdateFriend::What::ERASE:
-			break;
-		case babel::protocol::UpdateFriend::What::UPDATE:
-			break;
+	if (server_g->db()["client"].getAll().where([&packet](db::Element const &e) {
+		return e["username"].as<std::string>() == packet.username;
+	}).size() == 0) {
+		sendErrorRespond("error : username " + std::string(packet.username) + "doesn't not exist");
+	} else {
+		switch (packet.what) {
+			case babel::protocol::UpdateFriend::What::NEW:
+				newFriend(reinterpret_cast<babel::protocol::UpdateFriend const &>(packet));
+				break;
+			case babel::protocol::UpdateFriend::What::UPDATE:
+				updateFriend(reinterpret_cast<babel::protocol::UpdateFriend const &>(packet));
+				break;
+			case babel::protocol::UpdateFriend::What::ERASE:
+				eraseFriend(reinterpret_cast<babel::protocol::UpdateFriend const &>(packet));
+				break;
+		}
 	}
+}
+
+void Client::newFriend(babel::protocol::UpdateFriend const &packet)
+{
+	auto me = server_g->db()["client"].getAll().where([this](db::Element const &e) {
+		return e["username"].as<std::string>() == _infos->username;
+	});
+	auto you = server_g->db()["client"].getAll().where([&packet](db::Element const &e) {
+		return e["username"].as<std::string>() == packet.username;
+	});
+	auto mf = you.back();
+	Friend myfriend;
+	myfriend.username = mf["username"].as<std::string>();
+	myfriend.iconfile = mf["icon"].as<std::string>();
+	myfriend.name = mf["username"].as<std::string>();
+	auto yourKey = server_g->db().insert(myfriend);
+
+	Friend reverseFriend;
+	reverseFriend.username = _infos->username;
+	reverseFriend.iconfile = _infos->iconfile;
+	reverseFriend.name = _infos->username;
+	auto myKey = server_g->db().insert(reverseFriend);
+
+	server_g->db().insert(FriendRef{me.back()["primary_key"].as<db::Key>(), yourKey});
+	server_g->db().insert(FriendRef{you.back()["primary_key"].as<db::Key>(), myKey});
+
+	if (server_g->isConnected(myfriend.username)) {
+		if (iconIsDepackaged())
+			depackageIcon();
+		server_g->getClient(myfriend.username).sendUpdateFriendState(*_infos, true, true);
+	}
+	Client::Info friendInfos;
+	std::ifstream t(myfriend.iconfile);
+	if (t.good()) {
+		friendInfos.icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	}
+	friendInfos.username = myfriend.username;
+	friendInfos.icon = myfriend.icon;
+	sendUpdateFriendState(friendInfos, true, true);
+}
+
+void Client::updateFriend(babel::protocol::UpdateFriend const &packet)
+{
+
+}
+
+void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
+{
+	/* remove me -> friend */
+	/* remove friend -> me */
 }
 
 void	Client::connectToAccount(babel::protocol::Connect const &packet)
@@ -150,7 +222,6 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 		return e["username"].as<std::string>() == packet.username
 		&& e["password"].as<std::string>() == packet.password;
 	});
-	/* verif client isn't already connected */
 	if (clients.size() == 0) {
 		sendErrorRespond("Authentification failed, check your credentials.");
 	} else if (server_g->isConnected(clients.back()["username"].as<std::string>())) {
@@ -265,19 +336,31 @@ void	Client::updateStateOfFriends(bool state)
 		/* if he's connected */
 		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
 		if (server_g->isConnected(f.username)) {
-			server_g->getClient(f.username).sendUpdateFriendState(_infos->username, state);
+			server_g->getClient(f.username).sendUpdateFriendState(*_infos, state);
 		}
 	}
 }
 
-void Client::sendUpdateFriendState(std::string const &username, bool state)
+// void Client::sendUpdateFriendState(std::string const &username, std::string const &icon, bool state)
+void Client::sendUpdateFriendState(Client::Info const &infos, bool state, bool updateAll)
 {
-	auto update = new (0) babel::protocol::UpdateFriendState;
-	update->type = babel::protocol::Packet::Type::UpdateFriendState;
-	std::strncpy(update->username, username.c_str(), 128);
-	update->state = state;
-	sendPacket(*update);
-	delete update;
+	if (updateAll == true) {
+		auto update = new (infos.icon.size()) babel::protocol::UpdateFriendState;
+		update->type = babel::protocol::Packet::Type::UpdateFriendState;
+		std::strncpy(update->username, infos.username.c_str(), 128);
+		std::strncpy(update->name, infos.username.c_str(), 128);
+		std::memcpy(update + 1, infos.icon.c_str(), infos.icon.size());
+		update->state = state;
+		sendPacket(*update);
+		delete update;
+	} else {
+		auto update = new (0) babel::protocol::UpdateFriendState;
+		update->type = babel::protocol::Packet::Type::UpdateFriendState;
+		std::strncpy(update->username, infos.username.c_str(), 128);
+		update->state = state;
+		sendPacket(*update);
+		delete update;
+	}
 }
 
 db::Key	Client::newFriend(std::string const &friendName, db::Db &db)
