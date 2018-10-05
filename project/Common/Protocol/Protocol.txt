@@ -36,11 +36,11 @@ UpdateLogo :
 
 UpdateUserInfo :
 	attributes :
-		username :: String128
 		password :: String128
+		newPassword :: String128
 	respond :
 		OK/KO
-	
+
 UpdateFriend :
 	attributes :
 		what :: ENUM {NEW, UPDATE, ERASE}

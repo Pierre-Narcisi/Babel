@@ -40,7 +40,10 @@ public:
 	void receivePacket(babel::protocol::Packet &packet) override; /* done */
 	void sendPacket(babel::protocol::Packet &packet) override; /* done */
 
-	void sendUpdateFriendState(std::string const &username, bool state);
+	bool iconIsDepackaged(void);
+	void depackageIcon(void);
+	// void sendUpdateFriendState(std::string const &username, std::string const &icon, bool state);
+	void sendUpdateFriendState(Client::Info const &infos, bool state, bool updateAll = false);
 	void updateStateOfFriends(bool state);
 
 private:
@@ -57,6 +60,9 @@ private:
 	void connectToAccount(babel::protocol::Connect const &packet);
 	void createAccount(babel::protocol::Connect const &packet);
 	void sendInfoToClient(db::Element const &client);
+	void newFriend(babel::protocol::UpdateFriend const &packet);
+	void updateFriend(babel::protocol::UpdateFriend const &packet);
+	void eraseFriend(babel::protocol::UpdateFriend const &packet);
 
 	int		_onReadableHandler(std::size_t len);
 	db::Key		newFriend(std::string const &friendName, db::Db &db);
@@ -71,7 +77,7 @@ struct Client::Info {
 	std::string			username;
 	std::string			password;
 	std::string			iconfile;
-	std::vector<std::int8_t>	icon;
+	std::string			icon;
 
 	static void		serializer(Client::Info const &client, db::Element &element, db::Db &db);
 	static Client::Info	deserializer(db::Element &element, db::Db &db);
@@ -82,7 +88,7 @@ struct Friend {
 	std::string			username;
 	std::string			name;
 	std::string			iconfile;
-	std::vector<std::int8_t>	icon;
+	std::string	icon;
 
 	static void	serializer(Friend const &myfriend, db::Element &element, db::Db &db);
 	static Friend	deserializer(db::Element &element, db::Db &db);
