@@ -63,20 +63,29 @@ void CoreServer::start(void)
 
 bool	CoreServer::isConnected(std::string const &username) const
 {
-	std::cout << "to find : " << username << std::endl;
 	for (auto e : _clts) {
-		std::cout << e->getUsername() << std::endl;
 		if (e->getUsername() == username)
 			return true;
 	}
 	return false;
 }
 
+bool CoreServer::areFriends(std::string const &name1, std::string const &name2, db::Key *ref) {
+	auto refFriend = server_g->db()["friendListRef"].getAll().where([&name1, &name2] (db::Element const &e) {
+		auto me = server_g->db()["client"][e["clientKey"].as<db::Key>()];
+		auto youRef = server_g->db()["friend"][e["friendKey"].as<db::Key>()]["clientRef"].as<db::Key>();
+
+		return me["username"].as<std::string>() == name1
+		&& server_g->db()["client"][youRef]["username"].as<std::string>() == name2;
+	});
+	if (ref && refFriend.size())
+		*ref = refFriend.back()["primary_key"].as<db::Key>();
+	return (refFriend.size() != 0);
+}
+
 Client	&CoreServer::getClient(std::string const &username)
 {
-	std::cout << "to find : " << username << std::endl;
 	for (auto e : _clts) {
-		std::cout << e->getUsername() << std::endl;
 		if (e->getUsername() == username)
 			return *e;
 	}
