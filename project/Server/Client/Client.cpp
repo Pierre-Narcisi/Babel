@@ -265,6 +265,36 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 				break;
 		}
 	}
+	sendValidRespond(packet.type, "");
+}
+
+void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
+{
+	if (stat(constant::ressourcesFolder, NULL) == -1
+	&& mkdir(constant::ressourcesFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
+		return;
+	}
+	std::remove((constant::ressourcesFolder + _infos->username).c_str());
+	std::ofstream myfile{constant::ressourcesFolder + _infos->username};
+	myfile.write(packet.buffer, packet.size);
+	sendValidRespond(packet.type, "");
+	/* update info to client */
+	/* update info to friends */
+}
+
+void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
+{
+	auto client = server_g->db()["client"].getAll().where([this, &packet](db::Element const &e){
+		return e["username"].as<std::string>() == _infos->username
+		&& e["password"].as<std::string>() == packet.password;
+	});
+	if (client.size() == 0) {
+		sendErrorRespond(packet.type, "error : Wrong password.");
+	} else {
+		client.back()["password"] = packet.newpassword;
+		sendValidRespond(packet.type, "password was successfuly changed.");
+	}
 }
 
 void Client::newFriend(babel::protocol::UpdateFriend const &packet)
@@ -307,7 +337,6 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 }
 
 bool Client::isFriend(std::string const &name, db::Key *ref) {
-	std::cout << "Ah: " << name << std::endl;
 	auto refFriend = server_g->db()["friendListRef"].getAll().where([this, &name] (db::Element const &e) {
 		auto me = server_g->db()["client"][e["clientKey"].as<db::Key>()];
 		auto youRef = server_g->db()["friend"][e["friendKey"].as<db::Key>()]["clientRef"].as<db::Key>();
@@ -328,6 +357,7 @@ void Client::updateFriend(babel::protocol::UpdateFriend const &packet)
 		sendErrorRespond(packet.type, "error : " + std::string(packet.username) + " isn't in your friend list.");
 	} else {
 		server_g->db()["friend"][refFriend]["name"] = packet.name;
+		sendValidRespond(packet.type, "");
 		/* update status on client */
 	}
 }
@@ -345,6 +375,7 @@ void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 		server_g->db()["friend"].remove(server_g->db()["friendListRef"][revRefFriend]["friendKey"].as<db::Key>());
 		server_g->db()["friendListRef"].remove(refFriend);
 		server_g->db()["friendListRef"].remove(revRefFriend);
+		sendValidRespond(packet.type, "friend successfuly deleted.");
 		/* update status on client */
 	}
 }
@@ -365,6 +396,18 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 	}
 }
 
+void Client::sendValidRespond(babel::protocol::Packet::Type type, std::string const &message)
+{
+		auto *respond = new (message.size()) babel::protocol::Respond;
+		respond->type = babel::protocol::Packet::Type::Respond;
+		respond->previous = type;
+		respond->respond = babel::protocol::Respond::Type::KO;
+		std::memmove(respond->data, message.c_str(), message.size() + 1);
+
+		sendPacket(*respond);
+		delete respond;
+}
+
 void Client::sendErrorRespond(
 	babel::protocol::Packet::Type type,
 	std::string const &errorMsg)
@@ -378,6 +421,7 @@ void Client::sendErrorRespond(
 		sendPacket(*respond);
 		delete respond;
 }
+
 void	Client::createAccount(babel::protocol::Connect const &packet)
 {
 	auto clients = server_g->db()["client"].getAll().where([&packet](db::Element const &e){
@@ -476,7 +520,6 @@ void	Client::updateStateOfFriends(bool state)
 	}
 }
 
-// void Client::sendUpdateFriendState(std::string const &username, std::string const &icon, bool state)
 void Client::sendUpdateFriendState(Client::Info const &infos, bool state, bool updateAll)
 {
 	if (updateAll == true) {
