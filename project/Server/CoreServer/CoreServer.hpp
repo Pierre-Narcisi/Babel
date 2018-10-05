@@ -24,6 +24,7 @@ public:
 	void	start(void);
 	inline db::Db &db(void) { return _db; }
 	bool	isConnected(std::string const &username) const;
+	bool	areFriends(std::string const &name1, std::string const &name2, db::Key *ref = nullptr);
 	Client	&getClient(std::string const &username);
 private:
 	class CoreArgs;

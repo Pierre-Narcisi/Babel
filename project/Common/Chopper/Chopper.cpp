@@ -34,7 +34,7 @@ Chopper::Chopper(ASocket &sock, Hooks const &h): _sock(sock), _hooks(h) {
                                  ? _save._buf
                                  : new std::uint8_t[max_packet_length]);
         auto	*h = reinterpret_cast<Packet::PackHeader*>(buff);
-		std::cout << "Can i read " << len << "?" << std::endl;
+		std::cerr << "Can i read " << len << "?" << std::endl;
         std::size_t l;
         if (_save._buf && _save._headerIncomplete) {
             l = _sock.receive(buff + _save._l, _save._rest) + _save._l;
@@ -65,11 +65,11 @@ Chopper::Chopper(ASocket &sock, Hooks const &h): _sock(sock), _hooks(h) {
             _save._l = l;
             _save._pLen = pLen;
             _save._rest = h->packet_length - pLen;
-            std::cout << pLen << " " << h->packet_length << std::endl;
+            std::cerr << pLen << " " << h->packet_length << std::endl;
             return (0);
         }
         l += pLen;
-		std::cout << "Yes! " << l << " bytes" << std::endl;
+		std::cerr << "Yes! " << l << " bytes" << std::endl;
 		this->receivePacket(buff, l);
 		delete buff;
         std::memset(&_save, 0, sizeof(_save));
@@ -153,7 +153,7 @@ Chopper::sendCommand(std::uint8_t *buffer, std::size_t len) {
 				? Packet::_maxBufferLen
 				: len % Packet::_maxBufferLen));
 		itm->header->id = hash;
-		std::cout << "new sub pack " << itm->header->id
+		std::cerr << "new sub pack " << itm->header->id
 				<< ": " << itm->header->packet_index
 				<< " of " <<  itm->header->packet_max
 				<< std::endl;
@@ -169,7 +169,7 @@ Chopper::_sendNextPacket(void) {
 	auto cur = _qu.front();
 	auto curPacket = cur.pop();
 	_qu.pop();
-	std::cout << "Chopper send (" << curPacket->header->packet_length
+	std::cerr << "Chopper send (" << curPacket->header->packet_length
 		<< ")" << std::endl;
 	_sock.send(
 		reinterpret_cast<std::uint8_t*>(curPacket->header.get()),
