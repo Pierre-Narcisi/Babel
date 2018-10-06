@@ -6,6 +6,8 @@
 ## buildForLinux.sh
 ##
 
+conan remote add bincrafter https://api.bintray.com/conan/bincrafters/public-conan
+
 rootPath="$(
 	cd "$(dirname "$0")"
 	pwd -P
