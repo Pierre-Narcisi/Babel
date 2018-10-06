@@ -151,15 +151,14 @@ void Client::parsPacketGetClientIp(babel::protocol::GetClientIp const &packet) {
 			return;
 		}
 		auto endpoint = clt.getSocket().getBoostSocket().remote_endpoint();
-		auto *respond = new (sizeof(proto::data::GetClientIpRespond)) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(sizeof(proto::data::GetClientIpRespond));
 		respond->previous = packet.type;
 		respond->respond = babel::protocol::Respond::Type::OK;
 		
-		auto *data = reinterpret_cast<proto::data::GetClientIpRespond*>(respond->data);
+		auto data = reinterpret_cast<proto::data::GetClientIpRespond*>(respond->data);
 		std::strcpy(data->username, packet.username);
 		data->ip = endpoint.address().to_v4().to_uint();
 		sendPacket(*respond);
-		delete respond;
 	}
 }
 
@@ -167,12 +166,11 @@ void Client::parsPacketCallRespond(babel::protocol::CallRespond &packet) {
 	try {
 		auto &to = server_g->getClient(packet.toUsername);
 
-		auto *respond = new (0) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(0);
 		respond->previous = packet.type;
 		respond->respond = babel::protocol::Respond::Type::OK;
 
 		sendPacket(*respond);
-		delete respond;
 
 		if (packet.respond == babel::protocol::CallRespond::REJECT) {
 			setCallMap(this, &to, SetMapType::REMOVE);
@@ -195,12 +193,11 @@ void Client::parsPacketCallRequest(babel::protocol::CallRequest &packet) {
 			sendErrorRespond(packet.type, msg);
 			return;
 		}
-		auto *respond = new (0) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(0);
 		respond->previous = packet.type;
 		respond->respond = babel::protocol::Respond::Type::OK;
 
 		sendPacket(*respond);
-		delete respond;
 		std::strcpy(packet.username, _infos->username.c_str());
 		to.sendPacket(packet);
 		setCallMap(this, &to, SetMapType::ADD);
@@ -222,12 +219,11 @@ void Client::parsPacketCallEnd(babel::protocol::CallEnd &packet) {
 		try {
 			auto &to = server_g->getClient(packet.username);
 
-			auto *respond = new (0) babel::protocol::Respond;
+			auto respond = babel::protocol::Respond::create(0);
 			respond->previous = packet.type;
 			respond->respond = babel::protocol::Respond::Type::OK;
 
 			sendPacket(*respond);
-			delete respond;
 			
 			setCallMap(this, &to, SetMapType::REMOVE);
 			std::strcpy(packet.username, _infos->username.c_str());
@@ -392,6 +388,7 @@ void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 
 void	Client::connectToAccount(babel::protocol::Connect const &packet)
 {
+	
 	auto clients = server_g->db()["client"].getAll().where([&packet](db::Element const &e){
 		return e["username"].as<std::string>() == packet.username
 		&& e["password"].as<std::string>() == packet.password;
@@ -408,28 +405,28 @@ void	Client::connectToAccount(babel::protocol::Connect const &packet)
 
 void Client::sendValidRespond(babel::protocol::Packet::Type type, std::string const &message)
 {
-		auto *respond = new (message.size()) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(message.size()) ;
+
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = type;
 		respond->respond = babel::protocol::Respond::Type::KO;
 		std::memmove(respond->data, message.c_str(), message.size() + 1);
 
 		sendPacket(*respond);
-		delete respond;
 }
 
 void Client::sendErrorRespond(
 	babel::protocol::Packet::Type type,
 	std::string const &errorMsg)
 {
-		auto *respond = new (errorMsg.size()) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(errorMsg.size());
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = type;
 		respond->respond = babel::protocol::Respond::Type::KO;
 		std::memmove(respond->data, errorMsg.c_str(), errorMsg.size() + 1);
 
+		std::cout << "errorMsg.size() " << errorMsg.size()  << " " << respond->packetSize << std::endl;
 		sendPacket(*respond);
-		delete respond;
 }
 
 void	Client::createAccount(babel::protocol::Connect const &packet)
@@ -439,14 +436,13 @@ void	Client::createAccount(babel::protocol::Connect const &packet)
 	});
 	if (clients.size() != 0) {
 		std::string	msg("Authentification failed, this username is already used.");
-		auto *respond = new (msg.size()) babel::protocol::Respond;
+		auto respond = babel::protocol::Respond::create(msg.size());
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = babel::protocol::Packet::Type::Connect;
 		respond->respond = babel::protocol::Respond::Type::KO;
 		std::memmove(respond->data, msg.c_str(), msg.size() + 1);
 
 		sendPacket(*respond);
-		delete respond;
 	} else {
 		Client::Info client;
 
@@ -465,25 +461,22 @@ void Client::sendInfoToClient(db::Element const &client)
 	_infos->iconfile = client["icon"].as<std::string>();
 	// attendre la connection udp du client
 	/* respond */
-	auto *respond = new (sizeof(proto::data::ConnectRespond))
-				babel::protocol::Respond;
+	auto respond = babel::protocol::Respond::create(sizeof(proto::data::ConnectRespond));
 	respond->type = babel::protocol::Packet::Type::Respond;
 	respond->previous = babel::protocol::Packet::Type::Connect;
 	respond->respond = babel::protocol::Respond::Type::OK;
 	auto *data = reinterpret_cast<proto::data::ConnectRespond*>(respond->data);
 	data->id = _uniqueId;
 	sendPacket(*respond);
-	delete respond;
 
 	/* client info */
 	depackageIcon();
-	babel::protocol::UpdateClient *update = new (_infos->icon.size()) babel::protocol::UpdateClient;
+	auto update = babel::protocol::UpdateClient::create(_infos->icon.size());
 	update->type = babel::protocol::Packet::Type::UpdateClient;
 	std::strncpy(update->username, client["username"].as<std::string>().c_str(), 128);
 	update->size = _infos->icon.size();
-	std::memcpy(update + 1, _infos->icon.data(), _infos->icon.size());
+	std::memcpy(update.get() + 1, _infos->icon.data(), _infos->icon.size());
 	sendPacket(*update);
-	delete update;
 
 	/* friends info */
 	auto friendsRef = server_g->db()["friendListRef"].getAll().where([&client](db::Element const &e) {
@@ -499,14 +492,13 @@ void Client::sendInfoToClient(db::Element const &client)
 			for (auto i = 0; i < srv::Ressources::basicLogoSize(); ++i)
 				icon.push_back(srv::Ressources::basicLogo()[i]);
 		}
-		auto *update = new (icon.size()) babel::protocol::UpdateFriendState;
+		auto update = babel::protocol::UpdateFriendState::create(icon.size());
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		std::strncpy(update->username, f.username.c_str(), 128);
 		std::strncpy(update->name, f.name.c_str(), 128);
 		update->state = f.state;
 		std::memcpy(update->buffer, icon.data(), icon.size());
 		sendPacket(*update);
-		delete update;
 	}
 }
 
@@ -532,21 +524,19 @@ void	Client::updateStateOfFriends(bool state)
 void Client::sendUpdateFriendState(Client::Info const &infos, bool state, bool updateAll)
 {
 	if (updateAll == true) {
-		auto update = new (infos.icon.size()) babel::protocol::UpdateFriendState;
+		auto update = babel::protocol::UpdateFriendState::create(infos.icon.size());
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		std::strncpy(update->username, infos.username.c_str(), 128);
 		std::strncpy(update->name, infos.username.c_str(), 128);
-		std::memcpy(update + 1, infos.icon.data(), infos.icon.size());
+		std::memcpy(update.get() + 1, infos.icon.data(), infos.icon.size());
 		update->state = state;
 		sendPacket(*update);
-		delete update;
 	} else {
-		auto update = new (0) babel::protocol::UpdateFriendState;
+		auto update = babel::protocol::UpdateFriendState::create(0);
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		std::strncpy(update->username, infos.username.c_str(), 128);
 		update->state = state;
 		sendPacket(*update);
-		delete update;
 	}
 }
 

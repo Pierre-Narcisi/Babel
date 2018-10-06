@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+#include <memory>
 #include "data.h"
 
 #ifdef IMPL_PACKCONST
@@ -21,16 +22,13 @@
 # undef IMPL_PACKDYN
 #endif
 #define IMPL_PACKDYN(T) \
-	static void *operator new(std::size_t, std::size_t s) { \
-	auto	psize = sizeof(T) + s + 1; \
+	static std::unique_ptr<T> create(std::size_t s) { \
+		auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
 		ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
-		return ptr; \
-	} \
-	static void operator delete(void *ptr) { \
-		::operator delete(ptr); \
+		return std::unique_ptr<T>(ptr); \
 	}
 	
 namespace babel {
@@ -60,9 +58,9 @@ struct Packet {
 	} type;
 
 	Packet() {}
-    Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
+	Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
 
-    std::uint64_t packetSize;
+	std::uint64_t packetSize;
 } PACKET_ATTRIBUTE;
 
 struct Respond : public Packet {
