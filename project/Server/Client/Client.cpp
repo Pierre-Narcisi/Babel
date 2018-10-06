@@ -270,7 +270,9 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 
 void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
 {
-	if (stat(constant::ressourcesFolder, NULL) == -1
+	struct stat s;
+
+	if (stat(constant::ressourcesFolder, &s) == -1
 	&& mkdir(constant::ressourcesFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
 		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
 		return;
