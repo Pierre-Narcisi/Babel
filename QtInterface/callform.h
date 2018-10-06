@@ -27,7 +27,8 @@ private slots:
 private:
     virtual void    showEvent(QShowEvent *e);
     virtual void    paintEvent(QPaintEvent *e);
-    void    _paintBlurImage(void);
+    virtual void    resizeEvent(QResizeEvent *e);
+    void    _paintBlurImage(QSize const &newSize);
     void    _registerCallEnd(void);
     void    _initCall(void);
 

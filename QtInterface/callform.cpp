@@ -2,8 +2,10 @@
 #include <QPalette>
 #include <QMessageBox>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QGuiApplication>
 #include <QHostAddress>
+#include <QScreen>
+#include <QResizeEvent>
 #include <cstring>
 #include "callform.h"
 #include "ui_callform.h"
@@ -27,7 +29,7 @@ CallForm::CallForm(QWidget *parent, bool isDemand) :
     this->setModal(false);
 
     if (!parent) {
-        QRect rec = QApplication::desktop()->screenGeometry();
+        QRect rec = QGuiApplication::screenAt(this->geometry().topLeft())->virtualGeometry();
         this->move((rec.width() - this->width()) / 2,
                    (rec.height() - this->height()) / 2);
     }
@@ -177,7 +179,6 @@ void    CallForm::paintEvent(QPaintEvent *e) {
         }
     };
 
-    _paintBlurImage();
     if (_isDemand) {
        __setVisible(this->ui->layoutDemand, true);
        __setVisible(this->ui->layoutOnCall, false);
@@ -187,7 +188,11 @@ void    CallForm::paintEvent(QPaintEvent *e) {
     }
 }
 
-void    CallForm::_paintBlurImage(void) {
+void    CallForm::resizeEvent(QResizeEvent *e) {
+    _paintBlurImage(e->size());
+}
+
+void    CallForm::_paintBlurImage(QSize const &newSize) {
     auto bkgnd = _f->icon;
 
     QPixmap pxDst(bkgnd.size());
@@ -200,7 +205,7 @@ void    CallForm::_paintBlurImage(void) {
     palette.setBrush(
                 QPalette::Background,
                 bkgnd.scaled(
-                    this->size(),
+                    newSize,
                     Qt::IgnoreAspectRatio));
     this->setPalette(palette);
 }
