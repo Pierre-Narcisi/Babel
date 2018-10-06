@@ -11,6 +11,12 @@ rootPath="$(
 	pwd -P
 )/.";
 
+if [ "$DEBUG" != "1" ]; then
+	BUILD_TYPE="Release"
+else
+	BUILD_TYPE="Debug"
+fi
+
 export CC=gcc
 export CXX=g++
 COMPILER_MAJOR=$(touch test.c && $CC -E -dM test.c  | grep -o '__GNUC__ [[:digit:]]' | cut -d' ' -f2)
@@ -27,10 +33,10 @@ cd $rootPath;
 
 mkdir build;
 cd build;
-conan install .. --build=missing --profile ../conanPlatformSettings/linux_to_windows.txt
-cmake -DCMAKE_BUILD_TYPE=Release .. -G "Unix Makefiles";
-cmake -build . 
-make $@
+conan install .. --build=missing --profile ../conanPlatformSettings/linux.txt
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. -G "Unix Makefiles";
+cmake -build .
+make $@ $ARGS
 
 rootPath="$(
 	cd "$(dirname "$0")"
