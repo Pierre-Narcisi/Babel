@@ -72,6 +72,16 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         _srvCo.sendPacket(pack);
     });
 
+    connect(this->ui->actionDelete_Friend, &QAction::triggered, [this] (bool) {
+        babel::protocol::UpdateFriend    pack;
+
+        pack.what = babel::protocol::UpdateFriend::What::ERASE;
+        QString name = QInputDialog::getText(this, "Add friend", "Enter your friend name:");
+        std::strcpy(pack.username, name.toStdString().c_str());
+
+        _srvCo.sendPacket(pack);
+    });
+
     connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);
 }
 

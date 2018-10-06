@@ -307,6 +307,10 @@ void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
 
 void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 {
+	if (packet.username == _infos->username) {
+		sendErrorRespond(packet.type, "error : you can't invite yourself.");
+		return;
+	}
 	if (isFriend(packet.username) == true) {
 		sendErrorRespond(packet.type, "error : " + std::string(packet.username) + " is already your friend.");
 		return;
@@ -391,6 +395,16 @@ void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 		server_g->db()["friendListRef"].remove(revRefFriend);
 		sendValidRespond(packet.type, "friend successfuly deleted.");
 		/* update status on client */
+		auto update = new (0) babel::protocol::UpdateFriendState;
+		update->type = babel::protocol::Packet::Type::UpdateFriendState;
+		update->erase = true;
+		if (server_g->isConnected(packet.username)) {
+			std::strncpy(update->username, _infos->username.c_str(), 128);
+			server_g->getClient(packet.username).sendPacket(*update);
+		}
+		std::strncpy(update->username, packet.username, 128);
+		sendPacket(*update);
+		delete update;
 	}
 }
 

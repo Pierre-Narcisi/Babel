@@ -153,6 +153,7 @@ struct UpdateClient : public Packet {
 
 struct UpdateFriendState : public Packet {
 	bool			state;
+	bool			erase = false;
 	char			username[128];
 	char			name[128];
 	std::uint64_t		size;
