@@ -5,6 +5,9 @@
 #include <QNetworkDatagram>
 #include <QDebug>
 #include <QThread>
+#include "udpwrapper.h"
+#include "singletons.h"
+#include "soundwrapper.h"
 
 #ifndef CALL_H
 #define CALL_H
@@ -20,21 +23,15 @@ class call : public QObject
         quint16 _port;
         int _i;
     private slots:
-        void        readData();
+
     public:
-        void        processData(QNetworkDatagram datagram);
-        QUdpSocket  *getSocket();
-        quint16     getPort();
-        void        setPort(quint16 port);
-        void        initsocket(quint16 port);
-        void        sendData(quint16 port);
 };
 
 class MyObject: public QObject
 {
     Q_OBJECT
     public:
-         MyObject(quint16 port, QUdpSocket *udpSocket);
+         MyObject();
          ~MyObject();
     public slots:
         void process();
@@ -42,8 +39,7 @@ class MyObject: public QObject
         void finished();
         void error(QString err);
     private:
-        quint16 _port;
-        QUdpSocket *_udpSocket;
+        UdpWrapper *_udpWrapper;
 };
 
 #endif // CALL_H

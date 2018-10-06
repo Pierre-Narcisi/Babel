@@ -3,7 +3,7 @@
 #include "settings.h"
 #include "listfrienditem.h"
 #include "friendsmanager.h"
-
+#include "soundwrapper.h"
 #include "singletons.h"
 
 QThreadPool &Singletons::getThreadPool(void)
@@ -41,6 +41,13 @@ void         Singletons::setListFriendWidget(ListFriends *w) {
     auto &s = Singletons::_get();
 
     s._listFriendInstance = w;
+}
+
+SoundWrapper &Singletons::getSoundWrapper()
+{
+    static SoundWrapper _soundWrapper;
+
+    return _soundWrapper;
 }
 
 Singletons  &Singletons::_get() {

@@ -1,6 +1,8 @@
 #ifndef SINGLETONS_H
 #define SINGLETONS_H
 
+
+class SoundWrapper;
 class QThreadPool;
 namespace client { namespace protocol { class ClientSender; }}
 class Settings;
@@ -17,7 +19,7 @@ public:
     static Settings &getSettings(void);
     static FriendsManager&
                     getFriendsManager(void);
-
+    static SoundWrapper &getSoundWrapper(void);
     static ListFriends  &getListFriendWidget(void);
     static void         setListFriendWidget(ListFriends *w);
 private:

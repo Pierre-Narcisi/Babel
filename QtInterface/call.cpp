@@ -2,52 +2,8 @@
 
 call::call()
 {
-    _i = 0;
-}
-
-void        call::readData()
-{
-    while (_udpSocket->hasPendingDatagrams()) {
-         QNetworkDatagram datagram = _udpSocket->receiveDatagram();
-         processData(datagram);
-    }
-}
-
-void        call::initsocket(quint16 port)
-{
-    _udpSocket = new QUdpSocket(this);
-    _udpSocket->bind(QHostAddress::LocalHost, port);
-    connect(_udpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
-}
-
-void        call::processData(QNetworkDatagram datagram)
-{
-    QByteArray data;
-
-    data = datagram.data();
-    qDebug() << data;
-}
-
-QUdpSocket  *call::getSocket()
-{
-    return _udpSocket;
-}
-
-quint16     call::getPort()
-{
-    return _port;
-}
-
-void        call::setPort(quint16 port)
-{
-    _port = port;
-}
-
-void        call::sendData(quint16 port)
-{
-    setPort(port);
     QThread* thread = new QThread;
-    MyObject* myObject = new MyObject(port, _udpSocket);
+    MyObject* myObject = new MyObject();
     myObject->moveToThread(thread);
     connect(myObject, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
     connect(thread, SIGNAL(started()), myObject, SLOT(process()));
@@ -59,23 +15,21 @@ void        call::sendData(quint16 port)
 
 void MyObject::process()
 {
-    int i = 0;
-    while (i < 10000000) {
-        QString data = QString::number(i);
-        qint64  size = data.size();
-        QHostAddress addr(QHostAddress::LocalHost);
-        _udpSocket->writeDatagram(data.toStdString().c_str(), size, addr, _port);
-        i++;
+    _udpWrapper = new UdpWrapper();
+    SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
+    while () {
+        soundWrapper.getPa().record();
+        CompData data = soundWrapper.getPa().getData();
+        std::string str(data.data.begin(), data.data.end());
+        str += ' ' + data.length;
+        _udpWrapper->sendData(QString::fromStdString(str));
     }
 }
 
-MyObject::MyObject(quint16 port, QUdpSocket *udpSocket)
+MyObject::MyObject()
 {
-    _port = port;
-    _udpSocket = udpSocket;
 }
 
 MyObject::~MyObject()
 {
-
 }
