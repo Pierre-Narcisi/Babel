@@ -115,6 +115,7 @@ struct GetClientIp : public Packet {
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {
+	char		extend[8];
 	std::uint64_t	size;
 	char		buffer[];
 	IMPL_PACKDYN(UpdateLogo);

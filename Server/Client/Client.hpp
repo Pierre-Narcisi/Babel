@@ -50,7 +50,7 @@ public:
 	void depackageIcon(void);
 	// void sendUpdateFriendState(std::string const &username, std::string const &icon, bool state);
 	void sendUpdateFriendState(Client::Info const &infos, bool state, bool updateAll = false);
-	void updateStateOfFriends(bool state);
+	void updateStateOfFriends(bool state, bool fullUpdate = false);
 
 private:
 	explicit Client(::boost::asio::io_service &ios);

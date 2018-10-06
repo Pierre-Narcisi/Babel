@@ -284,11 +284,17 @@ void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
 		return;
 	}
 	std::remove((constant::ressourcesFolder + _infos->username).c_str());
-	std::ofstream myfile{constant::ressourcesFolder + _infos->username};
-	myfile.write(packet.buffer, packet.size);
-	sendValidRespond(packet.type, "");
-	/* update info to client */
-	/* update info to friends */
+	std::string iconfile = constant::ressourcesFolder + _infos->username + '.' + packet.extend;
+	std::ofstream myfile{iconfile};
+	if (myfile.good()) {
+		myfile.write(packet.buffer, packet.size);
+		sendValidRespond(packet.type, "");
+		_infos->iconfile = iconfile;
+		depackageIcon();
+		updateStateOfFriends(true, true);
+	} else {
+		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
+	}
 }
 
 void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
@@ -528,21 +534,15 @@ void Client::sendInfoToClient(db::Element const &client)
 	}
 }
 
-void	Client::updateStateOfFriends(bool state)
+void	Client::updateStateOfFriends(bool state, bool fullUpdate)
 {
-	auto clients = server_g->db()["client"].getAll().where([this](db::Element const &e){
-		return e["username"].as<std::string>() == _infos->username;
-	});
-	/* get my friend list */
 	auto friendsRef = server_g->db()["friendListRef"].getAll().where([this](db::Element const &e) {
 		return server_g->db()["client"][e["clientKey"].as<db::Key>()]["username"].as<std::string>() == _infos->username;
 	});
-	/* foreach friend */
 	for (auto e : friendsRef) {
-		/* if he's connected */
 		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
 		if (server_g->isConnected(f.username)) {
-			server_g->getClient(f.username).sendUpdateFriendState(*_infos, state);
+			server_g->getClient(f.username).sendUpdateFriendState(*_infos, state, fullUpdate);
 		}
 	}
 }
