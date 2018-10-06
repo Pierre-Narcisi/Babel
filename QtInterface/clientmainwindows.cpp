@@ -4,8 +4,10 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QDir>
+#include <QInputDialog>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include "cache.h"
 #include "clientmainwindows.h"
 #include "ui_clientmainwindows.h"
@@ -43,10 +45,8 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         auto        &f = Singletons::getFriendsManager()[username.toStdString()];
         CallForm    *callWindow = new CallForm(nullptr, true);
 
-        std::cout << "Hein .???" << std::endl;
         callWindow->setFriendInfo(&f);
         callWindow->show();
-        std::cout << "DEUX .???" << std::endl;
     });
 
     QAction *about = this->ui->menuBar->addAction("About");
@@ -59,6 +59,16 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     connect(this->ui->listFriends, &ListFriends::onSelectChange, [this] (FriendItem *itm) {
         this->ui->listFriends->disconnectAll();
         (void) itm;
+    });
+
+    connect(this->ui->actionAdd_Friend, &QAction::triggered, [this] (bool) {
+        babel::protocol::UpdateFriend    pack;
+
+        pack.what = babel::protocol::UpdateFriend::What::NEW;
+        QString name = QInputDialog::getText(this, "Add friend", "Enter your friend name:");
+        std::strcpy(pack.username, name.toStdString().c_str());
+
+        _srvCo.sendPacket(pack);
     });
 
     connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);

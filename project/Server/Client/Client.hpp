@@ -93,7 +93,7 @@ struct Client::Info {
 	std::string			username;
 	std::string			password;
 	std::string			iconfile;
-	std::string			icon;
+	std::vector<char>		icon;
 
 	static void		serializer(Client::Info const &client, db::Element &element, db::Db &db);
 	static Client::Info	deserializer(db::Element &element, db::Db &db);
@@ -104,7 +104,7 @@ struct Friend {
 	std::string			username;
 	std::string			name;
 	std::string			iconfile;
-	std::string	icon;
+	std::vector<char>		icon;
 
 	static void	serializer(Friend const &myfriend, db::Element &element, db::Db &db);
 	static Friend	deserializer(db::Element &element, db::Db &db);
