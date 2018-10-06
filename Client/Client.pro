@@ -48,7 +48,7 @@ SOURCES += \
     $$COMMON_PATH/Opts/Opts.cpp \
     $$COMMON_PATH/Protocol/Protocol.cpp \
     $$COMMON_PATH/Chopper/Chopper.cpp \
-    $$SOUND_UTILS/PaWrapper.cpp \
+#    $$SOUND_UTILS/PaWrapper.cpp \
     clientprotocol.cpp \
     main.cpp \
     clientmainwindows.cpp \
@@ -73,7 +73,7 @@ HEADERS += \
     $$COMMON_PATH/Opts/Opts.hpp \
     $$COMMON_PATH/Constant.hpp \
     $$COMMON_PATH/Chopper/Chopper.hpp \
-    $$SOUND_UTILS/PaWrapper.hpp \
+#    $$SOUND_UTILS/PaWrapper.hpp \
     clientprotocol.h \
     clientmainwindows.h \
     singletons.h \

@@ -25,7 +25,7 @@ int ClientSender::run(void) {
             this->receivePacket(*p);
             emit onPacketReceived(*p);
         };
-        _chop = std::make_unique<nw::Chopper>(*_sock, h);
+        _chop = std::unique_ptr<nw::Chopper>(new nw::Chopper(*_sock, h));
 
         _sock->connect(_host.toStdString(), _port);
         _sock->setOnDisconnect([this] {

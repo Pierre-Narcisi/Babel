@@ -62,6 +62,9 @@ void Client::depackageIcon(void)
 	std::ifstream t(_infos->iconfile);
 	if (t.good()) {
 		_infos->icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	} else {
+		for (auto i = 0; i < srv::Ressources::basicLogoSize(); ++i)
+			_infos->icon.push_back(srv::Ressources::basicLogo()[i]);
 	}
 }
 
@@ -94,10 +97,13 @@ void Client::receivePacket(babel::protocol::Packet &packet)
 			parsPacketGetClientIp(reinterpret_cast<babel::protocol::GetClientIp &>(packet));
 			break;
 		case babel::protocol::Packet::Type::UpdateLogo:
+			parsPacketUpdateLogo(reinterpret_cast<babel::protocol::UpdateLogo &>(packet));
 			break;
 		case babel::protocol::Packet::Type::UpdateUser:
+			parsPacketUpdateUser(reinterpret_cast<babel::protocol::UpdateUser &>(packet));
 			break;
 		case babel::protocol::Packet::Type::UpdateFriend:
+			parsPacketUpdateFriend(reinterpret_cast<babel::protocol::UpdateFriend &>(packet));
 			break;
 		case babel::protocol::Packet::Type::UpdateClient:
 			break;
@@ -329,12 +335,14 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 		server_g->getClient(myfriend.username).sendUpdateFriendState(*_infos, true, true);
 	}
 	Client::Info friendInfos;
+	friendInfos.username = myfriend.username;
 	std::ifstream t(myfriend.iconfile);
 	if (t.good()) {
 		friendInfos.icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	} else {
+		for (auto i = 0; i < srv::Ressources::basicLogoSize(); ++i)
+			friendInfos.icon.push_back(srv::Ressources::basicLogo()[i]);
 	}
-	friendInfos.username = myfriend.username;
-	friendInfos.icon = myfriend.icon;
 	sendUpdateFriendState(friendInfos, true, true);
 }
 
@@ -435,7 +443,7 @@ void	Client::createAccount(babel::protocol::Connect const &packet)
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = babel::protocol::Packet::Type::Connect;
 		respond->respond = babel::protocol::Respond::Type::KO;
-		std::memmove(respond->data, msg.c_str(), msg.size());
+		std::memmove(respond->data, msg.c_str(), msg.size() + 1);
 
 		sendPacket(*respond);
 		delete respond;
@@ -468,16 +476,12 @@ void Client::sendInfoToClient(db::Element const &client)
 	delete respond;
 
 	/* client info */
-	std::string icon;
-	std::ifstream t(client["icon"].as<std::string>());
-	if (t.good()) {
-		icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-	}
-	babel::protocol::UpdateClient *update = new (icon.size()) babel::protocol::UpdateClient;
+	depackageIcon();
+	babel::protocol::UpdateClient *update = new (_infos->icon.size()) babel::protocol::UpdateClient;
 	update->type = babel::protocol::Packet::Type::UpdateClient;
 	std::strncpy(update->username, client["username"].as<std::string>().c_str(), 128);
-	update->size = icon.size();
-	std::memcpy(update + 1, icon.c_str(), icon.size() + 1);
+	update->size = _infos->icon.size();
+	std::memcpy(update + 1, _infos->icon.data(), _infos->icon.size());
 	sendPacket(*update);
 	delete update;
 
@@ -487,17 +491,20 @@ void Client::sendInfoToClient(db::Element const &client)
 	});
 	for (auto e : friendsRef) {
 		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
-		std::string icon;
+		std::vector<char> icon;
 		std::ifstream t(f.iconfile);
 		if (t.good()) {
 			icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+		} else {
+			for (auto i = 0; i < srv::Ressources::basicLogoSize(); ++i)
+				icon.push_back(srv::Ressources::basicLogo()[i]);
 		}
-		auto *update = new (srv::Resources::basicLogoSize()) babel::protocol::UpdateFriendState;
+		auto *update = new (icon.size()) babel::protocol::UpdateFriendState;
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		std::strncpy(update->username, f.username.c_str(), 128);
 		std::strncpy(update->name, f.name.c_str(), 128);
 		update->state = f.state;
-		std::memcpy(update->buffer, srv::Resources::basicLogo(), srv::Resources::basicLogoSize());
+		std::memcpy(update->buffer, icon.data(), icon.size());
 		sendPacket(*update);
 		delete update;
 	}
@@ -529,7 +536,7 @@ void Client::sendUpdateFriendState(Client::Info const &infos, bool state, bool u
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		std::strncpy(update->username, infos.username.c_str(), 128);
 		std::strncpy(update->name, infos.username.c_str(), 128);
-		std::memcpy(update + 1, infos.icon.c_str(), infos.icon.size());
+		std::memcpy(update + 1, infos.icon.data(), infos.icon.size());
 		update->state = state;
 		sendPacket(*update);
 		delete update;
@@ -573,7 +580,7 @@ void	Client::Info::serializer(Client::Info const &client, db::Element &element, 
 {
 	element["username"] = client.username;
 	element["password"] = client.password;
-	element["icon"] = client.iconfile;
+	element["icon"] = constant::ressourcesFolder + client.iconfile;
 }
 
 Client::Info	Client::Info::deserializer(db::Element &element, db::Db &db)

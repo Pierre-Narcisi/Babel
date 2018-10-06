@@ -8,7 +8,7 @@
 #pragma once
 
 #include "includes/portaudio.h"
-#include "opus/opus.h"
+#include <opus/opus.h>
 #include <vector>
 
 #define SAMPLE_RATE (48000)

@@ -32,7 +32,7 @@
 QWidget#FriendItem[selectedItem=&quot;true&quot;] {
 	background-color: rgb(114, 159, 207);
 }
-QLabel#FriendIcon {
+QLabel#FriendImg {
 	background-color: transparent;
 }</string>
   </property>

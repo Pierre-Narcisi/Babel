@@ -5947,11 +5947,11 @@ static const unsigned char _basicLogo[] = {
 		0xff, 0xd9
 	};
 
-const unsigned char	*Resources::basicLogo(void) {
+const unsigned char	*Ressources::basicLogo(void) {
 	return _basicLogo;
 }
 
-std::uint64_t	Resources::basicLogoSize(void) {
+std::uint64_t	Ressources::basicLogoSize(void) {
 	return sizeof(_basicLogo);
 }
 

@@ -10,6 +10,7 @@
 #include <QObject>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "Network/QtSocket.hpp"
 #include "Protocol/Protocol.h"

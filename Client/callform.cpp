@@ -1,10 +1,8 @@
 #include <QPainter>
 #include <QPalette>
 #include <QMessageBox>
-#include <QApplication>
-#include <QGuiApplication>
+#include <QDesktopWidget>
 #include <QHostAddress>
-#include <QScreen>
 #include <QResizeEvent>
 #include <cstring>
 #include "callform.h"
@@ -29,7 +27,7 @@ CallForm::CallForm(QWidget *parent, bool isDemand) :
     this->setModal(false);
 
     if (!parent) {
-        QRect rec = QGuiApplication::screenAt(this->geometry().topLeft())->virtualGeometry();
+        QRect rec = QApplication::desktop()->screenGeometry();
         this->move((rec.width() - this->width()) / 2,
                    (rec.height() - this->height()) / 2);
     }

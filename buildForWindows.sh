@@ -11,8 +11,11 @@ rootPath="$(
 	pwd -P
 )/.";
 
-export CC=gcc
-export CXX=g++
+toolchain=/usr/bin/x86_64-w64-mingw32
+target_host=x86_64-w64-mingw32
+cc_compiler=gcc
+cxx_compiler=g++
+
 COMPILER_MAJOR=$(touch test.c && $CC -E -dM test.c  | grep -o '__GNUC__ [[:digit:]]' | cut -d' ' -f2)
 COMPILER_MINOR=$(touch test.c && $CC -E -dM test.c  | grep -o '__GNUC_MINOR__ [[:digit:]]' | cut -d' ' -f2)
 rm test.c
@@ -27,17 +30,7 @@ cd $rootPath;
 
 mkdir build;
 cd build;
-conan install .. --build=missing \
-	-s "build_type=Release" \
-	-s "compiler=gcc" \
-	-s "compiler.version=8" \
-	-s "compiler.libcxx=libstdc++11";
+conan install .. --build=missing --profile ../conanPlatformSettings/linux_to_windows.txt
 cmake -DCMAKE_BUILD_TYPE=Debug .. -G "Unix Makefiles";
 cmake -build .
 make $@
-
-rootPath="$(
-	cd "$(dirname "$0")"
-	pwd -P
-)/.";
-
