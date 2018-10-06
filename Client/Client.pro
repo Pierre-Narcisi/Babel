@@ -22,6 +22,9 @@ TEMPLATE = app
 
 RC_FILE = Client.rc
 
+COMMON_PATH = $$PWD/../Common
+SOUND_UTILS = $$PWD/SoundUtils
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -34,10 +37,8 @@ DEFINES += QT_DEPRECATED_WARNINGS "VERSION=$$CLIENT_VERSION"
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #win32:LIBS  += $$PWD/libs/Json/windows/Json.dll
-#unix:LIBS   += -L$$PWD/libs/Json/linux -lstatic_Json
+#unix:LIBS   += -L$$SOUND_UTILS/lib -lportaudio
 #macos:LIBS  += -L$$PWD/libs/Json/macsos -lstatic_Json
-
-COMMON_PATH = $$PWD/../project/Common/
 
 INCLUDEPATH = $$COMMON_PATH
 
@@ -47,6 +48,7 @@ SOURCES += \
     $$COMMON_PATH/Opts/Opts.cpp \
     $$COMMON_PATH/Protocol/Protocol.cpp \
     $$COMMON_PATH/Chopper/Chopper.cpp \
+    $$SOUND_UTILS/PaWrapper.cpp \
     clientprotocol.cpp \
     main.cpp \
     clientmainwindows.cpp \
@@ -71,6 +73,7 @@ HEADERS += \
     $$COMMON_PATH/Opts/Opts.hpp \
     $$COMMON_PATH/Constant.hpp \
     $$COMMON_PATH/Chopper/Chopper.hpp \
+    $$SOUND_UTILS/PaWrapper.hpp \
     clientprotocol.h \
     clientmainwindows.h \
     singletons.h \
