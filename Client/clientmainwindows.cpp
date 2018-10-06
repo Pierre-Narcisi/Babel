@@ -18,6 +18,7 @@
 #include "about.h"
 #include "callform.h"
 #include "login.h"
+#include "usersettings.h"
 
 ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     QMainWindow(parent),
@@ -70,6 +71,12 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         std::strcpy(pack.username, name.toStdString().c_str());
 
         _srvCo.sendPacket(pack);
+    });
+
+    connect(this->ui->actionSettings_2, &QAction::triggered, [this] (bool) {
+        UserSettings s(this);
+
+        s.exec();
     });
 
     connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);
