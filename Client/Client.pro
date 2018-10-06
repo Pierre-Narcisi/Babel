@@ -62,8 +62,12 @@ SOURCES += \
     mainscreen.cpp \
     listfrienditem.cpp \
     settings.cpp \
+    call.cpp \
     friendsmanager.cpp \
-    callform.cpp
+    callform.cpp \
+    soundwrapper.cpp \
+    ../src/PaWrapper.cpp \
+    udpwrapper.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -86,8 +90,12 @@ HEADERS += \
     mainscreen.h \
     listfrienditem.h \
     settings.h \
+    call.h \
     friendsmanager.h \
-    callform.h
+    callform.h \
+    soundwrapper.h \
+    ../src/PaWrapper.hpp \
+    udpwrapper.h
 
 FORMS += \
     clientmainwindows.ui \

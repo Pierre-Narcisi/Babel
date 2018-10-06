@@ -43,7 +43,7 @@ add_executable(babel_client
 	Common/Opts/Opts.cpp
 	Common/Protocol/Protocol.cpp
 	Common/Chopper/Chopper.cpp
-	Client/SoundUtils/PaWrapper.cpp
+	Client/PaWrapper/PaWrapper.cpp
 	Client/clientprotocol.cpp
 	Client/main.cpp
 	Client/clientmainwindows.cpp
@@ -59,6 +59,9 @@ add_executable(babel_client
 	Client/settings.cpp
 	Client/friendsmanager.cpp
 	Client/callform.cpp
+	Client/call.cpp
+	Client/soundwrapper.cpp
+	Client/udpwrapper.cpp
 	Client/resources.qrc
 )
 

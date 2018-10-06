@@ -16,6 +16,9 @@ public:
     explicit conv(QWidget *parent = nullptr);
     ~conv();
 
+private slots:
+    void on_callButton_clicked();
+
 private:
     FriendsManager::FriendInfo  *_curFriendInfo;
     Ui::conv                    *ui;

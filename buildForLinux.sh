@@ -27,13 +27,9 @@ cd $rootPath;
 
 mkdir build;
 cd build;
-conan install .. --build=missing \
-	-s "build_type=Release" \
-	-s "compiler=gcc" \
-	-s "compiler.version=8" \
-	-s "compiler.libcxx=libstdc++11";
-cmake -DCMAKE_BUILD_TYPE=Debug .. -G "Unix Makefiles";
-cmake -build .
+conan install .. --build=missing --profile ../conanPlatformSettings/linux_to_windows.txt
+cmake -DCMAKE_BUILD_TYPE=Release .. -G "Unix Makefiles";
+cmake -build . 
 make $@
 
 rootPath="$(

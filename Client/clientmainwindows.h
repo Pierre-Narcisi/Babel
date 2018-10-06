@@ -9,6 +9,7 @@
 #include "Opts/Opts.hpp"
 #include "frienditem.h"
 #include "clientprotocol.h"
+#include "call.h"
 
 namespace Ui {
 class ClientMainWindows;
@@ -32,6 +33,7 @@ private:
     common::Opts                    &_opts;
     client::protocol::ClientSender  &_srvCo;
     Ui::ClientMainWindows           *ui;
+    call                            _call;
 };
 
 #endif // LAUNCHERMAINWINDOWS_H
