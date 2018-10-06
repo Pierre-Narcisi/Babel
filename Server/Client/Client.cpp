@@ -307,6 +307,10 @@ void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
 
 void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 {
+	if (isFriend(packet.username) == true) {
+		sendErrorRespond(packet.type, "error : " + std::string(packet.username) + " is already your friend.");
+		return;
+	}
 	auto me = server_g->db()["client"].getAll().where([this](db::Element const &e) {
 		return e["username"].as<std::string>() == _infos->username;
 	});
