@@ -13,7 +13,7 @@
 #define CALL_H
 
 
-class call : public QObject
+class call : public QThread
 {
     Q_OBJECT
     public:
@@ -23,23 +23,14 @@ class call : public QObject
         quint16 _port;
         int _i;
     private slots:
-
-    public:
-};
-
-class MyObject: public QObject
-{
-    Q_OBJECT
-    public:
-         MyObject();
-         ~MyObject();
-    public slots:
-        void process();
+	void process();
+	void onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack);
     signals:
         void finished();
         void error(QString err);
     private:
         UdpWrapper *_udpWrapper;
+    public:
 };
 
 #endif // CALL_H

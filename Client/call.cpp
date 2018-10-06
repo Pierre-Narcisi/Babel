@@ -1,35 +1,40 @@
+#include <cstring>
 #include "call.h"
 
 call::call()
 {
     QThread* thread = new QThread;
-    MyObject* myObject = new MyObject();
-    myObject->moveToThread(thread);
-    connect(myObject, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
-    connect(thread, SIGNAL(started()), myObject, SLOT(process()));
-    connect(myObject, SIGNAL(finished()), thread, SLOT(quit()));
-    connect(myObject, SIGNAL(finished()), myObject, SLOT(deleteLater()));
+    this->moveToThread(thread);
+    connect(this, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+    connect(thread, SIGNAL(started()), this, SLOT(process()));
+    connect(this, SIGNAL(finished()), thread, SLOT(quit()));
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
 
-void MyObject::process()
+void call::process()
 {
-    _udpWrapper = new UdpWrapper();
-    SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
-    while (true) {
-        soundWrapper.getPa().record();
-        CompData data = soundWrapper.getPa().getData();
-        std::string str(data.data.begin(), data.data.end());
-        str += ' ' + data.length;
-        _udpWrapper->sendData(QString::fromStdString(str));
-    }
+	_udpWrapper = new UdpWrapper();
+	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
+	while (true) {
+		soundWrapper.getPa().record();
+		CompData d = soundWrapper.getPa().getData();
+		soundWrapper.getPa().play(d);
+		auto	*p = new (d.data.size()) babel::protocol::VoicePacket;
+		std::memmove(p->data, d.data.data(), p->size);
+		p->length = d.length;
+		_udpWrapper->sendData(*p);
+		delete p;
+	}
 }
 
-MyObject::MyObject()
-{
-}
+void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
+	auto 		&sw = Singletons::getSoundWrapper().getPa();
+	CompData	d;
+	auto		*buffer = (unsigned char*) (pack->data);
 
-MyObject::~MyObject()
-{
+	d.length = pack->length;
+	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
+	sw.play(d);
 }

@@ -9,7 +9,7 @@ class SoundWrapper : public QObject
     Q_OBJECT
 public:
     explicit SoundWrapper(QObject *parent = nullptr);
-    PaWrapper getPa();
+    PaWrapper &getPa();
 private:
     PaWrapper _paWrapper;
 signals:

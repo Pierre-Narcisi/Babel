@@ -33,7 +33,6 @@ private:
     common::Opts                    &_opts;
     client::protocol::ClientSender  &_srvCo;
     Ui::ClientMainWindows           *ui;
-    call                            _call;
 };
 
 #endif // LAUNCHERMAINWINDOWS_H

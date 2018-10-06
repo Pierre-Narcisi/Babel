@@ -6,7 +6,7 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
     _paWrapper.startPlay();
 }
 
-PaWrapper SoundWrapper::getPa()
+PaWrapper &SoundWrapper::getPa()
 {
     return _paWrapper;
 }

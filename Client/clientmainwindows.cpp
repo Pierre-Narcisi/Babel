@@ -23,8 +23,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     QMainWindow(parent),
     _opts(opts),
     _srvCo(Singletons::getSrvCo()),
-    ui(new Ui::ClientMainWindows),
-    _call()
+    ui(new Ui::ClientMainWindows)
 {
     ui->setupUi(this);
 

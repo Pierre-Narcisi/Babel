@@ -11,27 +11,6 @@
 #include <string>
 #include <iostream>
 #include "data.h"
-
-#ifdef IMPL_PACKCONST
-# undef IMPL_PACKCONST
-#endif
-#define IMPL_PACKCONST(T) explicit T(): Packet(sizeof(T), Packet::Type::T) {}
-
-#ifdef IMPL_PACKDYN
-# undef IMPL_PACKDYN
-#endif
-#define IMPL_PACKDYN(T) \
-	static void *operator new(std::size_t, std::size_t s) { \
-	auto	psize = sizeof(T) + s + 1; \
-		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
-		ptr->packetSize = psize; \
-		ptr->size = s; \
-		ptr->type = Packet::Type::T; \
-		return ptr; \
-	} \
-	static void operator delete(void *ptr) { \
-		::operator delete(ptr); \
-	}
 	
 namespace babel {
 
@@ -56,7 +35,8 @@ struct Packet {
         UpdateFriendState,
         UpdateMessage,
         CliUpdateCall,
-        ServUpdateCall
+        ServUpdateCall,
+	VoicePacket
 	} type;
 
 	Packet() {}
@@ -64,6 +44,13 @@ struct Packet {
 
     std::uint64_t packetSize;
 } PACKET_ATTRIBUTE;
+
+struct VoicePacket : public Packet {
+	std::uint64_t	size;
+	std::uint64_t	length;
+	char		data[];
+	IMPL_PACKDYN(VoicePacket);
+}	PACKET_ATTRIBUTE;
 
 struct Respond : public Packet {
 	enum Type : bool {OK = true, KO = false};
