@@ -5,7 +5,9 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
 {
     _paWrapper.startRecord();
     _paWrapper.startPlay();
-
+    _playD.emplace();
+    _playD.front().length = 235;
+    _playD.front().data.assign(voidd, (char*) voidd + 235);
     new std::thread([this] {
         char                    voidd[235] = {0};
         char                    buf[8192] = {0};
