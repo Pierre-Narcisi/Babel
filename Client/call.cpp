@@ -1,8 +1,9 @@
 #include <cstring>
 #include "call.h"
 
-call::call()
+call::call(quint32 ip)
 {
+   _ip = ip;
     QThread* thread = new QThread;
     this->moveToThread(thread);
     connect(this, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
@@ -27,7 +28,7 @@ void call::process()
 		auto	p = babel::protocol::VoicePacket::create(d.data.size());
 		std::memmove(p->data, d.data.data(), p->size);
 		p->length = d.length;
-		_udpWrapper->sendData(*p);
+		_udpWrapper->sendData(*p, _ip);
 	}
 	soundWrapper.getPa().stopPlay();
 	soundWrapper.getPa().startRecord();

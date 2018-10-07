@@ -83,9 +83,7 @@ void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
         if (_f->username.toStdString() != data->username)
             return;
         if (p.respond == babel::protocol::Respond::OK) {
-            QHostAddress ip(data->ip);
-	    auto *c = new call();
-        //     QMessageBox::information(this, "remote ip: ", ip.toString());
+	    auto *c = new call(data->ip);
         } else {
             QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
             this->close();

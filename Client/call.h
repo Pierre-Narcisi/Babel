@@ -17,7 +17,7 @@ class call : public QThread
 {
     Q_OBJECT
     public:
-        call();
+        call(quint32);
     private:
         QUdpSocket *_udpSocket;
         quint16 _port;
@@ -29,7 +29,8 @@ class call : public QThread
         void finished();
         void error(QString err);
     private:
-        UdpWrapper *_udpWrapper;
+        UdpWrapper	*_udpWrapper;
+	quint32		_ip;
     public:
 };
 

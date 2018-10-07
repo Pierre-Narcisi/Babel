@@ -33,8 +33,8 @@ void        UdpWrapper::processData(QNetworkDatagram datagram)
 	}
 }
 
-void        UdpWrapper::sendData(babel::protocol::VoicePacket &packet)
+void        UdpWrapper::sendData(babel::protocol::VoicePacket &packet, quint32 ip)
 {
-    QHostAddress addr(QHostAddress::LocalHost);
+    QHostAddress addr(ip);
     _udpSocket->writeDatagram(reinterpret_cast<char*>(&packet), packet.packetSize, addr, 6666);
 }

@@ -13,7 +13,7 @@ class UdpWrapper : public QObject
 public:
     explicit    UdpWrapper(QObject *parent = nullptr);
     void        processData(QNetworkDatagram datagram);
-    void        sendData(babel::protocol::VoicePacket &packet);
+    void        sendData(babel::protocol::VoicePacket &packet, quint32 ip);
 
 signals:
 	void	packetReceive(std::shared_ptr<babel::protocol::VoicePacket> pack);
