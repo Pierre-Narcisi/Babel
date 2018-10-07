@@ -21,17 +21,16 @@ void call::process()
 	connect(_udpWrapper, &UdpWrapper::packetReceive, 
 			this, &call::onPacketReceived);
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
-	
-	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
-		soundWrapper.getPa().record();
-		CompData d = soundWrapper.getPa().getData();
 
-		auto	p = babel::protocol::VoicePacket::create(d.data.size());
-		std::memmove(p->data, d.data.data(), p->size);
-		p->length = d.length;
-		_udpWrapper->sendData(*p, _ip);
-	});
-	_t.start(10);
+	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
+        CompData d = soundWrapper.getRecordData();
+
+        auto	p = babel::protocol::VoicePacket::create(d.data.size());
+        std::memmove(p->data, d.data.data(), p->size);
+        p->length = d.length;
+        _udpWrapper->sendData(*p, _ip);
+    });
+    _t.start(1);
 }
 
 void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
@@ -43,5 +42,5 @@ void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) 
 	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
 	std::cout << "to play = " << d.data.size() << std::endl;
 		
-	sw.setData(d);
+	sw.setPlayData(d);
 }

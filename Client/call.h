@@ -24,8 +24,8 @@ class call : public QThread
         quint16 _port;
         int _i;
     private slots:
-	void process();
-	void onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack);
+        void process();
+        void onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack);
     signals:
         void finished();
         void error(QString err);

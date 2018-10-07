@@ -12,16 +12,21 @@ class SoundWrapper : public QObject
 public:
     explicit SoundWrapper(QObject *parent = nullptr);
 
-    void        setData(CompData const &d) {
-        _m.lock();
-        _d = d;
-        _m.unlock();
+    void        setPlayData(CompData const &d) {
+        _playM.lock();
+        _playD = d;
+        _playM.unlock();
+    }
+    CompData       getRecordData() {
+        return _recordD;
     }
     PaWrapper   &getPa();
 private:
     PaWrapper   _paWrapper;
-    CompData    _d;
-    std::mutex  _m;
+    CompData    _playD;
+    std::mutex  _playM;
+    CompData    _recordD;
+    std::mutex  _recordM;
 signals:
 
 public slots:
