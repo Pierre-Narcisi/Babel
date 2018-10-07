@@ -174,7 +174,6 @@ Chopper::_sendNextPacket(void) {
 	_qu.pop();
 	std::cerr << "Chopper send (" << curPacket->header->packet_length
 		<< ")" << std::endl;
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	_sock.send(
 		reinterpret_cast<std::uint8_t*>(curPacket->header),
 		curPacket->header->packet_length +
