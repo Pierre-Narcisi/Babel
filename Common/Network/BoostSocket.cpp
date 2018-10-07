@@ -29,6 +29,9 @@ TCPSocket::~TCPSocket() {
 void	TCPSocket::start(void) {
 	_socket.non_blocking(true);
 	this->_isConnected = true;
+	::boost::asio::ip::tcp::no_delay option(true);
+
+	_socket.set_option(option);
 	_socket.async_receive(::boost::asio::null_buffers(),
 		::boost::bind(&TCPSocket::_onReceiveHandler, this,
 			::boost::asio::placeholders::error));
@@ -66,7 +69,8 @@ void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 }
 
 std::size_t	TCPSocket::send(std::uint8_t *buff, std::size_t len) {
-	auto ret = _socket.send(::boost::asio::buffer(buff, len));
+	auto ret = _socket.send(
+		::boost::asio::buffer(buff, len));
 	return ret;
 }
 
