@@ -62,6 +62,7 @@ add_executable(babel_client
 	Client/call.cpp
 	Client/soundwrapper.cpp
 	Client/udpwrapper.cpp
+	Client/usersettings.cpp
 	Client/resources.qrc
 )
 
@@ -71,6 +72,16 @@ target_link_libraries(babel_client
 	Qt5::Core
 	${CONAN_LIBS})
 
+SET_TARGET_PROPERTIES(babel_server PROPERTIES
+	if (UNIX)
+  		COMPILE_FLAGS "-g"
+	endif (UNIX)
+)
+
 SET_TARGET_PROPERTIES(babel_client PROPERTIES
-  COMPILE_FLAGS "-std=gnu++1z -Wno-missing-field-initializers -DVERSION=0.0.1"
+	if (UNIX)
+    		COMPILE_FLAGS "-std=gnu++1z -Wno-missing-field-initializers -DVERSION=0.0.1"
+	else (UNIX)
+		COMPILE_FLAGS "-std=gnu++1z -DVERSION=0.0.1"
+	endif (UNIX)
 )

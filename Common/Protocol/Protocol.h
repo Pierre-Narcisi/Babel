@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+#include <memory>
 #include "data.h"
 
 #ifdef IMPL_PACKCONST
@@ -21,16 +22,13 @@
 # undef IMPL_PACKDYN
 #endif
 #define IMPL_PACKDYN(T) \
-	static void *operator new(std::size_t, std::size_t s) { \
-	auto	psize = sizeof(T) + s + 1; \
+	static std::unique_ptr<T> create(std::size_t s) { \
+		auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
 		ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
-		return ptr; \
-	} \
-	static void operator delete(void *ptr) { \
-		::operator delete(ptr); \
+		return std::unique_ptr<T>(ptr); \
 	}
 	
 namespace babel {
@@ -38,6 +36,10 @@ namespace babel {
 namespace protocol {
 
 /* Common */
+
+#ifdef _WIN32
+# pragma pack(push,1)
+#endif
 
 struct Packet {
     enum class Type : std::uint8_t {
@@ -60,9 +62,9 @@ struct Packet {
 	} type;
 
 	Packet() {}
-    Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
+	Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
 
-    std::uint64_t packetSize;
+	std::uint64_t packetSize;
 } PACKET_ATTRIBUTE;
 
 struct Respond : public Packet {
@@ -171,7 +173,8 @@ struct UpdateMessage : public Packet {
 	} PACKET_ATTRIBUTE;
 	char			username[128];
 	std::uint64_t	nbMessage;
-	Message			messages[];
+	char			data[];
+	Message			*messages(void) { return reinterpret_cast<Message*>(data); }
 } PACKET_ATTRIBUTE;
 
 struct CliUpdateCall : public Packet {
@@ -182,6 +185,10 @@ struct ServUpdateCall : public Packet {
 	IMPL_PACKCONST(ServUpdateCall)
 } PACKET_ATTRIBUTE;
 
+#ifdef _WIN32
+# pragma pack(pop)
+#endif
+
 class Sender {
 public:
 	virtual void receivePacket(Packet &packet) = 0;
@@ -191,6 +198,7 @@ public:
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
+
 
 } /* protocol */
 

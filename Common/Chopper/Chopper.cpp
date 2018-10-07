@@ -147,7 +147,8 @@ Chopper::sendCommand(std::uint8_t *buffer, std::size_t len) {
 	_qu.emplace();
 	auto &qi = _qu.back();
 	for (std::uint32_t p = 0, i = 0; p < len; p += Packet::_maxBufferLen, ++i) {
-		auto itm = std::make_shared<Packet>();
+		auto itm = std::shared_ptr<Packet>(new Packet());
+
 		itm->set(i, max, buffer + p,
 			((p + Packet::_maxBufferLen <= len)
 				? Packet::_maxBufferLen

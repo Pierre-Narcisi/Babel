@@ -67,7 +67,8 @@ SOURCES += \
     callform.cpp \
     soundwrapper.cpp \
     ../src/PaWrapper.cpp \
-    udpwrapper.cpp
+    udpwrapper.cpp \
+    usersettings.cpp
 
 HEADERS += \
     $$COMMON_PATH/Protocol/Protocol.h \
@@ -95,7 +96,8 @@ HEADERS += \
     callform.h \
     soundwrapper.h \
     ../src/PaWrapper.hpp \
-    udpwrapper.h
+    udpwrapper.h \
+    usersettings.h
 
 FORMS += \
     clientmainwindows.ui \
@@ -104,7 +106,8 @@ FORMS += \
     conv.ui \
     login.ui \
     mainscreen.ui \
-    callform.ui
+    callform.ui \
+    usersettings.ui
 
 RESOURCES += \
     resources.qrc

@@ -1,0 +1,11 @@
+[settings]
+# We are building in Ubuntu Linux
+os_build=Windows
+arch_build=x86_64
+build_type=Release
+
+# We are cross building to Windows
+os=Windows
+arch=x86_64
+compiler=Visual Studio
+compiler.version=14

@@ -109,11 +109,12 @@ void ClientSender::parsPacketUpdateFriendState(babel::protocol::UpdateFriendStat
             _client.friends.erase(f);
         }
 	} else {
-		_client.friends.push_back(Friend{
-			.state = packet.state,
-			.username = packet.username,
-			.name = packet.name
-		});
+		Friend f;
+
+		f.state = packet.state;
+		f.username = packet.username;
+		f.name = packet.name;
+		_client.friends.push_back(f);
 		if (packet.size != 0) {
 			char const *icon = reinterpret_cast<char const *>(&packet + 1);
 

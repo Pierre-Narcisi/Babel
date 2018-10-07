@@ -15,16 +15,17 @@ template<typename T>
 Data::Data(T t):
 _data{std::make_shared<db::Number>(db::Number{t})}
 {}
+
 template<>
-Data::Data<float>(float f);
+Data::Data(float f);
 template<>
-Data::Data<double>(double d);
+Data::Data(double d);
 template<>
-Data::Data<std::string const &>(std::string const &str);
+Data::Data(std::string const &str);
 template<>
-Data::Data<std::string>(std::string str);
+Data::Data(std::string str);
 template<>
-Data::Data<char const *>(char const *str);
+Data::Data(char const *str);
 
 
 template<typename T>
@@ -35,11 +36,11 @@ T		Data::as() const
 	throw std::runtime_error{"to<Number> : error data type"};
 }
 template<>
-float		Data::as<float>() const;
+float		Data::as() const;
 template<>
-double		Data::as<double>() const;
+double		Data::as() const;
 template<>
-std::string	Data::as<std::string>() const;
+std::string	Data::as() const;
 
 
 } /* namespace db */
