@@ -53,6 +53,7 @@ void	TCPSocket::_onReceiveHandler(::boost::system::error_code const &e) {
 		_hdl.operator()(len);
 	} else if ((::boost::asio::error::eof == e)
 	|| (::boost::asio::error::connection_reset == e)
+	|| (e)
 	|| (!len)) {
 		this->_isConnected = false;
 		if (_onDisconnect != nullptr)

@@ -89,7 +89,7 @@ Client	&CoreServer::getClient(std::string const &username)
 		if (e->getUsername() == username)
 			return *e;
 	}
-	throw std::exception();
+	throw std::runtime_error{"get " + username + "but isn't connected."};
 }
 
 void	CoreServer::_startAccept(void)

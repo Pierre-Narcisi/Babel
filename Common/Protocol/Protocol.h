@@ -10,13 +10,36 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+#include <memory>
 #include "data.h"
+
+#ifdef IMPL_PACKCONST
+# undef IMPL_PACKCONST
+#endif
+#define IMPL_PACKCONST(T) explicit T(): Packet(sizeof(T), Packet::Type::T) {}
+
+#ifdef IMPL_PACKDYN
+# undef IMPL_PACKDYN
+#endif
+#define IMPL_PACKDYN(T) \
+	static std::unique_ptr<T> create(std::size_t s) { \
+		auto	psize = sizeof(T) + s + 1; \
+		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
+		ptr->packetSize = psize; \
+		ptr->size = s; \
+		ptr->type = Packet::Type::T; \
+		return std::unique_ptr<T>(ptr); \
+	}
 	
 namespace babel {
 
 namespace protocol {
 
 /* Common */
+
+#ifdef _WIN32
+# pragma pack(push,1)
+#endif
 
 struct Packet {
     enum class Type : std::uint8_t {
@@ -40,9 +63,9 @@ struct Packet {
 	} type;
 
 	Packet() {}
-    Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
+	Packet(std::uint64_t s, Type t): type(t), packetSize(s) {}
 
-    std::uint64_t packetSize;
+	std::uint64_t packetSize;
 } PACKET_ATTRIBUTE;
 
 struct VoicePacket : public Packet {
@@ -102,6 +125,7 @@ struct GetClientIp : public Packet {
 } PACKET_ATTRIBUTE;
 
 struct UpdateLogo : public Packet {
+	char		extend[8];
 	std::uint64_t	size;
 	char		buffer[];
 	IMPL_PACKDYN(UpdateLogo);
@@ -140,6 +164,7 @@ struct UpdateClient : public Packet {
 
 struct UpdateFriendState : public Packet {
 	bool			state;
+	bool			erase = false;
 	char			username[128];
 	char			name[128];
 	std::uint64_t		size;
@@ -156,7 +181,8 @@ struct UpdateMessage : public Packet {
 	} PACKET_ATTRIBUTE;
 	char			username[128];
 	std::uint64_t	nbMessage;
-	Message			messages[];
+	char			data[];
+	Message			*messages(void) { return reinterpret_cast<Message*>(data); }
 } PACKET_ATTRIBUTE;
 
 struct CliUpdateCall : public Packet {
@@ -167,6 +193,10 @@ struct ServUpdateCall : public Packet {
 	IMPL_PACKCONST(ServUpdateCall)
 } PACKET_ATTRIBUTE;
 
+#ifdef _WIN32
+# pragma pack(pop)
+#endif
+
 class Sender {
 public:
 	virtual void receivePacket(Packet &packet) = 0;
@@ -176,6 +206,7 @@ public:
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
+
 
 } /* protocol */
 

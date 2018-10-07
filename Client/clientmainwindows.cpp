@@ -18,6 +18,7 @@
 #include "about.h"
 #include "callform.h"
 #include "login.h"
+#include "usersettings.h"
 
 ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     QMainWindow(parent),
@@ -69,6 +70,41 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         std::strcpy(pack.username, name.toStdString().c_str());
 
         _srvCo.sendPacket(pack);
+    });
+
+    connect(this->ui->actionDelete_Friend, &QAction::triggered, [this] (bool) {
+        babel::protocol::UpdateFriend    pack;
+
+        pack.what = babel::protocol::UpdateFriend::What::ERASE;
+        QString name = QInputDialog::getText(this, "Add friend", "Enter your friend name:");
+        std::strcpy(pack.username, name.toStdString().c_str());
+
+        _srvCo.sendPacket(pack);
+    });
+
+    connect(this->ui->actionSettings_2, &QAction::triggered, [this] (bool) {
+        UserSettings s(this);
+
+        auto ret = s.exec();
+        if (ret == QDialog::Accepted) {
+            auto    &settings = s.getSettings();
+            
+            if (settings.image.isEmpty() == false) {
+                auto pack = babel::protocol::UpdateLogo::create(settings.image.size());
+
+		auto str = settings.filename.toStdString();
+		std::strncpy(pack->extend, str.substr(str.rfind('.'), str.size()).c_str(), 8);
+		std::memcpy(pack.get() + 1, settings.image.data(), settings.image.size());
+		_srvCo.sendPacket(*pack);
+            }
+            if (settings.password.isEmpty() == false) {
+                babel::protocol::UpdateUser pack;
+
+		std::strncpy(pack.password, settings.password.toStdString().c_str(), 128);
+		std::strncpy(pack.newpassword, settings.newPassword.toStdString().c_str(), 128);
+		_srvCo.sendPacket(pack);
+            }
+        }
     });
 
     connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);
