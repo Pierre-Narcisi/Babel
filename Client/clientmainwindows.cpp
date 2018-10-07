@@ -76,7 +76,15 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
     connect(this->ui->actionSettings_2, &QAction::triggered, [this] (bool) {
         UserSettings s(this);
 
-        s.exec();
+        auto ret = s.exec();
+        if (ret != QDialog::Accepted) {
+            auto    &settings = s.getSettings();
+            
+            if (settings.image.isEmpty() == false)
+                //Update image with settings.image.data() -> char*
+            if (settings.password.isEmpty() == false)
+                //settings.password.toStdString.c_str()
+        }
     });
 
     connect(this->ui->actionDisconnect, &QAction::triggered, this, &ClientMainWindows::onDisconnectClicked);
