@@ -13,7 +13,7 @@
 #include <list>
 #include <fstream>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "DbData.h"
 
@@ -63,7 +63,7 @@ public:
 
 	Array &getAll();
 
-	std::unordered_map<std::string, Data::Type> const &getDescription() const;
+	std::map<std::string, Data::Type> const &getDescription() const;
 
 	Key newElement();
 
@@ -77,7 +77,7 @@ private:
 	Db						&_db;
 	std::string					_name;
 	remover_t					_remover = nullptr;
-	std::unordered_map<std::string, Data::Type>	_description;
+	std::map<std::string, Data::Type>	_description;
 	Array						_elements;
 	Key						_lastElementKey = 0;
 }; /* class Table */
@@ -114,9 +114,9 @@ public:
 	friend std::ostream &operator<<(std::ostream &os, Db const &db);
 
 private:
-	std::unordered_map<std::string, Table>		_tables;
-	std::unordered_map<std::string, std::pair<std::string, void * /*aka serializer_t*/>>	_serializers;
-	std::unordered_map<std::string, std::pair<std::string, void * /*aka deserializer_t*/>>	_deserializers;
+	std::map<std::string, Table>		_tables;
+	std::map<std::string, std::pair<std::string, void * /*aka serializer_t*/>>	_serializers;
+	std::map<std::string, std::pair<std::string, void * /*aka deserializer_t*/>>	_deserializers;
 }; /* class Db */
 
 
@@ -137,7 +137,7 @@ public:
 
 private:
 	Table						&_table;
-	std::unordered_map<std::string, Data>		_datas;
+	std::map<std::string, Data>		_datas;
 }; /* class Element */
 
 

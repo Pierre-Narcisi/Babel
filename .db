@@ -1,0 +1,12 @@
+"client":2:2
+{"icon":String;"password":String;"username":String}
+{0;".ressources\defaultIcon.jpeg";"toto42";"toto"}
+{1;".ressources\defaultIcon.jpeg";"test";"test"}
+"friend":2:2
+{"clientRef":Number;"name":String}
+{0;0;"toto"}
+{1;1;"test"}
+"friendListRef":2:2
+{"clientKey":Number;"friendKey":Number}
+{0;1;0}
+{1;0;1}
