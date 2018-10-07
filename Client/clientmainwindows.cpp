@@ -87,21 +87,23 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         UserSettings s(this);
 
         auto ret = s.exec();
-        if (ret != QDialog::Accepted) {
+        if (ret == QDialog::Accepted) {
             auto    &settings = s.getSettings();
             
             if (settings.image.isEmpty() == false) {
                 auto pack = babel::protocol::UpdateLogo::create(settings.image.size());
 
+		auto str = settings.filename.toStdString();
+		std::strncpy(pack->extend, str.substr(str.rfind('.'), str.size()).c_str(), 8);
 		std::memcpy(pack.get() + 1, settings.image.data(), settings.image.size());
 		_srvCo.sendPacket(*pack);
             }
             if (settings.password.isEmpty() == false) {
                 babel::protocol::UpdateUser pack;
 
-		std::cout << "bla password = " << settings.password.toStdString() << std::endl;
 		std::strncpy(pack.password, settings.password.toStdString().c_str(), 128);
-		std::strncpy(pack.newpassword, settings.password.toStdString().c_str(), 128);
+		std::strncpy(pack.newpassword, settings.newPassword.toStdString().c_str(), 128);
+		_srvCo.sendPacket(pack);
             }
         }
     });

@@ -6,7 +6,7 @@
 {17;17;0}
 "client":4:4
 {"icon":String;"password":String;"username":String}
-{0;".ressources/defaultIcon.png";"test";"test"}
+{0;".ressources/test.png";"test";"test"}
 {1;".ressources/toto.png";"toto42";"toto"}
 {2;".ressources/grogustin.jpg";"siseulementtusavais";"Grogustin"}
 {3;".ressources/defaultIcon.jpeg";"test";"test3"}

@@ -14,8 +14,10 @@ class UserSettings : public QDialog
 
 public:
     struct Settings{
+        QString     filename;
         QByteArray  image;
         QString     password;
+	QString     newPassword;
     };
     explicit UserSettings(QWidget *parent = 0);
     ~UserSettings();

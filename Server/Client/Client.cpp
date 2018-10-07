@@ -273,18 +273,22 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 
 void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
 {
-	if (::boost::filesystem::exists(constant::ressourcesFolder)) {
+	if (::boost::filesystem::is_directory(constant::ressourcesFolder) == false) {
 		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
 		return;
 	}
 	std::remove((constant::ressourcesFolder + _infos->username).c_str());
-	std::string iconfile = constant::ressourcesFolder + _infos->username + '.' + packet.extend;
+	std::string iconfile = constant::ressourcesFolder + _infos->username + packet.extend;
 	std::ofstream myfile{iconfile};
 	if (myfile.good()) {
 		myfile.write(packet.buffer, packet.size);
 		sendValidRespond(packet.type, "");
 		_infos->iconfile = iconfile;
 		depackageIcon();
+		auto client = server_g->db()["client"].getAll().where([this](db::Element const &e){
+			return e["username"].as<std::string>() == _infos->username;
+		});
+		server_g->db()["client"][client.back()["primary_key"].as<db::Key>()]["icon"] = _infos->iconfile;
 		updateStateOfFriends(true, true);
 	} else {
 		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
@@ -300,7 +304,7 @@ void	Client::parsPacketUpdateUser(babel::protocol::UpdateUser const &packet)
 	if (client.size() == 0) {
 		sendErrorRespond(packet.type, "error : Wrong password.");
 	} else {
-		client.back()["password"] = packet.newpassword;
+		server_g->db()["client"][client.back()["primary_key"].as<db::Key>()]["password"] = packet.newpassword;
 		sendValidRespond(packet.type, "password was successfuly changed.");
 	}
 }
@@ -431,7 +435,7 @@ void Client::sendValidRespond(babel::protocol::Packet::Type type, std::string co
 
 		respond->type = babel::protocol::Packet::Type::Respond;
 		respond->previous = type;
-		respond->respond = babel::protocol::Respond::Type::KO;
+		respond->respond = babel::protocol::Respond::Type::OK;
 		std::memmove(respond->data, message.c_str(), message.size() + 1);
 
 		sendPacket(*respond);

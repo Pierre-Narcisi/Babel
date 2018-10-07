@@ -15,7 +15,8 @@ UserSettings::UserSettings(QWidget *parent) :
     connect(this->ui->buttonBox, &QDialogButtonBox::accepted, [this] {
         if (this->ui->currentPass->text().isEmpty() == false
         && this->ui->newPass->text().isEmpty() == false)
-            this->_userSettings.password = this->ui->newPass->text();
+            this->_userSettings.password = this->ui->currentPass->text();
+            this->_userSettings.newPassword = this->ui->newPass->text();
     });
 }
 
@@ -29,6 +30,7 @@ void UserSettings::onChangeImageClicked(bool) {
 
     if (filename.isEmpty())
         return;
+    _userSettings.filename = filename;
     _userSettings.image.clear();
     ui->iconView->setPixmap(QPixmap(filename).scaled(ui->iconView->size(), Qt::IgnoreAspectRatio));
     QBuffer buffer(&_userSettings.image);
