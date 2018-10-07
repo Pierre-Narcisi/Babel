@@ -5,6 +5,7 @@
 ** Client.cpp
 */
 
+#include <boost/filesystem.hpp>
 #include "CoreServer/CoreServer.hpp"
 #include "Constant.hpp"
 #include "Resources/Resources.hpp"
@@ -272,10 +273,7 @@ void Client::parsPacketUpdateFriend(babel::protocol::UpdateFriend const &packet)
 
 void	Client::parsPacketUpdateLogo(babel::protocol::UpdateLogo const &packet)
 {
-	struct stat s;
-
-	if (stat(constant::ressourcesFolder, &s) == -1
-	&& mkdir(constant::ressourcesFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+	if (::boost::filesystem::exists(constant::ressourcesFolder)) {
 		sendErrorRespond(babel::protocol::Packet::Type::UpdateLogo, "error : fail to get icon, sorry.");
 		return;
 	}
@@ -575,11 +573,12 @@ void	Client::Info::serializer(Client::Info const &client, db::Element &element, 
 
 Client::Info	Client::Info::deserializer(db::Element &element, db::Db &db)
 {
-	return Client::Info{
-		.username = element["username"].as<std::string>(),
-		.password = element["password"].as<std::string>(),
-		.iconfile = element["icon"].as<std::string>()
-	};
+	Client::Info info;
+	info.username = element["username"].as<std::string>();
+	info.password = element["password"].as<std::string>();
+	info.iconfile = element["icon"].as<std::string>();
+
+	return info;
 }
 
 void	Friend::serializer(Friend const &myfriend, db::Element &element, db::Db &db)
@@ -596,12 +595,13 @@ void	Friend::serializer(Friend const &myfriend, db::Element &element, db::Db &db
 Friend	Friend::deserializer(db::Element &element, db::Db &db)
 {
 	auto client = db["client"].get<Client::Info>(element["clientRef"].as<db::Key>());
-	return Friend{
-		.state = server_g->isConnected(client.username),
-		.username = client.username,
-		.name = element["name"].as<std::string>(),
-		.iconfile = client.iconfile
-	};
+	Friend f;
+
+	f.state = server_g->isConnected(client.username);
+	f.username = client.username;
+	f.name = element["name"].as<std::string>();
+	f.iconfile = client.iconfile;
+	return f;
 }
 
 void	FriendRef::serializer(FriendRef const &ref, db::Element &elem, db::Db &db)

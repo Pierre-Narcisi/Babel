@@ -80,10 +80,12 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
         if (ret != QDialog::Accepted) {
             auto    &settings = s.getSettings();
             
-            if (settings.image.isEmpty() == false)
+            if (settings.image.isEmpty() == false) {
                 //Update image with settings.image.data() -> char*
-            if (settings.password.isEmpty() == false)
+            }
+            if (settings.password.isEmpty() == false) {
                 //settings.password.toStdString.c_str()
+            }
         }
     });
 

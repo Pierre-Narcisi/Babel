@@ -37,6 +37,10 @@ namespace protocol {
 
 /* Common */
 
+#ifdef _WIN32
+# pragma pack(push,1)
+#endif
+
 struct Packet {
     enum class Type : std::uint8_t {
         Respond,
@@ -167,7 +171,8 @@ struct UpdateMessage : public Packet {
 	} PACKET_ATTRIBUTE;
 	char			username[128];
 	std::uint64_t	nbMessage;
-	Message			messages[];
+	char			data[];
+	Message			*messages(void) { return reinterpret_cast<Message*>(data); }
 } PACKET_ATTRIBUTE;
 
 struct CliUpdateCall : public Packet {
@@ -178,6 +183,10 @@ struct ServUpdateCall : public Packet {
 	IMPL_PACKCONST(ServUpdateCall)
 } PACKET_ATTRIBUTE;
 
+#ifdef _WIN32
+# pragma pack(pop)
+#endif
+
 class Sender {
 public:
 	virtual void receivePacket(Packet &packet) = 0;
@@ -187,6 +196,7 @@ public:
 protected:
 	void parsPacketRespond(Respond const &packet); /* done */
 };
+
 
 } /* protocol */
 

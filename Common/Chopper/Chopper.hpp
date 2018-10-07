@@ -15,6 +15,7 @@
 #include <functional>
 #include <queue>
 #include "Network/ASocket.hpp"
+#include "Protocol/Protocol.h"
 
 #ifdef DEBUG_MAX_PACKET_LEN
 	static const std::uint16_t	max_packet_length = DEBUG_MAX_PACKET_LEN;
@@ -29,7 +30,16 @@ class Chopper {
 private:
 	class Packet;
 
-	struct QueueItem;
+	class QueueItem {
+	public:
+		QueueItem() = default;
+
+		inline void push(std::shared_ptr<Packet> const &);
+		inline std::shared_ptr<Packet> pop(void);
+		inline bool empty(void);
+	private:
+		std::queue<std::shared_ptr<Packet>> _packQ;
+	};
 public:
 	struct ByteArray;
 	struct Hooks {
@@ -75,28 +85,22 @@ public:
 	
 	std::uint8_t	*getData(void) const;
 
+#ifdef _WIN32
+# pragma pack(push,1)
+#endif
 	struct	PackHeader{
         std::uint32_t	magic;
 		std::uint32_t	id;
 		std::uint32_t	packet_index;
 		std::uint32_t	packet_max;
 		std::uint16_t	packet_length;
-	} __attribute__((packed, gcc_struct));
-
+	} PACKET_ATTRIBUTE;
+#ifdef _WIN32
+# pragma pack(pop)
+#endif
 	std::shared_ptr<PackHeader>	header;
 
 	static const uint16_t	_maxBufferLen = max_packet_length - sizeof(*header);
-};
-
-class Chopper::QueueItem {
-public:
-	QueueItem() = default;
-
-	inline void push(std::shared_ptr<Packet> const &);
-	inline std::shared_ptr<Packet> pop(void);
-	inline bool empty(void);
-private:	
-	std::queue<std::shared_ptr<Packet>> _packQ;
 };
 
 struct Chopper::ByteArray {
