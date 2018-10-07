@@ -42,7 +42,7 @@ public:
 
 struct Number : public AbstractData {
 	template<typename T>
-	Number(T &&t): data{static_cast<long long>(t)} {}
+	Number(T &&t): data(static_cast<long long>(t)) {}
 
 	operator Data::Number() { return data; }
 
