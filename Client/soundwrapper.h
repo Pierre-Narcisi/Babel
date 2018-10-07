@@ -38,7 +38,7 @@ signals:
     void    readySend(char *buffer);
 private:
     PaWrapper               _paWrapper;
-    std::queue<CompData>   _playD;
+    std::queue<CompData>    _playD;
     std::mutex              _playM;
 signals:
 
