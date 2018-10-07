@@ -20,16 +20,15 @@ void call::process()
 	soundWrapper.getPa().startRecord();
 	soundWrapper.getPa().startPlay();
 	while (true) {
-		std::cout << "TEST TEST TEST" << std::endl;
 		soundWrapper.getPa().record();
 		CompData d = soundWrapper.getPa().getData();
-		soundWrapper.getPa().play(d);
-		// auto	*p = new (d.data.size()) babel::protocol::VoicePacket;
-		// std::memmove(p->data, d.data.data(), p->size);
-		// p->length = d.length;
-		// _udpWrapper->sendData(*p);
-		// delete p;
+		auto	p = babel::protocol::VoicePacket::create(d.data.size());
+		std::memmove(p->data, d.data.data(), p->size);
+		p->length = d.length;
+		_udpWrapper->sendData(*p);
 	}
+	soundWrapper.getPa().stopPlay();
+	soundWrapper.getPa().startRecord();
 }
 
 void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
