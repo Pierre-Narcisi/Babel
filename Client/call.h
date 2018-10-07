@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QNetworkDatagram>
 #include <QDebug>
+#include <QTimer>
 #include <QThread>
 #include "udpwrapper.h"
 #include "singletons.h"
@@ -31,6 +32,7 @@ class call : public QThread
     private:
         UdpWrapper	*_udpWrapper;
 	quint32		_ip;
+	QTimer		_t;
     public:
 };
 

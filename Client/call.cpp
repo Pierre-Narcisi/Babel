@@ -22,14 +22,15 @@ void call::process()
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
 	soundWrapper.getPa().startRecord();
 	soundWrapper.getPa().startPlay();
-	while (true) {
+	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
 		soundWrapper.getPa().record();
 		CompData d = soundWrapper.getPa().getData();
 		auto	p = babel::protocol::VoicePacket::create(d.data.size());
 		std::memmove(p->data, d.data.data(), p->size);
 		p->length = d.length;
 		_udpWrapper->sendData(*p, _ip);
-	}
+	});
+	_t.start(10);
 	soundWrapper.getPa().stopPlay();
 	soundWrapper.getPa().startRecord();
 }

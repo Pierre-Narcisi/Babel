@@ -14,6 +14,8 @@ void        UdpWrapper::readData()
 {
     while (_udpSocket->hasPendingDatagrams()) {
          QNetworkDatagram datagram = _udpSocket->receiveDatagram();
+	 std::cout << "receive from " <<
+	 	datagram.destinationAddress().toString().toStdString() << std::endl;
          processData(datagram);
     }
 }
@@ -36,5 +38,6 @@ void        UdpWrapper::processData(QNetworkDatagram datagram)
 void        UdpWrapper::sendData(babel::protocol::VoicePacket &packet, quint32 ip)
 {
     QHostAddress addr(ip);
+	std::cout << "send to " << addr.toString().toStdString() << std::endl;
     _udpSocket->writeDatagram(reinterpret_cast<char*>(&packet), packet.packetSize, addr, 6666);
 }
