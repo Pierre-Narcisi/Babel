@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include "data.h"
@@ -25,6 +26,7 @@
 	static std::unique_ptr<T> create(std::size_t s) { \
 		auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
+		std::memset(ptr, 0, psize); \
 		ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \

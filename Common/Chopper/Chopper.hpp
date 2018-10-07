@@ -79,7 +79,7 @@ public:
 	Packet(std::uint8_t *buffer, std::size_t len);
 	Packet(Packet const &from) = default;
 	Packet &operator=(Packet &) = default;
-	~Packet() = default;
+	~Packet() { delete header; }
 
 	void set(std::uint32_t i, std::uint32_t m, std::uint8_t *buf, std::uint64_t l); 
 	
@@ -94,17 +94,21 @@ public:
 		std::uint32_t	packet_index;
 		std::uint32_t	packet_max;
 		std::uint16_t	packet_length;
+		void	operator delete(void *ptr) {
+			std::cout << "delete packet header" << ptr << std::endl;
+			::operator delete(ptr);
+		}
 	} PACKET_ATTRIBUTE;
 #ifdef _WIN32
 # pragma pack(pop)
 #endif
-	std::shared_ptr<PackHeader>	header;
+	PackHeader	*header;
 
 	static const uint16_t	_maxBufferLen = max_packet_length - sizeof(*header);
 };
 
 struct Chopper::ByteArray {
-	~ByteArray() { free(buffer); }
+	~ByteArray() { delete buffer; }
 
 	std::uint64_t	length;
 	std::uint8_t	*buffer;
