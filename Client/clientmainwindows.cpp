@@ -91,10 +91,17 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
             auto    &settings = s.getSettings();
             
             if (settings.image.isEmpty() == false) {
-                //Update image with settings.image.data() -> char*
+                auto pack = babel::protocol::UpdateLogo::create(settings.image.size());
+
+		std::memcpy(pack.get() + 1, settings.image.data(), settings.image.size());
+		_srvCo.sendPacket(*pack);
             }
             if (settings.password.isEmpty() == false) {
-                //settings.password.toStdString.c_str()
+                babel::protocol::UpdateUser pack;
+
+		std::cout << "bla password = " << settings.password.toStdString() << std::endl;
+		std::strncpy(pack.password, settings.password.toStdString().c_str(), 128);
+		std::strncpy(pack.newpassword, settings.password.toStdString().c_str(), 128);
             }
         }
     });
