@@ -11,7 +11,7 @@
 # pragma pack(push,1)
 #endif
 
-#define BUFFER_SIZE 48000*sizeof(int)+48000*960*sizeof(float)
+#define BUFFER_SIZE 8196
 
 struct BufferNode {
 	std::uint32_t	length;
