@@ -21,35 +21,21 @@ void call::process()
 	connect(_udpWrapper, &UdpWrapper::packetReceive, 
 			this, &call::onPacketReceived);
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
-	soundWrapper.getPa().startRecord();
-	soundWrapper.getPa().startPlay();
+	
 	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
-		soundWrapper.getPa().record();
-		CompData d = soundWrapper.getPa().getData();
-		QCryptographicHash ch(QCryptographicHash::Md5);
-		ch.addData(const_cast<char*>((char*) d.data.data()), d.data.size());
-		std::cout << "send: " << ch.result().toBase64().toStdString() << std::endl;
-		auto	p = babel::protocol::VoicePacket::create(d.data.size());
-		std::memmove(p->data, d.data.data(), p->size);
-		p->length = d.length;
-		_udpWrapper->sendData(*p, _ip);
+		
 	});
 	_t.start(10);
-	soundWrapper.getPa().stopPlay();
-	soundWrapper.getPa().startRecord();
 }
 
 void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
-	auto 		&sw = Singletons::getSoundWrapper().getPa();
+	auto 		&sw = Singletons::getSoundWrapper();
 	CompData	d;
 	auto		*buffer = (unsigned char*) (pack->data);
 
 	d.length = pack->length;
 	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
 	std::cout << "to play = " << d.data.size() << std::endl;
-	QCryptographicHash ch(QCryptographicHash::Md5);
-	ch.addData(const_cast<char*>( (char*) d.data.data()), d.data.size());
-	std::cout << "play: " << ch.result().toBase64().toStdString() << std::endl;
 		
-	sw.play(d);
+	sw.setData(d);
 }
