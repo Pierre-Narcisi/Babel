@@ -22,7 +22,7 @@ void call::process()
 			this, &call::onPacketReceived);
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
 
-	connect(*soundWrapper, &SoundWrapper::readySend, [this, &soundWrapper] (char *buffer) {
+	connect(&soundWrapper, &SoundWrapper::readySend, [this, &soundWrapper] (char *buffer) {
         auto	p = babel::protocol::VoicePacket::create(8192);
 
         std::memmove(p->data, buffer, 8192);
@@ -35,7 +35,7 @@ void call::process()
 void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
 	auto 		&sw = Singletons::getSoundWrapper();
 	CompData	d;
-    auto        *curNode = reinterpret_cast<BufferNode*>(pack.data);
+    auto        *curNode = reinterpret_cast<BufferNode*>(pack->data);
     std::queue<CompData> toPlay;
 
     while (curNode->length) {
@@ -43,9 +43,9 @@ void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) 
         auto &cd = toPlay.back();
 
         cd.length = curNode->length;
-        cd.assign(curNode.data, curNode.data + curNode->length);
+        cd.data.assign(curNode->data, curNode->data + curNode->length);
         curNode = reinterpret_cast<BufferNode*>(
-            reinterpret_cast<void*>(curNode) + cd.length + sizeof(*curNode));
+            reinterpret_cast<char*>(curNode) + cd.length + sizeof(*curNode));
 
     }
 	sw.setPlayData(toPlay);
