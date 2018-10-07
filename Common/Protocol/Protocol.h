@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include "data.h"
@@ -25,6 +26,7 @@
 	static std::unique_ptr<T> create(std::size_t s) { \
 		auto	psize = sizeof(T) + s + 1; \
 		auto	*ptr = reinterpret_cast<T*>(::operator new(psize)); \
+		std::memset(ptr, 0, psize); \
 		ptr->packetSize = psize; \
 		ptr->size = s; \
 		ptr->type = Packet::Type::T; \
@@ -58,7 +60,8 @@ struct Packet {
         UpdateFriendState,
         UpdateMessage,
         CliUpdateCall,
-        ServUpdateCall
+        ServUpdateCall,
+	VoicePacket
 	} type;
 
 	Packet() {}
@@ -66,6 +69,13 @@ struct Packet {
 
 	std::uint64_t packetSize;
 } PACKET_ATTRIBUTE;
+
+struct VoicePacket : public Packet {
+	std::uint64_t	size;
+	std::uint64_t	length;
+	char		data[];
+	IMPL_PACKDYN(VoicePacket);
+}	PACKET_ATTRIBUTE;
 
 struct Respond : public Packet {
 	enum Type : bool {OK = true, KO = false};

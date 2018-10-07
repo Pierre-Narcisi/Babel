@@ -5,8 +5,10 @@
 ** Chopper.cpp
 */
 
-#include "Chopper.hpp"
+#include <chrono>
+#include <thread>
 #include <cstring>
+#include "Chopper.hpp"
 
 #include <iostream>
 
@@ -20,7 +22,7 @@ Chopper::Packet::Packet():
 Chopper::Packet::Packet(std::uint8_t *buffer, std::size_t len):
 	header(static_cast<PackHeader*>(::operator new(len)))
 {
-    std::memmove(this->header.get(), buffer, len);
+    std::memmove(this->header, buffer, len);
 }
 
 Chopper::Chopper(Hooks const &h): _sock(*(reinterpret_cast<ASocket*>(0))), _hooks(h) {
@@ -81,15 +83,15 @@ Chopper::Chopper(ASocket &sock, Hooks const &h): _sock(sock), _hooks(h) {
 
 std::uint8_t	*Chopper::Packet::getData(void) const
 {
-    return (reinterpret_cast<std::uint8_t*>(header.get() + 1));
+    return (reinterpret_cast<std::uint8_t*>(header + 1));
 }
 
 void Chopper::Packet::set(std::uint32_t i, std::uint32_t m, std::uint8_t *buf, std::uint64_t l) {
 	this->header->packet_index = i;
 	this->header->packet_max = m;
 	this->header->packet_length = l;
-    this->header->magic = MAGIC_KEY;
-	std::memmove(this->header.get() + 1, buf, l);
+	this->header->magic = MAGIC_KEY;
+	std::memmove(this->header + 1, buf, l);
 }
 
 std::uint32_t	Chopper::_getByteArrayHash(std::uint8_t *buffer, std::size_t len) {
@@ -109,7 +111,7 @@ Chopper::_pack(std::vector<std::shared_ptr<Packet>> &toPack) {
 	result->length = 0;
 	for (auto &itm: toPack)
 		result->length += itm->header->packet_length;
-	result->buffer = (std::uint8_t*) malloc(result->length);
+	result->buffer = (std::uint8_t*) ::operator new(result->length);
 	
 	auto	*off = result->buffer;
 	for (auto &itm: toPack) {
@@ -173,7 +175,7 @@ Chopper::_sendNextPacket(void) {
 	std::cerr << "Chopper send (" << curPacket->header->packet_length
 		<< ")" << std::endl;
 	_sock.send(
-		reinterpret_cast<std::uint8_t*>(curPacket->header.get()),
+		reinterpret_cast<std::uint8_t*>(curPacket->header),
 		curPacket->header->packet_length +
 			sizeof(Packet::PackHeader));
 	if (cur.empty() == false)

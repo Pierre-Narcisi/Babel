@@ -4,6 +4,8 @@
 #include <QUdpSocket>
 #include <QObject>
 #include <QNetworkDatagram>
+#include <memory>
+#include "Protocol/Protocol.h"
 
 class UdpWrapper : public QObject
 {
@@ -11,9 +13,10 @@ class UdpWrapper : public QObject
 public:
     explicit    UdpWrapper(QObject *parent = nullptr);
     void        processData(QNetworkDatagram datagram);
-    void        sendData(QString data);
+    void        sendData(babel::protocol::VoicePacket &packet, quint32 ip);
 
 signals:
+	void	packetReceive(std::shared_ptr<babel::protocol::VoicePacket> pack);
 
 public slots:
     void readData();

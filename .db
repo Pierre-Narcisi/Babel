@@ -1,18 +1,18 @@
-"friendListRef":20:4
-{"friendKey":Number;"clientKey":Number}
-{2;2;0}
-{3;3;2}
-{16;16;1}
-{17;17;0}
 "client":4:4
 {"icon":String;"password":String;"username":String}
-{0;".ressources/test.png";"test";"test"}
-{1;".ressources/toto.png";"toto42";"toto"}
-{2;".ressources/grogustin.jpg";"siseulementtusavais";"Grogustin"}
-{3;".ressources/defaultIcon.jpeg";"test";"test3"}
+{0;"test.png";"test";"test"}
+{1;"toto.png";"toto42";"toto"}
+{2;"grogustin.jpg";"siseulementtusavais";"Grogustin"}
+{3;"defaultIcon.jpeg";"test";"test3"}
 "friend":20:4
-{"name":String;"clientRef":Number}
-{2;"Grogustin";2}
-{3;"test";0}
-{16;"Chuck Norris";0}
-{17;"toto";1}
+{"clientRef":Number;"name":String}
+{2;2;"Grogustin"}
+{3;0;"test"}
+{16;0;"Chuck Norris"}
+{17;1;"toto"}
+"friendListRef":20:4
+{"clientKey":Number;"friendKey":Number}
+{2;0;2}
+{3;2;3}
+{16;1;16}
+{17;0;17}

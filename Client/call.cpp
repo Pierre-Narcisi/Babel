@@ -1,35 +1,53 @@
+#include <cstring>
 #include "call.h"
+#include <QCryptographicHash>
 
-call::call()
+call::call(quint32 ip): _t(this)
 {
+   _ip = ip;
     QThread* thread = new QThread;
-    MyObject* myObject = new MyObject();
-    myObject->moveToThread(thread);
-    connect(myObject, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
-    connect(thread, SIGNAL(started()), myObject, SLOT(process()));
-    connect(myObject, SIGNAL(finished()), thread, SLOT(quit()));
-    connect(myObject, SIGNAL(finished()), myObject, SLOT(deleteLater()));
+    this->moveToThread(thread);
+    connect(this, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+    connect(thread, SIGNAL(started()), this, SLOT(process()));
+    connect(this, SIGNAL(finished()), thread, SLOT(quit()));
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
 
-void MyObject::process()
+void call::process()
 {
-    _udpWrapper = new UdpWrapper();
-    SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
-    while (true) {
-        soundWrapper.getPa().record();
-        CompData data = soundWrapper.getPa().getData();
-        std::string str(data.data.begin(), data.data.end());
-        str += ' ' + data.length;
-        _udpWrapper->sendData(QString::fromStdString(str));
+	_udpWrapper = new UdpWrapper();
+	connect(_udpWrapper, &UdpWrapper::packetReceive, 
+			this, &call::onPacketReceived);
+	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
+
+
+	soundWrapper.readySend = [this, &soundWrapper] (char *buffer) {
+        auto	p = babel::protocol::VoicePacket::create(BUFFER_SIZE);
+
+        std::memmove(p->data, buffer, BUFFER_SIZE);
+        _udpWrapper->sendData(*p, _ip);
+        delete buffer;
+    };
+    _t.start(1);
+}
+
+void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
+	auto 		&sw = Singletons::getSoundWrapper();
+	CompData	d;
+    auto        *curNode = reinterpret_cast<BufferNode*>(pack->data);
+    std::queue<CompData> toPlay;
+
+    while (curNode->length) {
+        toPlay.emplace();
+        auto &cd = toPlay.back();
+
+        cd.length = curNode->length;
+        cd.data.assign(curNode->data, curNode->data + curNode->length);
+        curNode = reinterpret_cast<BufferNode*>(
+            reinterpret_cast<char*>(curNode) + cd.length + sizeof(*curNode));
+
     }
-}
-
-MyObject::MyObject()
-{
-}
-
-MyObject::~MyObject()
-{
+	sw.setPlayData(toPlay);
 }

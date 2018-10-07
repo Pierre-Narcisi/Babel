@@ -9,6 +9,7 @@
 
 #include <portaudio.h>
 #include <opus/opus.h>
+#include "Protocol/Protocol.h"
 #include <vector>
 
 #define SAMPLE_RATE (48000)

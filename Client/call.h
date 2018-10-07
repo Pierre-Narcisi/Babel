@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QNetworkDatagram>
 #include <QDebug>
+#include <QTimer>
 #include <QThread>
 #include "udpwrapper.h"
 #include "singletons.h"
@@ -13,33 +14,26 @@
 #define CALL_H
 
 
-class call : public QObject
+class call : public QThread
 {
     Q_OBJECT
     public:
-        call();
+        call(quint32);
     private:
         QUdpSocket *_udpSocket;
         quint16 _port;
         int _i;
     private slots:
-
-    public:
-};
-
-class MyObject: public QObject
-{
-    Q_OBJECT
-    public:
-         MyObject();
-         ~MyObject();
-    public slots:
         void process();
+        void onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack);
     signals:
         void finished();
         void error(QString err);
     private:
-        UdpWrapper *_udpWrapper;
+        UdpWrapper	*_udpWrapper;
+	quint32		_ip;
+	QTimer		_t;
+    public:
 };
 
 #endif // CALL_H
