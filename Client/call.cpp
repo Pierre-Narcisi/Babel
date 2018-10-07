@@ -23,9 +23,9 @@ void call::process()
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
 
 	connect(&soundWrapper, &SoundWrapper::readySend, [this, &soundWrapper] (char *buffer) {
-        auto	p = babel::protocol::VoicePacket::create(8192);
+        auto	p = babel::protocol::VoicePacket::create(BUFFER_SIZE);
 
-        std::memmove(p->data, buffer, 8192);
+        std::memmove(p->data, buffer, BUFFER_SIZE);
         _udpWrapper->sendData(*p, _ip);
         delete buffer;
     });

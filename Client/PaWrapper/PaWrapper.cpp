@@ -90,6 +90,7 @@ void PaWrapper::record() {
 	if ((_comp.length = opus_encode_float(_encoder, _buff.data(), FRAMES_PER_BUFFER, _comp.data.data(), FRAMES_PER_BUFFER)) < 0) {
 		std::cout << "Compression " << opus_strerror(_comp.length) << std::endl;
 	}
+	std::cout << "SOUND: " << _comp.length << std::endl;
 }
 
 void PaWrapper::stopRecord() {

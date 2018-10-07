@@ -7,7 +7,7 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
     _paWrapper.startPlay();
     new std::thread([this] {
         char                    voidd[235] = {0};
-        char                    buf[8192] = {0};
+        char                    buf[BUFFER_SIZE] = {0};
         std::uint32_t           offset = 0;
         _playD.emplace();
         _playD.front().length = 235;
