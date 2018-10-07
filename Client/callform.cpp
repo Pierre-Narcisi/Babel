@@ -7,6 +7,7 @@
 #include <cstring>
 #include "callform.h"
 #include "ui_callform.h"
+#include "call.h"
 #include "singletons.h"
 
 #include <iostream>
@@ -83,7 +84,8 @@ void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
             return;
         if (p.respond == babel::protocol::Respond::OK) {
             QHostAddress ip(data->ip);
-            QMessageBox::information(this, "remote ip: ", ip.toString());
+	    auto *c = new call();
+        //     QMessageBox::information(this, "remote ip: ", ip.toString());
         } else {
             QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
             this->close();

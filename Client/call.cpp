@@ -17,15 +17,18 @@ void call::process()
 {
 	_udpWrapper = new UdpWrapper();
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
+	soundWrapper.getPa().startRecord();
+	soundWrapper.getPa().startPlay();
 	while (true) {
+		std::cout << "TEST TEST TEST" << std::endl;
 		soundWrapper.getPa().record();
 		CompData d = soundWrapper.getPa().getData();
 		soundWrapper.getPa().play(d);
-		auto	*p = new (d.data.size()) babel::protocol::VoicePacket;
-		std::memmove(p->data, d.data.data(), p->size);
-		p->length = d.length;
-		_udpWrapper->sendData(*p);
-		delete p;
+		// auto	*p = new (d.data.size()) babel::protocol::VoicePacket;
+		// std::memmove(p->data, d.data.data(), p->size);
+		// p->length = d.length;
+		// _udpWrapper->sendData(*p);
+		// delete p;
 	}
 }
 
