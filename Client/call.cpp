@@ -1,7 +1,7 @@
 #include <cstring>
 #include "call.h"
 
-call::call(quint32 ip) _t(this)
+call::call(quint32 ip): _t(this)
 {
    _ip = ip;
     QThread* thread = new QThread;
