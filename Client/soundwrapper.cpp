@@ -28,7 +28,7 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
             reinterpret_cast<BufferNode*>(buf + offset)->length = d.length;
             std::memmove(
                 reinterpret_cast<BufferNode*>(buf + offset)->data,
-                reinterpret_cast<char*>(&d), d.length);
+                reinterpret_cast<char*>(d.data.data()), d.length);
             offset += d.length + sizeof(BufferNode);
             if (_playD.size()) {
                 _paWrapper.play(_playD.front());
