@@ -16,6 +16,8 @@ call::call()
 void call::process()
 {
 	_udpWrapper = new UdpWrapper();
+	connect(_udpWrapper, &UdpWrapper::packetReceive, 
+			this, &call::onPacketReceived);
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
 	soundWrapper.getPa().startRecord();
 	soundWrapper.getPa().startPlay();
@@ -38,5 +40,6 @@ void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) 
 
 	d.length = pack->length;
 	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
+	std::cout << "to play = " << d.data.size() << std::endl;
 	sw.play(d);
 }
