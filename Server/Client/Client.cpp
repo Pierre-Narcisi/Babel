@@ -60,7 +60,7 @@ bool Client::iconIsDepackaged(void)
 
 void Client::depackageIcon(void)
 {
-	std::ifstream t(".\\" + _infos->iconfile);
+	std::ifstream t(constant::ressourcesFolder + _infos->iconfile);
 	if (t.good()) {
 		_infos->icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 	} else {
@@ -348,7 +348,7 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 	}
 	Client::Info friendInfos;
 	friendInfos.username = myfriend.username;
-	std::ifstream t(".\\" + myfriend.iconfile);
+	std::ifstream t(constant::ressourcesFolder + myfriend.iconfile);
 	if (t.good()) {
 		friendInfos.icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 	} else {
@@ -511,7 +511,7 @@ void Client::sendInfoToClient(db::Element const &client)
 	for (auto e : friendsRef) {
 		Friend f = server_g->db()["friend"].get<Friend>(e["friendKey"].as<db::Key>());
 		std::vector<char> icon;
-		std::ifstream t(".\\" + f.iconfile);
+		std::ifstream t(constant::ressourcesFolder + f.iconfile);
 
 		if (t.good()) {
 			icon.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -591,7 +591,7 @@ void	Client::Info::serializer(Client::Info const &client, db::Element &element, 
 {
 	element["username"] = client.username;
 	element["password"] = client.password;
-	element["icon"] = constant::ressourcesFolder + client.iconfile;
+	element["icon"] = client.iconfile;
 }
 
 Client::Info	Client::Info::deserializer(db::Element &element, db::Db &db)
