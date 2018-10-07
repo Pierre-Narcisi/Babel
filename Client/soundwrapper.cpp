@@ -30,7 +30,7 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
                 reinterpret_cast<char*>(&d), d.length);
             offset += d.length + sizeof(BufferNode);
             _paWrapper.play(_playD.front());
-            if (_playD.size() <= 1)
+            if (_playD.size() > 1)
                 _playD.pop();
             _playD.front().length = 235;
             _playD.front().data.assign(voidd, (char*) voidd + 235);
