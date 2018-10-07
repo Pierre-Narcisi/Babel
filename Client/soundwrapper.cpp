@@ -22,7 +22,8 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
 
                 std::memmove(copy, buf, sizeof(buf));
                 reinterpret_cast<std::uint32_t*>(copy + offset)[0] = 0;
-                emit readySend(copy);
+                if (readySend != nullptr)
+                    readySend(copy);
                 offset = 0;
             }
             reinterpret_cast<BufferNode*>(buf + offset)->length = d.length;

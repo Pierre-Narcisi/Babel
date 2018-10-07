@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <QObject>
+#include <QUdpSocket>
 #include <queue>
 #include "PaWrapper/PaWrapper.hpp"
 
@@ -11,7 +12,7 @@
 # pragma pack(push,1)
 #endif
 
-#define BUFFER_SIZE 8196
+#define BUFFER_SIZE 4096
 
 struct BufferNode {
 	std::uint32_t	length;
@@ -34,8 +35,11 @@ public:
         _playM.unlock();
     }
     PaWrapper   &getPa();
+
+    std::function<void(char*)>
+                            readySend;
 signals:
-    void    readySend(char *buffer);
+
 private:
     PaWrapper               _paWrapper;
     std::queue<CompData>    _playD;
