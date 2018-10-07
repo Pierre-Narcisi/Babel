@@ -4,7 +4,21 @@
 #include <thread>
 #include <mutex>
 #include <QObject>
+#include <queue>
 #include "PaWrapper/PaWrapper.hpp"
+
+#ifdef _WIN32
+# pragma pack(push,1)
+#endif
+
+struct BufferNode {
+	std::uint32_t	length;
+	unsigned char	data[];
+} PACKET_ATTRIBUTE;
+
+#ifdef _WIN32
+# pragma pack(pop)
+#endif
 
 class SoundWrapper : public QObject
 {
@@ -12,21 +26,18 @@ class SoundWrapper : public QObject
 public:
     explicit SoundWrapper(QObject *parent = nullptr);
 
-    void        setPlayData(CompData const &d) {
+    void        setPlayData(std::queue<CompData> const &d) {
         _playM.lock();
         _playD = d;
         _playM.unlock();
     }
-    CompData       getRecordData() {
-        return _recordD;
-    }
     PaWrapper   &getPa();
+signals:
+    void    readySend(char *buffer);
 private:
-    PaWrapper   _paWrapper;
-    CompData    _playD;
-    std::mutex  _playM;
-    CompData    _recordD;
-    std::mutex  _recordM;
+    PaWrapper               _paWrapper;
+    std::queue<CompData>   _playD;
+    std::mutex              _playM;
 signals:
 
 public slots:

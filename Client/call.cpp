@@ -22,13 +22,12 @@ void call::process()
 			this, &call::onPacketReceived);
 	SoundWrapper &soundWrapper = Singletons::getSoundWrapper();
 
-	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
-        CompData d = soundWrapper.getRecordData();
+	connect(*soundWrapper, &SoundWrapper::readySend, [this, &soundWrapper] (char *buffer) {
+        auto	p = babel::protocol::VoicePacket::create(8192);
 
-        auto	p = babel::protocol::VoicePacket::create(d.data.size());
-        std::memmove(p->data, d.data.data(), p->size);
-        p->length = d.length;
+        std::memmove(p->data, buffer, 8192);
         _udpWrapper->sendData(*p, _ip);
+        delete buffer;
     });
     _t.start(1);
 }
@@ -36,11 +35,18 @@ void call::process()
 void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) {
 	auto 		&sw = Singletons::getSoundWrapper();
 	CompData	d;
-	auto		*buffer = (unsigned char*) (pack->data);
+    auto        *curNode = reinterpret_cast<BufferNode*>(pack.data);
+    std::queue<CompData> toPlay;
 
-	d.length = pack->length;
-	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
-	std::cout << "to play = " << d.data.size() << std::endl;
-		
-	sw.setPlayData(d);
+    while (curNode->length) {
+        toPlay.emplace();
+        auto &cd = toPlay.back();
+
+        cd.length = curNode->length;
+        cd.assign(curNode.data, curNode.data + curNode->length);
+        curNode = reinterpret_cast<BufferNode*>(
+            reinterpret_cast<void*>(curNode) + cd.length + sizeof(*curNode));
+
+    }
+	sw.setPlayData(toPlay);
 }
