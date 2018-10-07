@@ -65,7 +65,7 @@ Array &Table::getAll()
 	return _elements;
 }
 
-std::unordered_map<std::string, Data::Type> const &Table::getDescription() const
+std::map<std::string, Data::Type> const &Table::getDescription() const
 {
 	return _description;
 }
