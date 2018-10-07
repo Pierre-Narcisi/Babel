@@ -26,9 +26,9 @@ void call::process()
 	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
 		soundWrapper.getPa().record();
 		CompData d = soundWrapper.getPa().getData();
-		std::cout << "to play = " << d.data.size() << std::endl;
 		QCryptographicHash ch(QCryptographicHash::Md5);
 		ch.addData(const_cast<char*>((char*) d.data.data()), d.data.size());
+		std::cout << "send: " << ch.result().toBase64().toStdString() << std::endl;
 		auto	p = babel::protocol::VoicePacket::create(d.data.size());
 		std::memmove(p->data, d.data.data(), p->size);
 		p->length = d.length;
