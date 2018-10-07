@@ -1,5 +1,6 @@
 #include <cstring>
 #include "call.h"
+#include <QCryptographicHash>
 
 call::call(quint32 ip): _t(this)
 {
@@ -25,6 +26,9 @@ void call::process()
 	connect(&_t, &QTimer::timeout, [this, &soundWrapper] {
 		soundWrapper.getPa().record();
 		CompData d = soundWrapper.getPa().getData();
+		std::cout << "to play = " << d.data.size() << std::endl;
+		QCryptographicHash ch(QCryptographicHash::Md5);
+		ch.addData(const_cast<char*>((char*) d.data.data()), d.data.size());
 		auto	p = babel::protocol::VoicePacket::create(d.data.size());
 		std::memmove(p->data, d.data.data(), p->size);
 		p->length = d.length;
@@ -43,5 +47,9 @@ void call::onPacketReceived(std::shared_ptr<babel::protocol::VoicePacket> pack) 
 	d.length = pack->length;
 	d.data = std::vector<unsigned char>(buffer, buffer + pack->size);
 	std::cout << "to play = " << d.data.size() << std::endl;
+	QCryptographicHash ch(QCryptographicHash::Md5);
+	ch.addData(const_cast<char*>( (char*) d.data.data()), d.data.size());
+	std::cout << "play: " << ch.result().toBase64().toStdString() << std::endl;
+		
 	sw.play(d);
 }
