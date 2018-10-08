@@ -4,6 +4,7 @@
 #include "singletons.h"
 #include "callform.h"
 #include "listfrienditem.h"
+#include "friendsmanager.h"
 
 conv::conv(QWidget *parent) :
     QWidget(parent),
@@ -12,8 +13,7 @@ conv::conv(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->ui->labelPseudo->setText("");
-    this->ui->labelName->setText("");
+    clean();
     QTimer::singleShot(0, [this] () {
         auto &l = Singletons::getListFriendWidget();
         QObject::connect(&l, &ListFriends::onSelectChange, [this] (FriendItem *itm) {
@@ -22,13 +22,26 @@ conv::conv(QWidget *parent) :
             try {
                 auto &f = Singletons::getFriendsManager()[itm->myFriend.username.toStdString()];
                 _curFriendInfo = &f;
+
+
+                this->ui->callButton->setEnabled(true);
+                this->ui->sendButton->setEnabled(true);
                 this->ui->iconViewer->setPixmap(
                             QPixmap::fromImage(
                                 f.icon.scaled(
                                     this->ui->iconViewer->size(),
                                     Qt::KeepAspectRatioByExpanding)));
-            } catch (...) {}
+            } catch (...) {
+                this->ui->callButton->setEnabled(false);
+                this->ui->sendButton->setEnabled(false);
+            }
         });
+    });
+
+    QObject::connect(&Singletons::getFriendsManager(), &FriendsManager::listUpdated,
+            [this] (std::shared_ptr<std::vector<FriendsManager::FriendInfo*>> list) {
+        if (list->empty())
+            this->clean();
     });
 
     QObject::connect(this->ui->callButton, &QPushButton::clicked, [this] {
@@ -37,6 +50,13 @@ conv::conv(QWidget *parent) :
         callWindow->setFriendInfo(_curFriendInfo);
         callWindow->show();
     });
+}
+
+void conv::clean(void) {
+    this->ui->labelPseudo->setText("");
+    this->ui->labelName->setText("");
+    this->ui->callButton->setEnabled(false);
+    this->ui->sendButton->setEnabled(false);
 }
 
 conv::~conv()

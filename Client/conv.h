@@ -16,6 +16,7 @@ public:
     explicit conv(QWidget *parent = nullptr);
     ~conv();
 
+    void clean(void);
 private slots:
     void on_callButton_clicked();
 

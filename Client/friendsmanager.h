@@ -25,6 +25,7 @@ public:
     explicit FriendsManager(QObject *parent = nullptr);
 
     void clean(void) { _friends.clear(); }
+    
 
     FriendInfo  &operator[](std::string const &name);
 signals:
