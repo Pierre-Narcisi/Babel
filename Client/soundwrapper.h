@@ -52,6 +52,7 @@ private:
     std::unique_ptr<std::thread>
                             _t;
     bool                    _end = false;
+    bool                    _startNow = false;
 signals:
 
 public slots:
