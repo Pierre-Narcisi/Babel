@@ -113,6 +113,7 @@ ClientMainWindows::ClientMainWindows(QWidget *parent, common::Opts &opts) :
 ClientMainWindows::~ClientMainWindows()
 {
     delete ui;
+    Singletons::getSoundWrapper().stop();
     qApp->quit();
 }
 

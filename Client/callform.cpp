@@ -69,6 +69,7 @@ void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
         if (p.respond == babel::protocol::Respond::OK) {
             _initCall();
             _isDemand = false;
+            this->repaint();
         }
     } else if (pack.type == babel::protocol::Packet::Type::CallRespond
     && (_f->username.toStdString() == std::string(r.fromUsername))) {
@@ -83,7 +84,8 @@ void    CallForm::onPacketReceived(babel::protocol::Packet &pack) {
         if (_f->username.toStdString() != data->username)
             return;
         if (p.respond == babel::protocol::Respond::OK) {
-	    auto *c = new call(data->ip);
+            Singletons::getSoundWrapper().registerCall();
+	        auto *c = new call(data->ip);
         } else {
             QMessageBox::information(this, "Call failed: ", QString::fromLatin1(p.data));
             this->close();
@@ -98,6 +100,7 @@ void    CallForm::onEndClicked(void) {
     std::strcpy(pack.username, _f->username.toStdString().c_str());
 
     co.sendPacket(pack);
+    Singletons::getSoundWrapper().unRegisterCall();
     this->close();
 }
 
@@ -125,8 +128,11 @@ void    CallForm::onAcceptClicked(void) {
 }
 
 void    CallForm::onCallEnd(QString name) {
-    if (name == _f->username)
+
+    if (name == _f->username) {
+        Singletons::getSoundWrapper().unRegisterCall();
         this->close();
+    }
 }
 
 void    CallForm::_initCall(void) {
@@ -164,7 +170,7 @@ void    CallForm::showEvent(QShowEvent *e) {
 void    CallForm::paintEvent(QPaintEvent *e) {
     Q_UNUSED(e)
 
-    static auto __setVisible = [] (QBoxLayout *lay, bool visible) {
+    static auto __setVisible = [this] (QBoxLayout *lay, bool visible) {
         for (auto i = 0; i < lay->count(); i++) {
             auto *itm = lay->itemAt(i);
 

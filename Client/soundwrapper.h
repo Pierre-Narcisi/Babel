@@ -38,12 +38,20 @@ public:
 
     std::function<void(char*)>
                             readySend;
+    void    registerCall(void);
+    void    unRegisterCall(void);
+
+    void    stop(void);
 signals:
 
 private:
     PaWrapper               _paWrapper;
     std::queue<CompData>    _playD;
     std::mutex              _playM;
+    int                     _count = 0;
+    std::unique_ptr<std::thread>
+                            _t;
+    bool                    _end = false;
 signals:
 
 public slots:

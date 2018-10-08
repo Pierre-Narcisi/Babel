@@ -1,11 +1,10 @@
 
+#include <chrono>
 #include "soundwrapper.h"
 
 SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
 {
-    _paWrapper.startRecord();
-    _paWrapper.startPlay();
-    new std::thread([this] {
+    _t = std::unique_ptr<std::thread>(new std::thread([this] {
         char                    voidd[235] = {0};
         char                    buf[BUFFER_SIZE] = {0};
         std::uint32_t           offset = 0;
@@ -13,7 +12,11 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
 
         ah.length = 235;
         ah.data.assign(voidd, (char*) voidd + 235);
-        while (true) {
+        while (!_end) {
+            if (_count == 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                continue;
+            }
             _playM.lock();
             _paWrapper.record();
 		    auto d = _paWrapper.getData();
@@ -39,7 +42,30 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
             }
             _playM.unlock();
         }
-    });
+    }));
+}
+
+void    SoundWrapper::registerCall(void) {
+    if (_count <= 0) {
+        _paWrapper.startRecord();
+        _paWrapper.startPlay();
+    }
+    _count++;
+}
+
+void    SoundWrapper::unRegisterCall(void) {
+    _playM.lock();
+    _count--;
+    if (_count <= 0) {
+        _paWrapper.stopRecord();
+        _paWrapper.stopPlay();
+    }
+    _playM.unlock();
+}
+
+void    SoundWrapper::stop(void) {
+    _end = true;
+    _t->join();
 }
 
 PaWrapper &SoundWrapper::getPa()
