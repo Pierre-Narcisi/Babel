@@ -1,7 +1,11 @@
 #include <QFileDialog>
 #include <QBuffer>
+#include <QPixmap>
+#include <QImage>
 #include "usersettings.h"
 #include "ui_usersettings.h"
+#include "singletons.h"
+#include "clientprotocol.h"
 
 UserSettings::UserSettings(QWidget *parent) :
     QDialog(parent),
@@ -9,6 +13,12 @@ UserSettings::UserSettings(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->ui->iconView->setPixmap(
+        QPixmap::fromImage(QImage::fromData(reinterpret_cast<uchar*>(
+            Singletons::getSrvCo().getClient().icon.data()),
+            Singletons::getSrvCo().getClient().icon.size()).scaled(
+                ui->iconView->size(),
+                Qt::IgnoreAspectRatio)));
     this->setMaximumHeight(height());
     connect(this->ui->changeIcon, &QPushButton::clicked, this, &UserSettings::onChangeImageClicked);
 

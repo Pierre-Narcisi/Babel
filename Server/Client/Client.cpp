@@ -355,7 +355,10 @@ void Client::newFriend(babel::protocol::UpdateFriend const &packet)
 		for (auto i = 0; i < srv::Ressources::basicLogoSize(); ++i)
 			friendInfos.icon.push_back(srv::Ressources::basicLogo()[i]);
 	}
-	sendUpdateFriendState(friendInfos, true, true);
+	sendUpdateFriendState(
+		friendInfos,
+		server_g->isConnected(friendInfos.username),
+		true);
 }
 
 bool Client::isFriend(std::string const &name, db::Key *ref) {
@@ -399,7 +402,7 @@ void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 		server_g->db()["friendListRef"].remove(revRefFriend);
 		sendValidRespond(packet.type, "friend successfuly deleted.");
 		/* update status on client */
-		auto update = new (0) babel::protocol::UpdateFriendState;
+		auto update = babel::protocol::UpdateFriendState::create(0);
 		update->type = babel::protocol::Packet::Type::UpdateFriendState;
 		update->erase = true;
 		if (server_g->isConnected(packet.username)) {
@@ -408,7 +411,6 @@ void Client::eraseFriend(babel::protocol::UpdateFriend const &packet)
 		}
 		std::strncpy(update->username, packet.username, 128);
 		sendPacket(*update);
-		delete update;
 	}
 }
 

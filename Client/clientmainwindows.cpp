@@ -119,6 +119,7 @@ ClientMainWindows::~ClientMainWindows()
 void ClientMainWindows::onDisconnectClicked(bool) {
     ui->listFriends->clean();
     Singletons::getFriendsManager().clean();
+    ui->widget->clean();
     _srvCo.end();
     if (_srvCo.run()) {
         QMessageBox::critical(this, "Connection Error",
