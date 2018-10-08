@@ -18,6 +18,11 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
                 continue;
             }
             _playM.lock();
+            if (_startNow) {
+                _paWrapper.startRecord();
+                _paWrapper.startPlay();
+                _startNow = false;
+            }
             _paWrapper.record();
 		    auto d = _paWrapper.getData();
             if (offset + d.length + sizeof(BufferNode) >= sizeof(buf)) {
@@ -46,11 +51,8 @@ SoundWrapper::SoundWrapper(QObject *parent) : QObject(parent), _paWrapper()
 }
 
 void    SoundWrapper::registerCall(void) {
-    if (_count <= 0) {
-        _paWrapper.startRecord();
-        _paWrapper.startPlay();
-    }
     _count++;
+    _startNow = true;
 }
 
 void    SoundWrapper::unRegisterCall(void) {
